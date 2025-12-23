@@ -14,50 +14,48 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '@/lib/api';
+import { useAuth } from '@/store/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'react-native';
-
-// Country codes for UAE region
-const countryCodes = [
-  { code: '+971', country: 'UAE', flag: 'AE' },
-  { code: '+966', country: 'KSA', flag: 'SA' },
-  { code: '+974', country: 'Qatar', flag: 'QA' },
-  { code: '+973', country: 'Bahrain', flag: 'BH' },
-  { code: '+968', country: 'Oman', flag: 'OM' },
-  { code: '+965', country: 'Kuwait', flag: 'KW' },
-  { code: '+91', country: 'India', flag: 'IN' },
-  { code: '+92', country: 'Pakistan', flag: 'PK' },
-  { code: '+63', country: 'Philippines', flag: 'PH' },
-];
 
 export default function LoginScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const [phone, setPhone] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const isRTL = i18n.language === 'ar';
 
-  const handleRequestOtp = async () => {
-    if (!phone || phone.length < 7) {
+  const handleLogin = async () => {
+    if (!email || !password) {
       Alert.alert(
         isRTL ? 'خطأ' : 'Error',
-        isRTL ? 'الرجاء إدخال رقم هاتف صالح' : 'Please enter a valid phone number'
+        isRTL ? 'الرجاء إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter email and password'
       );
       return;
     }
 
-    const fullPhone = `${selectedCountry.code}${phone}`;
     setLoading(true);
     try {
-      await authApi.requestOtp(fullPhone);
-      router.push({
-        pathname: '/verify',
-        params: { phone: fullPhone },
-      });
+      const result = await authApi.login(email, password);
+      if (result.success && result.data) {
+        await login({
+          token: result.data.token,
+          user: {
+            id: result.data.user.id,
+            phone: null,
+            email: result.data.user.email,
+            name: result.data.user.name,
+            role: result.data.user.role as 'customer' | 'office_admin' | 'super_admin',
+            officeId: result.data.user.officeId,
+            createdAt: new Date(),
+          },
+        });
+        router.replace('/');
+      }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to send OTP';
+      const message = error instanceof Error ? error.message : 'Login failed';
       Alert.alert(isRTL ? 'خطأ' : 'Error', message);
     } finally {
       setLoading(false);
@@ -124,96 +122,65 @@ export default function LoginScreen() {
                   </Text>
                   <Text className="text-white/70 text-base mb-8">
                     {isRTL
-                      ? 'سجل الدخول أو أنشئ حساب للمتابعة'
-                      : 'Log in or sign up to continue'}
+                      ? 'سجل الدخول للمتابعة'
+                      : 'Log in to continue'}
                   </Text>
 
-                  {/* Phone Input Section */}
-                  <View className="mb-4">
-                    {/* Country Selector */}
-                    <Pressable
-                      onPress={() => setShowCountryPicker(!showCountryPicker)}
-                      className="bg-white/10 border border-white/30 rounded-t-xl px-4 py-3 flex-row items-center justify-between"
-                    >
-                      <View>
-                        <Text className="text-white/60 text-xs mb-1">
-                          {isRTL ? 'الدولة / المنطقة' : 'Country/Region'}
-                        </Text>
-                        <View className="flex-row items-center">
-                          <View className="w-8 h-5 bg-white/20 rounded items-center justify-center mr-2">
-                            <Text className="text-white text-xs font-bold">{selectedCountry.flag}</Text>
-                          </View>
-                          <Text className="text-white text-base">
-                            {selectedCountry.country} ({selectedCountry.code})
-                          </Text>
-                        </View>
-                      </View>
-                      <Text className="text-white text-lg">▼</Text>
-                    </Pressable>
-
-                    {/* Country Picker Dropdown */}
-                    {showCountryPicker && (
-                      <View className="bg-white/10 border-x border-white/30">
-                        {countryCodes.map((country) => (
-                          <Pressable
-                            key={country.code}
-                            onPress={() => {
-                              setSelectedCountry(country);
-                              setShowCountryPicker(false);
-                            }}
-                            className={`px-4 py-3 border-b border-white/10 flex-row items-center ${
-                              selectedCountry.code === country.code ? 'bg-white/20' : ''
-                            }`}
-                          >
-                            <View className="w-8 h-5 bg-white/20 rounded items-center justify-center mr-2">
-                              <Text className="text-white text-xs font-bold">{country.flag}</Text>
-                            </View>
-                            <Text className="text-white text-base">
-                              {country.country} ({country.code})
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </View>
-                    )}
-
-                    {/* Phone Number Input */}
-                    <View className="bg-white/10 border border-t-0 border-white/30 rounded-b-xl px-4 py-3">
-                      <Text className="text-white/60 text-xs mb-1">
-                        {isRTL ? 'رقم الهاتف' : 'Phone number'}
-                      </Text>
-                      <TextInput
-                        value={phone}
-                        onChangeText={setPhone}
-                        placeholder={isRTL ? 'أدخل رقم الهاتف' : 'Enter phone number'}
-                        keyboardType="phone-pad"
-                        autoComplete="tel"
-                        className={`text-white text-base ${isRTL ? 'text-right' : 'text-left'}`}
-                        placeholderTextColor="rgba(255,255,255,0.4)"
-                      />
-                    </View>
+                  {/* Email Input */}
+                  <View className="bg-white/10 border border-white/30 rounded-t-xl px-4 py-3">
+                    <Text className="text-white/60 text-xs mb-1">
+                      {isRTL ? 'البريد الإلكتروني' : 'Email'}
+                    </Text>
+                    <TextInput
+                      value={email}
+                      onChangeText={setEmail}
+                      placeholder={isRTL ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoComplete="email"
+                      className={`text-white text-base ${isRTL ? 'text-right' : 'text-left'}`}
+                      placeholderTextColor="rgba(255,255,255,0.4)"
+                    />
                   </View>
 
-                  {/* Help Text */}
-                  <Text className="text-white/50 text-xs mb-4 leading-relaxed">
+                  {/* Password Input */}
+                  <View className="bg-white/10 border border-t-0 border-white/30 rounded-b-xl px-4 py-3 mb-4">
+                    <Text className="text-white/60 text-xs mb-1">
+                      {isRTL ? 'كلمة المرور' : 'Password'}
+                    </Text>
+                    <TextInput
+                      value={password}
+                      onChangeText={setPassword}
+                      placeholder={isRTL ? 'أدخل كلمة المرور' : 'Enter your password'}
+                      secureTextEntry
+                      autoCapitalize="none"
+                      autoComplete="password"
+                      className={`text-white text-base ${isRTL ? 'text-right' : 'text-left'}`}
+                      placeholderTextColor="rgba(255,255,255,0.4)"
+                    />
+                  </View>
+
+                  {/* Dev hint */}
+                  <Text className="text-white/40 text-xs mb-4">
                     {isRTL
-                      ? 'سنرسل لك رمز تحقق عبر رسالة نصية. قد تُطبق رسوم الرسائل.'
-                      : "We'll text you to confirm your number. Standard message and data rates apply."}
+                      ? 'للاختبار: customer@hotmail.com / 1234'
+                      : 'For testing: customer@hotmail.com / 1234'}
                   </Text>
 
-                  {/* Continue Button */}
+                  {/* Login Button */}
                   <Pressable
-                    onPress={handleRequestOtp}
-                    disabled={loading || phone.length < 7}
+                    onPress={handleLogin}
+                    disabled={loading || !email || !password}
                     className={`py-4 rounded-xl items-center mb-6 ${
-                      phone.length >= 7 && !loading
+                      email && password && !loading
                         ? 'bg-[#FF385C]'
                         : 'bg-[#FF385C]/50'
                     }`}
                   >
                     <Text className="text-white font-semibold text-base">
                       {loading
-                        ? isRTL ? 'جاري الإرسال...' : 'Sending...'
-                        : isRTL ? 'متابعة' : 'Continue'}
+                        ? isRTL ? 'جاري الدخول...' : 'Logging in...'
+                        : isRTL ? 'تسجيل الدخول' : 'Login'}
                     </Text>
                   </Pressable>
 

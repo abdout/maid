@@ -29,6 +29,7 @@ import {
   UsersIcon,
   GlobeIcon,
   BriefcaseIcon,
+  DirhamIcon,
 } from '@/components/icons';
 import { LockedContactSection } from '@/components/locked-contact-section';
 import { OfficeContactSection } from '@/components/office-contact-section';
@@ -153,62 +154,7 @@ export default function MaidDetailScreen() {
     <SafeAreaView className="flex-1 bg-background-0" edges={['top']}>
       <Stack.Screen
         options={{
-          headerShown: true,
-          headerTitle: '',
-          headerTransparent: true,
-          headerLeft: () => (
-            <Pressable
-              onPress={() => router.back()}
-              className="w-10 h-10 bg-white/90 rounded-full items-center justify-center ml-4"
-              style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.15,
-                shadowRadius: 2,
-                elevation: 2,
-              }}
-            >
-              {isRTL ? (
-                <ChevronRightIcon size={24} color="#222222" />
-              ) : (
-                <ChevronLeftIcon size={24} color="#222222" />
-              )}
-            </Pressable>
-          ),
-          headerRight: () => (
-            <View className={`flex-row gap-2 mr-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <Pressable
-                onPress={handleShare}
-                className="w-10 h-10 bg-white/90 rounded-full items-center justify-center"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 1 },
-                  shadowOpacity: 0.15,
-                  shadowRadius: 2,
-                  elevation: 2,
-                }}
-              >
-                <ShareIcon size={20} color="#222222" />
-              </Pressable>
-              <Pressable
-                onPress={handleFavorite}
-                className="w-10 h-10 bg-white/90 rounded-full items-center justify-center"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 1 },
-                  shadowOpacity: 0.15,
-                  shadowRadius: 2,
-                  elevation: 2,
-                }}
-              >
-                <HeartIcon
-                  size={22}
-                  color={isFavorite ? '#FF385C' : '#222222'}
-                  filled={isFavorite}
-                />
-              </Pressable>
-            </View>
-          ),
+          headerShown: false,
         }}
       />
 
@@ -241,6 +187,66 @@ export default function MaidDetailScreen() {
               <UserIcon size={80} color="#B0B0B0" />
             </View>
           )}
+
+          {/* Navigation Buttons - Scrolls with image */}
+          <View
+            className={`absolute ${isRTL ? 'right-4' : 'left-4'}`}
+            style={{ top: insets.top + 8 }}
+          >
+            <Pressable
+              onPress={() => router.back()}
+              className="w-10 h-10 bg-white/90 rounded-full items-center justify-center"
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.15,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
+            >
+              {isRTL ? (
+                <ChevronRightIcon size={24} color="#222222" />
+              ) : (
+                <ChevronLeftIcon size={24} color="#222222" />
+              )}
+            </Pressable>
+          </View>
+
+          <View
+            className={`absolute ${isRTL ? 'left-4' : 'right-4'} flex-row gap-2`}
+            style={{ top: insets.top + 8 }}
+          >
+            <Pressable
+              onPress={handleShare}
+              className="w-10 h-10 bg-white/90 rounded-full items-center justify-center"
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.15,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
+            >
+              <ShareIcon size={20} color="#222222" />
+            </Pressable>
+            <Pressable
+              onPress={handleFavorite}
+              className="w-10 h-10 bg-white/90 rounded-full items-center justify-center"
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.15,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
+            >
+              <HeartIcon
+                size={22}
+                color={isFavorite ? '#FF385C' : '#222222'}
+                filled={isFavorite}
+              />
+            </Pressable>
+          </View>
 
           {/* Image Counter - Airbnb Style */}
           {allPhotos.length > 1 && (
@@ -371,12 +377,10 @@ export default function MaidDetailScreen() {
             <Text className={`text-lg font-semibold text-typography-900 mb-3 ${isRTL ? 'text-right' : ''}`}>
               {t('filters.salary')}
             </Text>
-            <View className={`flex-row items-baseline gap-1 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
+            <View className={`flex-row items-center gap-1 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
+              <DirhamIcon size={24} color="#717171" />
               <Text className="text-3xl font-bold text-typography-900">
                 {parseInt(maid.salary).toLocaleString()}
-              </Text>
-              <Text className="text-xl font-semibold text-typography-500">
-                {t('common.aed')}
               </Text>
               <Text className="text-typography-400 text-base">
                 / {t('common.month')}
@@ -425,12 +429,10 @@ export default function MaidDetailScreen() {
         >
           <View className={`flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
             <View>
-              <View className={`flex-row items-baseline gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <View className={`flex-row items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <DirhamIcon size={18} color="#717171" />
                 <Text className="text-xl font-bold text-typography-900">
                   {parseInt(maid.salary).toLocaleString()}
-                </Text>
-                <Text className="text-typography-500 font-medium">
-                  {t('common.aed')}
                 </Text>
               </View>
               <Text className="text-typography-400 text-sm">

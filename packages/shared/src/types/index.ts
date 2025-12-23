@@ -10,6 +10,9 @@ export type MaritalStatus = 'single' | 'married' | 'divorced' | 'widowed';
 // Religion
 export type Religion = 'muslim' | 'non_muslim';
 
+// Service Type
+export type ServiceType = 'individual' | 'business' | 'cleaning' | 'cooking' | 'babysitter' | 'elderly' | 'driver';
+
 // Quotation status
 export type QuotationStatus = 'pending' | 'sent' | 'accepted' | 'rejected' | 'expired';
 
@@ -42,12 +45,14 @@ export interface MaidFilters {
   salaryMax?: number;
   languages?: string[];
   status?: MaidStatus;
+  serviceType?: ServiceType;
 }
 
 // User base
 export interface User {
   id: string;
-  phone: string;
+  phone: string | null;
+  email?: string | null;
   name: string | null;
   role: UserRole;
   officeId: string | null;
@@ -86,6 +91,7 @@ export interface Maid {
   languages: Language[];
   photoUrl: string | null;
   status: MaidStatus;
+  serviceType: ServiceType;
   bio: string | null;
   bioAr: string | null;
   createdAt: Date;

@@ -53,6 +53,24 @@ async function apiFetch<T>(
 
 // Auth API
 export const authApi = {
+  login: (email: string, password: string) =>
+    apiFetch<{
+      success: boolean;
+      data: {
+        token: string;
+        user: {
+          id: string;
+          email: string | null;
+          name: string | null;
+          role: string;
+          officeId: string | null;
+        };
+      };
+    }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }),
+
   requestOtp: (phone: string) =>
     apiFetch<{ success: boolean; data: { phone: string } }>('/auth/otp/request', {
       method: 'POST',

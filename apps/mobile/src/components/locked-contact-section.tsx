@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { LockClosedIcon } from '@/components/icons';
+import { LockClosedIcon, DirhamIcon } from '@/components/icons';
 
 interface LockedContactSectionProps {
   price: number;
@@ -40,9 +40,12 @@ export function LockedContactSection({
             <Text className={`text-typography-500 text-xs ${isRTL ? 'text-right' : ''}`}>
               {t('payment.unlockPrice')}
             </Text>
-            <Text className="text-2xl font-bold text-primary-600">
-              {price.toLocaleString()} {currency}
-            </Text>
+            <View className={`flex-row items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <DirhamIcon size={20} color="#FF385C" />
+              <Text className="text-2xl font-bold text-primary-600">
+                {price.toLocaleString()}
+              </Text>
+            </View>
           </View>
 
           <Pressable

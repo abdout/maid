@@ -1,45 +1,41 @@
 import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { Redirect } from 'expo-router';
-import { storage, STORAGE_KEYS } from '@/lib/storage';
 import { useAuth } from '@/store/auth';
+import { storage } from '@/lib/storage';
 
 export default function Index() {
   const { isAuthenticated, user, isLoading, initialize } = useAuth();
-  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [userIntent, setUserIntent] = useState<string | null>(null);
+  const [checkingIntent, setCheckingIntent] = useState(true);
 
   useEffect(() => {
-    const checkState = async () => {
-      // Initialize auth
+    const init = async () => {
       await initialize();
-
-      // Check onboarding
-      const completed = await storage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED);
-      setHasCompletedOnboarding(completed === 'true');
-      setCheckingOnboarding(false);
+      const intent = await storage.getItem('user_intent');
+      setUserIntent(intent);
+      setCheckingIntent(false);
     };
-
-    checkState();
+    init();
   }, [initialize]);
 
-  // Show loading while checking state
-  if (isLoading || checkingOnboarding) {
+  // Show loading while checking auth state
+  if (isLoading || checkingIntent) {
     return (
       <View className="flex-1 bg-background-0 items-center justify-center">
-        <ActivityIndicator size="large" color="#1e40af" />
+        <ActivityIndicator size="large" color="#FF385C" />
       </View>
     );
   }
 
-  // Show onboarding for new users
-  if (!hasCompletedOnboarding) {
+  // No session → always show onboarding
+  if (!isAuthenticated) {
     return <Redirect href="/onboarding" />;
   }
 
-  // Show login if not authenticated
-  if (!isAuthenticated) {
-    return <Redirect href="/login" />;
+  // User selected "I'm an office" but hasn't registered yet
+  if (userIntent === 'office' && user?.role === 'customer' && !user?.officeId) {
+    return <Redirect href="/register-office" />;
   }
 
   // Redirect based on user role

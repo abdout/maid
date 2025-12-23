@@ -37,11 +37,14 @@
     "perMonth": "شهرياً"
   },
   "login": {
-    "title": "مرحباً بعودتك",
-    "subtitle": "ابحث عن أفضل العمالة المنزلية",
-    "phoneLabel": "رقم الهاتف",
-    "phonePlaceholder": "+971 XX XXX XXXX",
-    "continue": "متابعة",
+    "title": "مرحباً بك",
+    "subtitle": "سجل الدخول للمتابعة",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "button": "تسجيل الدخول",
+    "loggingIn": "جاري الدخول...",
     "terms": "بالمتابعة، أنت توافق على الشروط والأحكام",
     "registerOffice": "التسجيل كمكتب",
     "haveAccount": "لديك حساب بالفعل؟",
@@ -83,7 +86,20 @@
     "recentlyAdded": "المضافة حديثاً",
     "availableNow": "متاحة الآن",
     "availableMaids": "العاملات المتاحة",
-    "nationalities": "الجنسيات"
+    "nationalities": "الجنسيات",
+    "allListings": "جميع القوائم",
+    "maidsAvailable": "عاملة متاحة",
+    "noMaidsYet": "لا توجد عاملات متاحة حالياً"
+  },
+  "serviceTypes": {
+    "all": "الكل",
+    "individual": "فردي",
+    "business": "تجاري",
+    "cleaning": "تنظيف",
+    "cooking": "طبخ",
+    "babysitter": "مربية",
+    "elderly": "رعاية مسنين",
+    "driver": "سائق"
   },
   "search": {
     "title": "البحث",

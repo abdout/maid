@@ -9,6 +9,7 @@ import HeartFilledIcon from './heart-filled';
 import UserIcon from './user';
 import FilterIcon from './filter';
 import PlusIcon from './plus';
+import ChevronDownIcon from './chevron-down';
 import ChevronLeftIcon from './chevron-left';
 import ChevronRightIcon from './chevron-right';
 import CameraIcon from './camera';
@@ -34,6 +35,11 @@ import CheckBadgeIcon from './check-badge';
 import BriefcaseIcon from './briefcase';
 import ShareIcon from './share';
 import DirhamIcon from './dirham';
+import GridIcon from './grid';
+import SparklesIcon from './sparkles';
+import ChefHatIcon from './chef-hat';
+import BabyIcon from './baby';
+import CarIcon from './car';
 
 // Icon map for easy access
 const icons = {
@@ -44,6 +50,7 @@ const icons = {
   user: UserIcon,
   filter: FilterIcon,
   plus: PlusIcon,
+  'chevron-down': ChevronDownIcon,
   'chevron-left': ChevronLeftIcon,
   'chevron-right': ChevronRightIcon,
   camera: CameraIcon,
@@ -69,6 +76,11 @@ const icons = {
   briefcase: BriefcaseIcon,
   share: ShareIcon,
   dirham: DirhamIcon,
+  grid: GridIcon,
+  sparkles: SparklesIcon,
+  'chef-hat': ChefHatIcon,
+  baby: BabyIcon,
+  car: CarIcon,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -122,6 +134,7 @@ export {
   UserIcon,
   FilterIcon,
   PlusIcon,
+  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CameraIcon,
@@ -147,6 +160,11 @@ export {
   BriefcaseIcon,
   ShareIcon,
   DirhamIcon,
+  GridIcon,
+  SparklesIcon,
+  ChefHatIcon,
+  BabyIcon,
+  CarIcon,
 };
 
 export default Icon;

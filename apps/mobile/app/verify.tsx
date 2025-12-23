@@ -17,7 +17,7 @@ import { useAuth } from '@/store/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 
-const OTP_LENGTH = 6;
+const OTP_LENGTH = 4;
 
 // Back Arrow Icon
 function BackArrowIcon({ color = '#fff' }: { color?: string }) {
@@ -240,8 +240,8 @@ export default function VerifyScreen() {
                 {/* Dev hint */}
                 <Text className="text-center text-white/40 text-xs mt-6">
                   {isRTL
-                    ? 'للاختبار، استخدم الرمز: 123456'
-                    : 'For testing, use code: 123456'}
+                    ? 'للاختبار، استخدم الرمز: 1234'
+                    : 'For testing, use code: 1234'}
                 </Text>
               </View>
             </KeyboardAvoidingView>

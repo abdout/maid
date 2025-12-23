@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { eq, and, gt } from 'drizzle-orm';
+import * as bcrypt from 'bcryptjs';
 import type { Database } from '../db';
 import { users, otpCodes } from '../db/schema';
 import type { Bindings, JwtPayload } from '../types';
@@ -124,5 +125,19 @@ export class AuthService {
       .limit(1);
 
     return user || null;
+  }
+
+  async findUserByEmail(email: string): Promise<typeof users.$inferSelect | null> {
+    const [user] = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    return user || null;
+  }
+
+  async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword);
   }
 }

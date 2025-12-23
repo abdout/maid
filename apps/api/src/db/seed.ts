@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import * as bcrypt from 'bcryptjs';
 import * as schema from './schema';
 
 const DATABASE_URL = process.env.DATABASE_URL!;
@@ -125,6 +126,42 @@ async function seed() {
     { phone: '+971555000204', name: 'Admin - Gulf Workers', nameAr: 'مدير الخليج', role: 'office_admin', officeId: offices[3].id, isDemo: true },
   ]).returning();
   console.log(`   ✓ ${officeAdmins.length} office admins (demo)`);
+
+  // Email/Password Demo Users
+  console.log('📧 Seeding email/password demo users...');
+  const hashedPassword = await bcrypt.hash('1234', 10);
+
+  // Super Admin with email/password
+  await db.insert(schema.users).values({
+    email: 'admin@hotmail.com',
+    password: hashedPassword,
+    name: 'Super Admin',
+    nameAr: 'المشرف العام',
+    role: 'super_admin',
+    isDemo: true,
+  });
+
+  // Customer with email/password
+  await db.insert(schema.users).values({
+    email: 'customer@hotmail.com',
+    password: hashedPassword,
+    name: 'Demo Customer',
+    nameAr: 'عميل تجريبي',
+    role: 'customer',
+    isDemo: true,
+  });
+
+  // Office Admin with email/password
+  await db.insert(schema.users).values({
+    email: 'office@hotmail.com',
+    password: hashedPassword,
+    name: 'Demo Office Admin',
+    nameAr: 'مدير مكتب تجريبي',
+    role: 'office_admin',
+    officeId: offices[0].id,
+    isDemo: true,
+  });
+  console.log(`   ✓ 3 email/password demo users`);
 
   // Seed Maids/Domestic Workers
   console.log('👩 Seeding domestic workers...');
@@ -478,8 +515,18 @@ async function seed() {
   console.log(`   - ${officeAdmins.length} office admins`);
   console.log(`   - ${maids.length} maids`);
   console.log(`   - 1 customer`);
+  console.log(`   - 3 email/password demo users`);
 
-  console.log('\n🔐 Demo Login Credentials (OTP: 1234):');
+  console.log('\n🔐 Email/Password Demo Login (Password: 1234):');
+  console.log('   ┌─────────────────┬───────────────────────────┬──────────────────────────┐');
+  console.log('   │ Role            │ Email                     │ Office                   │');
+  console.log('   ├─────────────────┼───────────────────────────┼──────────────────────────┤');
+  console.log('   │ Super Admin     │ admin@hotmail.com         │ -                        │');
+  console.log('   │ Customer        │ customer@hotmail.com      │ -                        │');
+  console.log('   │ Office Admin    │ office@hotmail.com        │ Al Tadbeer Services      │');
+  console.log('   └─────────────────┴───────────────────────────┴──────────────────────────┘');
+
+  console.log('\n🔐 Phone/OTP Demo Login (OTP: 1234):');
   console.log('   ┌─────────────────┬───────────────────┬──────────────────────────┐');
   console.log('   │ Role            │ Phone             │ Office                   │');
   console.log('   ├─────────────────┼───────────────────┼──────────────────────────┤');

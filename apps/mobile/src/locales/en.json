@@ -37,11 +37,14 @@
     "perMonth": "per month"
   },
   "login": {
-    "title": "Welcome Back",
-    "subtitle": "Find the best domestic workers",
-    "phoneLabel": "Phone Number",
-    "phonePlaceholder": "+971 XX XXX XXXX",
-    "continue": "Continue",
+    "title": "Welcome",
+    "subtitle": "Log in to continue",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "button": "Login",
+    "loggingIn": "Logging in...",
     "terms": "By continuing, you agree to the Terms & Conditions",
     "registerOffice": "Register as Office",
     "haveAccount": "Already have an account?",
@@ -83,7 +86,20 @@
     "recentlyAdded": "Recently Added",
     "availableNow": "Available Now",
     "availableMaids": "Available Maids",
-    "nationalities": "Nationalities"
+    "nationalities": "Nationalities",
+    "allListings": "All Listings",
+    "maidsAvailable": "maids available",
+    "noMaidsYet": "No maids available yet"
+  },
+  "serviceTypes": {
+    "all": "All",
+    "individual": "Individual",
+    "business": "Business",
+    "cleaning": "Cleaning",
+    "cooking": "Cooking",
+    "babysitter": "Babysitter",
+    "elderly": "Elderly Care",
+    "driver": "Driver"
   },
   "search": {
     "title": "Search",

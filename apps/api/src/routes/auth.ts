@@ -27,7 +27,12 @@ const verifySchema = z.object({
     .min(9)
     .max(15)
     .regex(/^\+?[0-9]+$/, 'Invalid phone number format'),
-  code: z.string().min(4).max(6, 'OTP must be 4-6 digits'),
+  code: z.string().length(4, 'OTP must be 4 digits'),
+});
+
+const loginSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(4, 'Password must be at least 4 characters'),
 });
 
 // Request OTP
@@ -58,7 +63,7 @@ auth.post('/otp/request', zValidator('json', phoneSchema), async (c) => {
 
     return c.json({
       success: true,
-      message: isDemo ? 'Demo mode: Use code 123456' : 'OTP sent successfully',
+      message: isDemo ? 'Demo mode: Use code 1234' : 'OTP sent successfully',
       data: { phone, isDemo },
     });
   } catch (error) {
@@ -108,6 +113,48 @@ auth.post('/otp/verify', zValidator('json', verifySchema), async (c) => {
   } catch (error) {
     console.error('OTP verify error:', error);
     return c.json({ success: false, error: 'Verification failed' }, 500);
+  }
+});
+
+// Email/Password Login
+auth.post('/login', zValidator('json', loginSchema), async (c) => {
+  const { email, password } = c.req.valid('json');
+
+  try {
+    const db = createDb(c.env.DATABASE_URL);
+    const authService = new AuthService(db, c.env);
+
+    // Find user by email
+    const user = await authService.findUserByEmail(email);
+    if (!user || !user.password) {
+      return c.json({ success: false, error: 'Invalid credentials' }, 401);
+    }
+
+    // Verify password
+    const isValid = await authService.verifyPassword(password, user.password);
+    if (!isValid) {
+      return c.json({ success: false, error: 'Invalid credentials' }, 401);
+    }
+
+    // Generate JWT
+    const token = await authService.generateToken(user);
+
+    return c.json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          officeId: user.officeId,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    return c.json({ success: false, error: 'Login failed' }, 500);
   }
 });
 

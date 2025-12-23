@@ -14,8 +14,8 @@ const DEMO_PHONE_PATTERNS = [
   /^demo/i,              // Any phone starting with "demo"
 ];
 
-// Fixed OTP code for demo phones (6 digits to match frontend)
-const DEV_OTP_CODE = '123456';
+// Fixed OTP code for demo phones (4 digits)
+const DEV_OTP_CODE = '1234';
 
 export class OtpService {
   private accountSid: string;
@@ -39,7 +39,7 @@ export class OtpService {
     if (phone && this.isDemoPhone(phone)) {
       return DEV_OTP_CODE;
     }
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return Math.floor(1000 + Math.random() * 9000).toString();
   }
 
   async sendSms(to: string, code: string): Promise<{ success: boolean; error?: string; isDemo?: boolean }> {

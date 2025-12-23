@@ -70,6 +70,10 @@ export class MaidService {
       conditions.push(eq(maids.status, filterParams.status));
     }
 
+    if (filterParams.serviceType) {
+      conditions.push(eq(maids.serviceType, filterParams.serviceType));
+    }
+
     if (filterParams.experienceYears !== undefined) {
       conditions.push(gte(maids.experienceYears, filterParams.experienceYears));
     }

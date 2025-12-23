@@ -19,6 +19,7 @@ export const maritalStatusEnum = pgEnum('marital_status', ['single', 'married', 
 export const religionEnum = pgEnum('religion', ['muslim', 'non_muslim']);
 export const quotationStatusEnum = pgEnum('quotation_status', ['pending', 'sent', 'accepted', 'rejected', 'expired']);
 export const oauthProviderEnum = pgEnum('oauth_provider', ['google', 'apple']);
+export const serviceTypeEnum = pgEnum('service_type', ['individual', 'business', 'cleaning', 'cooking', 'babysitter', 'elderly', 'driver']);
 
 // Offices (Recruitment Agencies)
 export const offices = pgTable('offices', {
@@ -40,6 +41,7 @@ export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   phone: varchar('phone', { length: 20 }).unique(),
   email: varchar('email', { length: 255 }),
+  password: varchar('password', { length: 255 }),
   name: varchar('name', { length: 255 }),
   nameAr: varchar('name_ar', { length: 255 }),
   role: userRoleEnum('role').default('customer').notNull(),
@@ -109,6 +111,7 @@ export const maids = pgTable('maids', {
   salary: decimal('salary', { precision: 10, scale: 2 }).notNull(),
   photoUrl: text('photo_url'),
   status: maidStatusEnum('status').default('available').notNull(),
+  serviceType: serviceTypeEnum('service_type').default('individual').notNull(),
   bio: text('bio'),
   bioAr: text('bio_ar'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -117,6 +120,7 @@ export const maids = pgTable('maids', {
   officeIdx: index('maids_office_idx').on(t.officeId),
   statusIdx: index('maids_status_idx').on(t.status),
   nationalityIdx: index('maids_nationality_idx').on(t.nationalityId),
+  serviceTypeIdx: index('maids_service_type_idx').on(t.serviceType),
 }));
 
 // Maid Languages (many-to-many)

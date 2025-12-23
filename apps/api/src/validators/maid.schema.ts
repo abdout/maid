@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const serviceTypeEnum = z.enum(['individual', 'business', 'cleaning', 'cooking', 'babysitter', 'elderly', 'driver']);
+
 export const createMaidSchema = z.object({
   name: z.string().min(2).max(255),
   nameAr: z.string().max(255).optional(),
@@ -10,6 +12,7 @@ export const createMaidSchema = z.object({
   experienceYears: z.number().int().min(0).max(50).default(0),
   salary: z.number().positive(),
   photoUrl: z.string().url().optional(),
+  serviceType: serviceTypeEnum.default('individual'),
   bio: z.string().max(1000).optional(),
   bioAr: z.string().max(1000).optional(),
   languageIds: z.array(z.string().uuid()).optional(),
@@ -27,6 +30,7 @@ export const maidFiltersSchema = z.object({
   salaryMin: z.coerce.number().positive().optional(),
   salaryMax: z.coerce.number().positive().optional(),
   status: z.enum(['available', 'busy', 'reserved', 'inactive']).optional(),
+  serviceType: serviceTypeEnum.optional(),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().min(1).max(50).default(20),
 });

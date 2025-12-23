@@ -13,13 +13,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
-import { officesApi } from '@/lib/api';
+import { officesApi, authApi } from '@/lib/api';
 import { useAuth } from '@/store/auth';
+import { storage, STORAGE_KEYS } from '@/lib/storage';
 
 export default function RegisterOfficeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const isRTL = i18n.language === 'ar';
 
   const [form, setForm] = useState({
@@ -32,18 +33,29 @@ export default function RegisterOfficeScreen() {
   });
 
   const registerMutation = useMutation({
-    mutationFn: () => officesApi.register(form),
-    onSuccess: () => {
-      Alert.alert(
-        'Success',
-        'Office registered successfully! Please login again to access your office dashboard.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.replace('/login'),
+    mutationFn: async () => {
+      // Register the office
+      await officesApi.register(form);
+      // Clear the intent
+      await storage.deleteItem('user_intent');
+      // Refresh user data to get updated role
+      const meResult = await authApi.getMe();
+      if (meResult.success && meResult.data) {
+        await login({
+          token: await storage.getItem(STORAGE_KEYS.AUTH_TOKEN) || '',
+          user: {
+            id: meResult.data.id,
+            phone: meResult.data.phone,
+            name: meResult.data.name,
+            role: meResult.data.role as 'customer' | 'office_admin' | 'super_admin',
+            officeId: meResult.data.officeId,
+            createdAt: new Date(),
           },
-        ]
-      );
+        });
+      }
+    },
+    onSuccess: () => {
+      router.replace('/(office)');
     },
     onError: (error: Error) => {
       Alert.alert('Error', error.message || 'Failed to register office');
