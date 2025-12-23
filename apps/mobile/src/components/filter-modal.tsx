@@ -1,0 +1,302 @@
+import { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  Modal,
+  Pressable,
+  ScrollView,
+  TextInput,
+} from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useNationalities } from '@/hooks';
+import { XIcon, DirhamIcon } from './icons';
+import type { MaidFilters } from '@maid/shared';
+
+interface FilterModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onApply: (filters: Partial<MaidFilters>) => void;
+  initialFilters?: Partial<MaidFilters>;
+}
+
+export function FilterModal({
+  visible,
+  onClose,
+  onApply,
+  initialFilters = {},
+}: FilterModalProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+  const { data: nationalitiesData } = useNationalities();
+
+  const [filters, setFilters] = useState<Partial<MaidFilters>>(initialFilters);
+
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [initialFilters, visible]);
+
+  const nationalities = nationalitiesData?.data || [];
+
+  const maritalStatusOptions = [
+    { value: 'single', label: t('maritalStatus.single') },
+    { value: 'married', label: t('maritalStatus.married') },
+    { value: 'divorced', label: t('maritalStatus.divorced') },
+    { value: 'widowed', label: t('maritalStatus.widowed') },
+  ];
+
+  const religionOptions = [
+    { value: 'muslim', label: t('religion.muslim') },
+    { value: 'non_muslim', label: t('religion.non_muslim') },
+  ];
+
+  const handleReset = () => {
+    setFilters({});
+  };
+
+  const handleApply = () => {
+    onApply(filters);
+    onClose();
+  };
+
+  const updateFilter = (key: keyof MaidFilters, value: unknown) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value === prev[key] ? undefined : value,
+    }));
+  };
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent>
+      <View className="flex-1 justify-end">
+        <Pressable onPress={onClose} className="flex-1 bg-black/50" />
+
+        <View className="bg-background-0 rounded-t-3xl max-h-[85%]">
+          {/* Header */}
+          <View className={`flex-row items-center justify-between p-6 border-b border-background-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <Text className="text-xl font-bold text-typography-900">
+              {t('search.filters')}
+            </Text>
+            <Pressable
+              onPress={onClose}
+              className="w-8 h-8 rounded-full bg-background-100 items-center justify-center"
+            >
+              <XIcon size={18} color="#717171" />
+            </Pressable>
+          </View>
+
+          <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
+            {/* Nationality */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.nationality')}
+              </Text>
+              <View className={`flex-row flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                {nationalities.map((nat) => (
+                  <Pressable
+                    key={nat.id}
+                    onPress={() => updateFilter('nationalityId', nat.id)}
+                    className={`px-4 py-2 rounded-full border ${
+                      filters.nationalityId === nat.id
+                        ? 'bg-primary-500 border-primary-500'
+                        : 'bg-background-0 border-background-200'
+                    }`}
+                  >
+                    <Text
+                      className={
+                        filters.nationalityId === nat.id
+                          ? 'text-white'
+                          : 'text-typography-700'
+                      }
+                    >
+                      {isRTL ? nat.nameAr : nat.nameEn}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            {/* Age Range */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.age')}
+              </Text>
+              <View className={`flex-row gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <View className="flex-1">
+                  <Text className="text-typography-500 text-sm mb-1">Min</Text>
+                  <TextInput
+                    value={filters.ageMin?.toString() || ''}
+                    onChangeText={(v) => updateFilter('ageMin', v ? parseInt(v) : undefined)}
+                    keyboardType="number-pad"
+                    placeholder="18"
+                    className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
+                  />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-typography-500 text-sm mb-1">Max</Text>
+                  <TextInput
+                    value={filters.ageMax?.toString() || ''}
+                    onChangeText={(v) => updateFilter('ageMax', v ? parseInt(v) : undefined)}
+                    keyboardType="number-pad"
+                    placeholder="50"
+                    className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Marital Status */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.maritalStatus')}
+              </Text>
+              <View className={`flex-row flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                {maritalStatusOptions.map((option) => (
+                  <Pressable
+                    key={option.value}
+                    onPress={() => updateFilter('maritalStatus', option.value)}
+                    className={`px-4 py-2 rounded-full border ${
+                      filters.maritalStatus === option.value
+                        ? 'bg-primary-500 border-primary-500'
+                        : 'bg-background-0 border-background-200'
+                    }`}
+                  >
+                    <Text
+                      className={
+                        filters.maritalStatus === option.value
+                          ? 'text-white'
+                          : 'text-typography-700'
+                      }
+                    >
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            {/* Religion */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.religion')}
+              </Text>
+              <View className={`flex-row flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                {religionOptions.map((option) => (
+                  <Pressable
+                    key={option.value}
+                    onPress={() => updateFilter('religion', option.value)}
+                    className={`px-4 py-2 rounded-full border ${
+                      filters.religion === option.value
+                        ? 'bg-primary-500 border-primary-500'
+                        : 'bg-background-0 border-background-200'
+                    }`}
+                  >
+                    <Text
+                      className={
+                        filters.religion === option.value
+                          ? 'text-white'
+                          : 'text-typography-700'
+                      }
+                    >
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            {/* Experience */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.experience')} (min years)
+              </Text>
+              <View className={`flex-row gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                {[0, 1, 2, 3, 5].map((years) => (
+                  <Pressable
+                    key={years}
+                    onPress={() => updateFilter('experienceYears', years)}
+                    className={`px-4 py-2 rounded-full border ${
+                      filters.experienceYears === years
+                        ? 'bg-primary-500 border-primary-500'
+                        : 'bg-background-0 border-background-200'
+                    }`}
+                  >
+                    <Text
+                      className={
+                        filters.experienceYears === years
+                          ? 'text-white'
+                          : 'text-typography-700'
+                      }
+                    >
+                      {years}+
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            {/* Salary Range */}
+            <View className="mb-6">
+              <View className={`flex-row items-center mb-3 gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <Text className={`text-typography-900 font-semibold`}>
+                  {t('filters.salary')}
+                </Text>
+                <Text className="text-typography-900">(</Text>
+                <DirhamIcon size={14} color="#222222" />
+                <Text className="text-typography-900">)</Text>
+              </View>
+              <View className={`flex-row gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <View className="flex-1">
+                  <Text className="text-typography-500 text-sm mb-1">Min</Text>
+                  <TextInput
+                    value={filters.salaryMin?.toString() || ''}
+                    onChangeText={(v) => updateFilter('salaryMin', v ? parseInt(v) : undefined)}
+                    keyboardType="number-pad"
+                    placeholder="1000"
+                    className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
+                  />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-typography-500 text-sm mb-1">Max</Text>
+                  <TextInput
+                    value={filters.salaryMax?.toString() || ''}
+                    onChangeText={(v) => updateFilter('salaryMax', v ? parseInt(v) : undefined)}
+                    keyboardType="number-pad"
+                    placeholder="5000"
+                    className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
+                  />
+                </View>
+              </View>
+            </View>
+
+            <View className="h-32" />
+          </ScrollView>
+
+          {/* Actions - Sticky footer */}
+          <View
+            className={`flex-row gap-3 p-6 bg-background-0 ${isRTL ? 'flex-row-reverse' : ''}`}
+            style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0.06,
+              shadowRadius: 6,
+              elevation: 4,
+            }}
+          >
+            <Pressable
+              onPress={handleReset}
+              className="flex-1 py-4 bg-background-50 rounded-lg items-center"
+            >
+              <Text className="text-typography-700 font-medium">{t('filters.reset')}</Text>
+            </Pressable>
+            <Pressable
+              onPress={handleApply}
+              className="flex-1 py-4 bg-primary-500 rounded-lg items-center"
+            >
+              <Text className="text-white font-semibold">{t('filters.apply')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}

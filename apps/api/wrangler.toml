@@ -1,0 +1,20 @@
+name = "maid-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-18"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[vars]
+ENVIRONMENT = "production"
+
+# Note: R2 bucket and Hyperdrive to be configured after initial deployment
+# [[r2_buckets]]
+# binding = "BUCKET"
+# bucket_name = "maid-uploads"
+
+# Staging environment
+[env.staging]
+name = "maid-api-staging"
+vars = { ENVIRONMENT = "staging" }

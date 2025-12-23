@@ -1,0 +1,6 @@
+# Copy to .dev.vars and fill in values
+DATABASE_URL=postgresql://user:password@your-neon-host.neon.tech/maid?sslmode=require
+JWT_SECRET=your-super-secret-jwt-key-min-32-chars
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_PHONE_NUMBER=+1xxxxxxxxxx

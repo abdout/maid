@@ -1,0 +1,34 @@
+import React from 'react';
+import Svg, { Path } from 'react-native-svg';
+import type { StyleProp, ViewStyle } from 'react-native';
+
+interface IconProps {
+  size?: number;
+  color?: string;
+  strokeWidth?: number;
+  style?: StyleProp<ViewStyle>;
+}
+
+export default function PlusIcon({
+  size = 24,
+  color = '#222222',
+  strokeWidth = 1.5,
+  style,
+}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style}>
+      <Path
+        d="M12 5V19"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
+      <Path
+        d="M5 12H19"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}

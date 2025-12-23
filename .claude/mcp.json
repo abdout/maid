@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "expo": {
+      "type": "http",
+      "url": "https://mcp.expo.dev/mcp",
+      "description": "Expo development - screenshots, device automation, project inspection"
+    },
+    "browser": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-playwright", "--headless"],
+      "description": "Browser automation for E2E testing"
+    }
+  }
+}

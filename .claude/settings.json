@@ -1,0 +1,21 @@
+{
+  "model": "opus",
+  "packageManager": "pnpm",
+  "codeStyle": {
+    "typescript": true,
+    "semicolons": true,
+    "quotes": "single",
+    "tabWidth": 2,
+    "trailingComma": "es5"
+  },
+  "defaultBranch": "main",
+  "testing": {
+    "framework": "vitest",
+    "e2e": "playwright"
+  },
+  "deployment": {
+    "api": "cloudflare-workers",
+    "mobile": "eas-build",
+    "web": "vercel"
+  }
+}
