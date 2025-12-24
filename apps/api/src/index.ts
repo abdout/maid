@@ -45,6 +45,7 @@ app.use(
     'https://*.maid.ae',
     'https://*.vercel.app',
     'https://*.trycloudflare.com',
+    'https://dw.futuretech-innovations.com',
   ])
 );
 
