@@ -2,6 +2,7 @@ import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useMaidForm, type MaritalStatus, type Religion } from '@/store/maid-form';
 import { useNationalities } from '@/hooks';
+import { DateOfBirthPicker } from '@/components/date-of-birth-picker';
 
 export default function StepBasic() {
   const { t, i18n } = useTranslation();
@@ -83,22 +84,13 @@ export default function StepBasic() {
         </View>
 
         {/* Date of Birth */}
-        <View className="mb-5">
-          <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
-            {t('form.dateOfBirth')} *
-          </Text>
-          <TextInput
-            value={formData.dateOfBirth}
-            onChangeText={(v) => updateFormData({ dateOfBirth: v })}
-            placeholder="YYYY-MM-DD"
-            className={`bg-background-50 rounded-xl px-4 py-3.5 text-typography-900 ${
-              errors.dateOfBirth ? 'border border-error-500' : ''
-            }`}
-          />
-          {errors.dateOfBirth && (
-            <Text className="text-error-500 text-sm mt-1">{errors.dateOfBirth}</Text>
-          )}
-        </View>
+        <DateOfBirthPicker
+          value={formData.dateOfBirth}
+          onChange={(date) => updateFormData({ dateOfBirth: date })}
+          error={errors.dateOfBirth}
+          minAge={21}
+          maxAge={50}
+        />
 
         {/* Marital Status */}
         <View className="mb-5">

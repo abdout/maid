@@ -41,6 +41,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     'expo-localization',
     'expo-secure-store',
+    '@react-native-community/datetimepicker',
     [
       'expo-notifications',
       {
