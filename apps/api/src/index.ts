@@ -16,6 +16,7 @@ import subscriptions from './routes/subscriptions';
 import webhooks from './routes/webhooks';
 import admin from './routes/admin';
 import notifications from './routes/notifications';
+import users from './routes/users';
 
 // Import middleware
 import {
@@ -58,6 +59,7 @@ app.use('/payments/*', standardRateLimit);
 app.use('/subscriptions/*', standardRateLimit);
 app.use('/admin/*', standardRateLimit);
 app.use('/notifications/*', standardRateLimit);
+app.use('/users/*', standardRateLimit);
 
 // API Routes
 app.route('/health', health);
@@ -74,6 +76,7 @@ app.route('/subscriptions', subscriptions);
 app.route('/webhooks', webhooks);
 app.route('/admin', admin);
 app.route('/notifications', notifications);
+app.route('/users', users);
 
 // Root route
 app.get('/', (c) => {
@@ -95,6 +98,7 @@ app.get('/', (c) => {
       subscriptions: '/subscriptions',
       webhooks: '/webhooks',
       admin: '/admin',
+      users: '/users',
     },
   });
 });

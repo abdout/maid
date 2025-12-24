@@ -5,12 +5,19 @@ import {
   Modal,
   Pressable,
   ScrollView,
-  TextInput,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNationalities } from '@/hooks';
 import { XIcon, DirhamIcon } from './icons';
+import { RangeSlider } from './range-slider';
 import type { MaidFilters } from '@maid/shared';
+
+// Filter constants
+const AGE_MIN = 18;
+const AGE_MAX = 65;
+const SALARY_MIN = 0;
+const SALARY_MAX = 10000;
+const SALARY_STEP = 100;
 
 interface FilterModalProps {
   visible: boolean;
@@ -38,10 +45,8 @@ export function FilterModal({
   const nationalities = nationalitiesData?.data || [];
 
   const maritalStatusOptions = [
-    { value: 'single', label: t('maritalStatus.single') },
     { value: 'married', label: t('maritalStatus.married') },
-    { value: 'divorced', label: t('maritalStatus.divorced') },
-    { value: 'widowed', label: t('maritalStatus.widowed') },
+    { value: 'not_married', label: t('maritalStatus.notMarried') },
   ];
 
   const religionOptions = [
@@ -117,31 +122,17 @@ export function FilterModal({
 
             {/* Age Range */}
             <View className="mb-6">
-              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
-                {t('filters.age')}
-              </Text>
-              <View className={`flex-row gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <View className="flex-1">
-                  <Text className="text-typography-500 text-sm mb-1">Min</Text>
-                  <TextInput
-                    value={filters.ageMin?.toString() || ''}
-                    onChangeText={(v) => updateFilter('ageMin', v ? parseInt(v) : undefined)}
-                    keyboardType="number-pad"
-                    placeholder="18"
-                    className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
-                  />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-typography-500 text-sm mb-1">Max</Text>
-                  <TextInput
-                    value={filters.ageMax?.toString() || ''}
-                    onChangeText={(v) => updateFilter('ageMax', v ? parseInt(v) : undefined)}
-                    keyboardType="number-pad"
-                    placeholder="50"
-                    className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
-                  />
-                </View>
-              </View>
+              <RangeSlider
+                label={t('filters.age')}
+                min={AGE_MIN}
+                max={AGE_MAX}
+                step={1}
+                minValue={filters.ageMin ?? AGE_MIN}
+                maxValue={filters.ageMax ?? AGE_MAX}
+                onMinChange={(v) => setFilters((prev) => ({ ...prev, ageMin: v === AGE_MIN ? undefined : v }))}
+                onMaxChange={(v) => setFilters((prev) => ({ ...prev, ageMax: v === AGE_MAX ? undefined : v }))}
+                formatValue={(v) => `${v} ${t('common.years')}`}
+              />
             </View>
 
             {/* Marital Status */}
@@ -236,36 +227,17 @@ export function FilterModal({
 
             {/* Salary Range */}
             <View className="mb-6">
-              <View className={`flex-row items-center mb-3 gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <Text className={`text-typography-900 font-semibold`}>
-                  {t('filters.salary')}
-                </Text>
-                <Text className="text-typography-900">(</Text>
-                <DirhamIcon size={14} color="#222222" />
-                <Text className="text-typography-900">)</Text>
-              </View>
-              <View className={`flex-row gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <View className="flex-1">
-                  <Text className="text-typography-500 text-sm mb-1">Min</Text>
-                  <TextInput
-                    value={filters.salaryMin?.toString() || ''}
-                    onChangeText={(v) => updateFilter('salaryMin', v ? parseInt(v) : undefined)}
-                    keyboardType="number-pad"
-                    placeholder="1000"
-                    className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
-                  />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-typography-500 text-sm mb-1">Max</Text>
-                  <TextInput
-                    value={filters.salaryMax?.toString() || ''}
-                    onChangeText={(v) => updateFilter('salaryMax', v ? parseInt(v) : undefined)}
-                    keyboardType="number-pad"
-                    placeholder="5000"
-                    className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
-                  />
-                </View>
-              </View>
+              <RangeSlider
+                label={`${t('filters.salary')} (AED)`}
+                min={SALARY_MIN}
+                max={SALARY_MAX}
+                step={SALARY_STEP}
+                minValue={filters.salaryMin ?? SALARY_MIN}
+                maxValue={filters.salaryMax ?? SALARY_MAX}
+                onMinChange={(v) => setFilters((prev) => ({ ...prev, salaryMin: v === SALARY_MIN ? undefined : v }))}
+                onMaxChange={(v) => setFilters((prev) => ({ ...prev, salaryMax: v === SALARY_MAX ? undefined : v }))}
+                formatValue={(v) => v.toLocaleString()}
+              />
             </View>
 
             <View className="h-32" />

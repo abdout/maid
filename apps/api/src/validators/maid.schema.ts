@@ -21,13 +21,14 @@ export const createMaidSchema = z.object({
 export const updateMaidSchema = createMaidSchema.partial();
 
 export const maidFiltersSchema = z.object({
+  search: z.string().min(2).max(100).optional(),
   nationalityId: z.string().uuid().optional(),
   ageMin: z.coerce.number().int().min(18).max(65).optional(),
   ageMax: z.coerce.number().int().min(18).max(65).optional(),
-  maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']).optional(),
+  maritalStatus: z.enum(['married', 'not_married']).optional(),
   religion: z.enum(['muslim', 'non_muslim']).optional(),
   experienceYears: z.coerce.number().int().min(0).optional(),
-  salaryMin: z.coerce.number().positive().optional(),
+  salaryMin: z.coerce.number().nonnegative().optional(),
   salaryMax: z.coerce.number().positive().optional(),
   status: z.enum(['available', 'busy', 'reserved', 'inactive']).optional(),
   serviceType: serviceTypeEnum.optional(),

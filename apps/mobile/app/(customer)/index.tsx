@@ -9,9 +9,11 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useMaids, useNationalities } from '@/hooks';
-import { MaidCard, CategoryFilter, FilterModal } from '@/components';
+import { useMaids, useNationalities, useFavorites, useToggleFavorite } from '@/hooks';
+import { useAuth } from '@/store/auth';
+import { MaidCard, CategoryFilter, FilterModal, PromotionsSection, BusinessSection } from '@/components';
 import {
   SearchIcon,
   ChevronDownIcon,
@@ -19,9 +21,18 @@ import {
 } from '@/components/icons';
 import type { MaidFilters, ServiceType } from '@maid/shared';
 
+const INITIAL_DISPLAY_COUNT = 7;
+
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const isRTL = i18n.language === 'ar';
+
+  // Favorites
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useToggleFavorite();
+  const favoriteIds = new Set(favoritesData?.data?.map((f) => f.maidId) || []);
 
   // Filter state
   const [showFilters, setShowFilters] = useState(false);
@@ -29,6 +40,7 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [selectedServiceType, setSelectedServiceType] = useState<ServiceType | null>(null);
+  const [showAllListings, setShowAllListings] = useState(false);
 
   const { data: nationalitiesData } = useNationalities();
   const { data: maidsData, isLoading, isRefetching, refetch } = useMaids({
@@ -42,6 +54,12 @@ export default function HomeScreen() {
   const maids = maidsData?.data?.items || [];
   const total = maidsData?.data?.total || 0;
   const totalPages = maidsData?.data?.totalPages || 1;
+
+  // Display limited listings initially, all after clicking "See More"
+  const displayedMaids = showAllListings
+    ? maids
+    : maids.slice(0, INITIAL_DISPLAY_COUNT);
+  const hasMoreToShow = !showAllListings && maids.length > INITIAL_DISPLAY_COUNT;
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
   const hasActiveFilters = activeFilterCount > 0;
@@ -67,6 +85,14 @@ export default function HomeScreen() {
     setSelectedServiceType(serviceType);
     setPage(1);
   }, []);
+
+  const handleFavoritePress = useCallback((maidId: string, isFavorite: boolean) => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+    toggleFavorite.mutate({ maidId, isFavorite });
+  }, [isAuthenticated, router, toggleFavorite]);
 
   // Header component for FlatList (search + categories)
   const ListHeader = () => (
@@ -166,17 +192,38 @@ export default function HomeScreen() {
     </View>
   );
 
-  // Footer component for loading more
-  const ListFooter = () => {
-    if (isLoading && page > 1) {
-      return (
+  // Footer component with See More button and promotional sections
+  const ListFooter = () => (
+    <View>
+      {/* Loading indicator for pagination */}
+      {isLoading && page > 1 && (
         <View className="py-4">
           <ActivityIndicator color="#FF385C" />
         </View>
-      );
-    }
-    return <View className="h-24" />;
-  };
+      )}
+
+      {/* See More Button */}
+      {hasMoreToShow && (
+        <View className="px-6 py-4">
+          <Pressable
+            onPress={() => setShowAllListings(true)}
+            className="py-4 bg-background-50 rounded-xl items-center border border-background-200"
+          >
+            <Text className="text-typography-900 font-semibold">
+              {t('home.seeMore')}
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
+      {/* Promotional Sections - always visible */}
+      <PromotionsSection />
+      <BusinessSection />
+
+      {/* Bottom spacing */}
+      <View className="h-8" />
+    </View>
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-background-0" edges={['top']}>
@@ -189,13 +236,20 @@ export default function HomeScreen() {
         </>
       ) : (
         <FlatList
-          data={maids}
+          data={displayedMaids}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View className="px-6">
-              <MaidCard maid={item} />
-            </View>
-          )}
+          renderItem={({ item }) => {
+            const isFavorite = favoriteIds.has(item.id);
+            return (
+              <View className="px-6">
+                <MaidCard
+                  maid={item}
+                  isFavorite={isFavorite}
+                  onFavoritePress={() => handleFavoritePress(item.id, isFavorite)}
+                />
+              </View>
+            );
+          }}
           ListHeaderComponent={ListHeader}
           ListEmptyComponent={ListEmpty}
           ListFooterComponent={ListFooter}
@@ -207,7 +261,7 @@ export default function HomeScreen() {
               tintColor="#FF385C"
             />
           }
-          onEndReached={handleLoadMore}
+          onEndReached={showAllListings ? handleLoadMore : undefined}
           onEndReachedThreshold={0.5}
         />
       )}

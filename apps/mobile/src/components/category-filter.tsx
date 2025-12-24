@@ -1,46 +1,28 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import {
-  GridIcon,
-  UserIcon,
-  BriefcaseIcon,
-  SparklesIcon,
-  ChefHatIcon,
-  BabyIcon,
-  HeartIcon,
-  CarIcon,
-} from '@/components/icons';
 
-// Icon component map for direct rendering
-const iconComponents = {
-  grid: GridIcon,
-  user: UserIcon,
-  briefcase: BriefcaseIcon,
-  sparkles: SparklesIcon,
-  'chef-hat': ChefHatIcon,
-  baby: BabyIcon,
-  heart: HeartIcon,
-  car: CarIcon,
+// PNG image assets for categories
+const categoryImages = {
+  cleaning: require('../../assets/wipe.png'),
+  cooking: require('../../assets/chef-hat.png'),
+  babysitter: require('../../assets/baby-stroller.png'),
+  elderly: require('../../assets/old-people.png'),
 } as const;
 
-type CategoryIconName = keyof typeof iconComponents;
+type CategoryImageName = keyof typeof categoryImages;
 
 // Service type categories
 const SERVICE_TYPES: ReadonlyArray<{
   id: string;
-  icon: CategoryIconName;
+  image: CategoryImageName;
   labelEn: string;
   labelAr: string;
 }> = [
-  { id: 'all', icon: 'grid', labelEn: 'All', labelAr: 'الكل' },
-  { id: 'individual', icon: 'user', labelEn: 'Individual', labelAr: 'فردي' },
-  { id: 'business', icon: 'briefcase', labelEn: 'Business', labelAr: 'تجاري' },
-  { id: 'cleaning', icon: 'sparkles', labelEn: 'Cleaning', labelAr: 'تنظيف' },
-  { id: 'cooking', icon: 'chef-hat', labelEn: 'Cooking', labelAr: 'طبخ' },
-  { id: 'babysitter', icon: 'baby', labelEn: 'Babysitter', labelAr: 'مربية' },
-  { id: 'elderly', icon: 'heart', labelEn: 'Elderly', labelAr: 'مسنين' },
-  { id: 'driver', icon: 'car', labelEn: 'Driver', labelAr: 'سائق' },
+  { id: 'cleaning', image: 'cleaning', labelEn: 'Cleaning', labelAr: 'تنظيف' },
+  { id: 'cooking', image: 'cooking', labelEn: 'Cooking', labelAr: 'طبخ' },
+  { id: 'babysitter', image: 'babysitter', labelEn: 'Babysitter', labelAr: 'مربية' },
+  { id: 'elderly', image: 'elderly', labelEn: 'Elderly', labelAr: 'مسنين' },
 ];
 
 interface CategoryFilterProps {
@@ -53,19 +35,14 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
   const isRTL = i18n.language === 'ar';
 
   const handlePress = (id: string) => {
-    if (id === 'all') {
-      onSelect(null);
-    } else if (selected === id) {
-      onSelect(null); // Deselect
+    if (selected === id) {
+      onSelect(null); // Deselect to show all
     } else {
       onSelect(id);
     }
   };
 
-  const isSelected = (id: string) => {
-    if (id === 'all') return selected === null;
-    return selected === id;
-  };
+  const isSelected = (id: string) => selected === id;
 
   return (
     <View className="border-b border-background-100">
@@ -79,7 +56,6 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
         }}
       >
         {SERVICE_TYPES.map((category) => {
-          const IconComponent = iconComponents[category.icon];
           const isActive = isSelected(category.id);
 
           return (
@@ -92,9 +68,10 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
                   : 'border-transparent'
               }`}
             >
-              <IconComponent
-                size={24}
-                color={isActive ? '#222222' : '#717171'}
+              <Image
+                source={categoryImages[category.image]}
+                style={{ width: 32, height: 32, opacity: isActive ? 1 : 0.5 }}
+                resizeMode="contain"
               />
               <Text
                 className={`text-xs font-medium mt-1 ${

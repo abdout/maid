@@ -173,9 +173,38 @@ paymentsRoute.get(
   }
 );
 
-// Get payment history
+// Get payment history (alias: /me)
 paymentsRoute.get(
   '/history',
+  authMiddleware,
+  zValidator(
+    'query',
+    z.object({
+      page: z.coerce.number().min(1).default(1),
+      pageSize: z.coerce.number().min(1).max(100).default(20),
+    })
+  ),
+  async (c) => {
+    const { page, pageSize } = c.req.valid('query');
+    const user = c.get('user');
+
+    try {
+      const db = createDb(c.env.DATABASE_URL);
+      const paymentService = createPaymentService(db, c.env);
+
+      const result = await paymentService.getPaymentHistory(user.sub, page, pageSize);
+
+      return c.json({ success: true, data: result });
+    } catch (error) {
+      console.error('Get payment history error:', error);
+      return c.json({ success: false, error: 'Failed to get payment history' }, 500);
+    }
+  }
+);
+
+// Alias for payment history - GET /payments/me
+paymentsRoute.get(
+  '/me',
   authMiddleware,
   zValidator(
     'query',

@@ -1,7 +1,8 @@
+import { useCallback } from 'react';
 import { View, Text, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { useFavorites } from '@/hooks';
+import { useFavorites, useToggleFavorite } from '@/hooks';
 import { MaidCard } from '@/components';
 import { HeartIcon } from '@/components/icons';
 
@@ -10,7 +11,12 @@ export default function FavoritesScreen() {
   const isRTL = i18n.language === 'ar';
 
   const { data, isLoading, isRefetching, refetch } = useFavorites();
+  const toggleFavorite = useToggleFavorite();
   const favorites = data?.data || [];
+
+  const handleFavoritePress = useCallback((maidId: string) => {
+    toggleFavorite.mutate({ maidId, isFavorite: true });
+  }, [toggleFavorite]);
 
   return (
     <SafeAreaView className="flex-1 bg-background-0" edges={['top']}>
@@ -43,7 +49,13 @@ export default function FavoritesScreen() {
         <FlatList
           data={favorites}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <MaidCard maid={item.maid} />}
+          renderItem={({ item }) => (
+            <MaidCard
+              maid={item.maid}
+              isFavorite={true}
+              onFavoritePress={() => handleFavoritePress(item.maidId)}
+            />
+          )}
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
           refreshControl={

@@ -538,3 +538,48 @@ export const notificationsApi = {
       body: JSON.stringify({ token }),
     }),
 };
+
+// User Profile types
+interface UserProfile {
+  user: {
+    id: string;
+    phone: string | null;
+    email: string | null;
+    emailVerified: boolean;
+    name: string | null;
+    nameAr: string | null;
+    role: string;
+  };
+  customer: {
+    emirate: string | null;
+    preferredLanguage: string | null;
+    notificationsEnabled: boolean;
+  } | null;
+}
+
+interface UpdateProfileInput {
+  name?: string;
+  nameAr?: string;
+  email?: string | null;
+  emirate?: string | null;
+  preferredLanguage?: 'ar' | 'en';
+  notificationsEnabled?: boolean;
+}
+
+// Users API
+export const usersApi = {
+  getMe: () =>
+    apiFetch<{ success: boolean; data: UserProfile }>('/users/me'),
+
+  update: (data: UpdateProfileInput) =>
+    apiFetch<{ success: boolean; message: string; data: UserProfile }>('/users/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteAccount: (confirmation: string) =>
+    apiFetch<{ success: boolean; message: string }>('/users/me', {
+      method: 'DELETE',
+      body: JSON.stringify({ confirmation }),
+    }),
+};

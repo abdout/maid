@@ -12,3 +12,4 @@ export { PaymentService } from './payment.service';
 export { SubscriptionService } from './subscription.service';
 export { AdminService } from './admin.service';
 export { NotificationService } from './notification.service';
+export { UserService } from './user.service';

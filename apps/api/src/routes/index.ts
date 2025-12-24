@@ -6,3 +6,4 @@ export { default as quotations } from './quotations';
 export { default as uploads } from './uploads';
 export { default as lookups } from './lookups';
 export { default as favorites } from './favorites';
+export { default as users } from './users';

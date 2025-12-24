@@ -4,8 +4,11 @@ export type UserRole = 'customer' | 'office_admin' | 'super_admin';
 // Maid status
 export type MaidStatus = 'available' | 'busy' | 'reserved' | 'inactive';
 
-// Marital status
+// Marital status (database values)
 export type MaritalStatus = 'single' | 'married' | 'divorced' | 'widowed';
+
+// Marital status filter (simplified for UI)
+export type MaritalStatusFilter = 'married' | 'not_married';
 
 // Religion
 export type Religion = 'muslim' | 'non_muslim';
@@ -35,10 +38,11 @@ export interface PaginatedResponse<T> {
 
 // Maid filters
 export interface MaidFilters {
+  search?: string;
   nationalityId?: string;
   ageMin?: number;
   ageMax?: number;
-  maritalStatus?: MaritalStatus;
+  maritalStatus?: MaritalStatusFilter;
   religion?: Religion;
   experienceYears?: number;
   salaryMin?: number;

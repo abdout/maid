@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,10 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams} from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useMaids } from '@/hooks';
+import { useMaids, useFavorites, useToggleFavorite, useDebounce } from '@/hooks';
+import { useAuth } from '@/store/auth';
 import { MaidCard, FilterModal } from '@/components';
 import { SearchIcon, FilterIcon } from '@/components/icons';
 import type { MaidFilters } from '@maid/shared';
@@ -19,17 +20,31 @@ import type { MaidFilters } from '@maid/shared';
 export default function SearchScreen() {
   const { t, i18n } = useTranslation();
   const { nationalityId } = useLocalSearchParams<{ nationalityId?: string }>();
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const isRTL = i18n.language === 'ar';
 
+  // Favorites
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useToggleFavorite();
+  const favoriteIds = new Set(favoritesData?.data?.map((f) => f.maidId) || []);
+
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Partial<MaidFilters>>(
     nationalityId ? { nationalityId } : {}
   );
   const [page, setPage] = useState(1);
 
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
   const { data, isLoading, isRefetching, refetch } = useMaids({
     ...filters,
+    search: debouncedSearch.length >= 2 ? debouncedSearch : undefined,
     page,
     pageSize: 20,
   });
@@ -48,6 +63,14 @@ export default function SearchScreen() {
       setPage((p) => p + 1);
     }
   }, [page, totalPages, isLoading]);
+
+  const handleFavoritePress = useCallback((maidId: string, isFavorite: boolean) => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+    toggleFavorite.mutate({ maidId, isFavorite });
+  }, [isAuthenticated, router, toggleFavorite]);
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
@@ -127,7 +150,16 @@ export default function SearchScreen() {
         <FlatList
           data={maids}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <MaidCard maid={item} />}
+          renderItem={({ item }) => {
+            const isFavorite = favoriteIds.has(item.id);
+            return (
+              <MaidCard
+                maid={item}
+                isFavorite={isFavorite}
+                onFavoritePress={() => handleFavoritePress(item.id, isFavorite)}
+              />
+            );
+          }}
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
           refreshControl={

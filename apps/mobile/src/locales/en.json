@@ -34,7 +34,9 @@
     "yearsExperience": "years experience",
     "aed": "AED",
     "month": "month",
-    "perMonth": "per month"
+    "perMonth": "per month",
+    "min": "Min",
+    "max": "Max"
   },
   "login": {
     "title": "Welcome",
@@ -89,7 +91,42 @@
     "nationalities": "Nationalities",
     "allListings": "All Listings",
     "maidsAvailable": "maids available",
-    "noMaidsYet": "No maids available yet"
+    "noMaidsYet": "No maids available yet",
+    "seeMore": "See More",
+    "promotions": "Special Offers",
+    "business": {
+      "title": "Need a Team?",
+      "subtitle": "Schools, companies & bulk hiring",
+      "cta": "Get a Quote"
+    }
+  },
+  "promotions": {
+    "firstBooking": "20% Off First Booking",
+    "firstBookingDesc": "Use code FIRST20",
+    "referFriend": "Refer & Earn",
+    "referFriendDesc": "Get 100 AED credit",
+    "seasonalOffer": "Holiday Special",
+    "seasonalOfferDesc": "Limited time offer"
+  },
+  "businessInquiry": {
+    "title": "Business Inquiry",
+    "name": "Your Name",
+    "namePlaceholder": "Enter your name",
+    "phone": "Phone Number",
+    "phonePlaceholder": "Enter phone number",
+    "teamSize": "Team Size Needed",
+    "teamSizeOptions": {
+      "small": "2-5 maids",
+      "medium": "5-10 maids",
+      "large": "10+ maids"
+    },
+    "services": "Services Required",
+    "notes": "Additional Notes",
+    "notesPlaceholder": "Tell us about your requirements...",
+    "submit": "Submit Inquiry",
+    "submitting": "Submitting...",
+    "success": "Thank you! We'll contact you shortly.",
+    "successTitle": "Inquiry Submitted"
   },
   "serviceTypes": {
     "all": "All",
@@ -141,6 +178,7 @@
     "married": "Married",
     "divorced": "Divorced",
     "widowed": "Widowed",
+    "notMarried": "Not Married",
     "any": "Any"
   },
   "religion": {
@@ -190,7 +228,14 @@
     "name": "Name",
     "phone": "Phone",
     "email": "Email",
-    "deleteAccount": "Delete Account"
+    "deleteAccount": "Delete Account",
+    "account": "Account",
+    "quickSettings": "Quick Settings",
+    "unlockedCvs": "Unlocked CVs",
+    "paymentHistory": "Payment History",
+    "phoneLocked": "Phone number cannot be changed",
+    "contactSupport": "Contact support to change your phone number",
+    "profileUpdated": "Profile updated successfully"
   },
   "office": {
     "title": "Office",
@@ -246,7 +291,19 @@
     "termsOfService": "Terms of Service",
     "clearCache": "Clear Cache",
     "version": "Version",
-    "madeWith": "Made with ❤️ in UAE"
+    "madeWith": "Made with love in UAE",
+    "account": "Account",
+    "security": "Security",
+    "preferences": "Preferences",
+    "supportLegal": "Support & Legal",
+    "helpCenter": "Help Center",
+    "deleteAccount": "Delete Account",
+    "deleteAccountTitle": "Delete Account",
+    "deleteAccountWarning": "This action cannot be undone. All your data will be permanently deleted including your favorites, quotations, and payment history.",
+    "deleteAccountConfirm": "Type DELETE to confirm",
+    "deleteAccountButton": "Delete My Account",
+    "accountDeleted": "Account deleted successfully",
+    "cacheCleared": "Cache cleared successfully"
   },
   "form": {
     "nameEn": "Name (English)",
@@ -328,7 +385,16 @@
     "retryTabby": "Open Tabby Checkout",
     "alreadyUnlocked": "Already Unlocked",
     "alreadyUnlockedDescription": "You have already unlocked this CV.",
-    "paymentPending": "Payment Pending"
+    "paymentPending": "Payment Pending",
+    "history": "Payment History",
+    "noPayments": "No payments yet",
+    "noPaymentsDesc": "Your payment history will appear here",
+    "cvUnlockType": "CV Unlock",
+    "subscriptionType": "Subscription",
+    "succeeded": "Success",
+    "failed": "Failed",
+    "pending": "Pending",
+    "refunded": "Refunded"
   },
   "subscription": {
     "title": "Subscription",

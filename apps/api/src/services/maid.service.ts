@@ -1,4 +1,4 @@
-import { eq, and, gte, lte, sql, desc, asc, inArray } from 'drizzle-orm';
+import { eq, and, gte, lte, sql, desc, asc, inArray, or, ilike } from 'drizzle-orm';
 import type { Database } from '../db';
 import { maids, maidLanguages, maidDocuments, nationalities, languages, offices, cvUnlocks, cvUnlockPricing } from '../db/schema';
 import type { MaidFiltersInput, CreateMaidInput, UpdateMaidInput } from '../validators/maid.schema';
@@ -54,12 +54,28 @@ export class MaidService {
       conditions.push(eq(maids.officeId, officeId));
     }
 
+    // Text search on name fields
+    if (filterParams.search) {
+      const searchTerm = `%${filterParams.search}%`;
+      conditions.push(
+        or(
+          ilike(maids.name, searchTerm),
+          ilike(maids.nameAr, searchTerm)
+        )!
+      );
+    }
+
     if (filterParams.nationalityId) {
       conditions.push(eq(maids.nationalityId, filterParams.nationalityId));
     }
 
+    // Simplified marital status filter: married or not_married
     if (filterParams.maritalStatus) {
-      conditions.push(eq(maids.maritalStatus, filterParams.maritalStatus));
+      if (filterParams.maritalStatus === 'married') {
+        conditions.push(eq(maids.maritalStatus, 'married'));
+      } else if (filterParams.maritalStatus === 'not_married') {
+        conditions.push(inArray(maids.maritalStatus, ['single', 'divorced', 'widowed']));
+      }
     }
 
     if (filterParams.religion) {

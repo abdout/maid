@@ -34,7 +34,9 @@
     "yearsExperience": "سنوات خبرة",
     "aed": "درهم",
     "month": "شهر",
-    "perMonth": "شهرياً"
+    "perMonth": "شهرياً",
+    "min": "الحد الأدنى",
+    "max": "الحد الأقصى"
   },
   "login": {
     "title": "مرحباً بك",
@@ -89,7 +91,42 @@
     "nationalities": "الجنسيات",
     "allListings": "جميع القوائم",
     "maidsAvailable": "عاملة متاحة",
-    "noMaidsYet": "لا توجد عاملات متاحة حالياً"
+    "noMaidsYet": "لا توجد عاملات متاحة حالياً",
+    "seeMore": "عرض المزيد",
+    "promotions": "عروض خاصة",
+    "business": {
+      "title": "تحتاج فريقاً؟",
+      "subtitle": "مدارس وشركات وتوظيف جماعي",
+      "cta": "احصل على عرض سعر"
+    }
+  },
+  "promotions": {
+    "firstBooking": "خصم 20% على أول حجز",
+    "firstBookingDesc": "استخدم كود FIRST20",
+    "referFriend": "أحل واربح",
+    "referFriendDesc": "احصل على 100 درهم رصيد",
+    "seasonalOffer": "عرض موسمي",
+    "seasonalOfferDesc": "عرض لفترة محدودة"
+  },
+  "businessInquiry": {
+    "title": "استفسار تجاري",
+    "name": "اسمك",
+    "namePlaceholder": "أدخل اسمك",
+    "phone": "رقم الهاتف",
+    "phonePlaceholder": "أدخل رقم الهاتف",
+    "teamSize": "عدد الفريق المطلوب",
+    "teamSizeOptions": {
+      "small": "2-5 عاملات",
+      "medium": "5-10 عاملات",
+      "large": "10+ عاملات"
+    },
+    "services": "الخدمات المطلوبة",
+    "notes": "ملاحظات إضافية",
+    "notesPlaceholder": "أخبرنا عن متطلباتك...",
+    "submit": "إرسال الاستفسار",
+    "submitting": "جاري الإرسال...",
+    "success": "شكراً لك! سنتواصل معك قريباً.",
+    "successTitle": "تم إرسال الاستفسار"
   },
   "serviceTypes": {
     "all": "الكل",
@@ -141,6 +178,7 @@
     "married": "متزوجة",
     "divorced": "مطلقة",
     "widowed": "أرملة",
+    "notMarried": "غير متزوجة",
     "any": "أي حالة"
   },
   "religion": {
@@ -190,7 +228,14 @@
     "name": "الاسم",
     "phone": "الهاتف",
     "email": "البريد الإلكتروني",
-    "deleteAccount": "حذف الحساب"
+    "deleteAccount": "حذف الحساب",
+    "account": "الحساب",
+    "quickSettings": "الإعدادات السريعة",
+    "unlockedCvs": "السير المفتوحة",
+    "paymentHistory": "سجل المدفوعات",
+    "phoneLocked": "لا يمكن تغيير رقم الهاتف",
+    "contactSupport": "تواصل مع الدعم لتغيير رقم هاتفك",
+    "profileUpdated": "تم تحديث الملف الشخصي بنجاح"
   },
   "office": {
     "title": "المكتب",
@@ -246,7 +291,19 @@
     "termsOfService": "شروط الخدمة",
     "clearCache": "مسح الكاش",
     "version": "الإصدار",
-    "madeWith": "صُنع بـ ❤️ في الإمارات"
+    "madeWith": "صُنع بـ ❤️ في الإمارات",
+    "account": "الحساب",
+    "security": "الأمان",
+    "preferences": "التفضيلات",
+    "supportLegal": "الدعم والقانون",
+    "helpCenter": "مركز المساعدة",
+    "deleteAccount": "حذف الحساب",
+    "deleteAccountTitle": "حذف الحساب",
+    "deleteAccountWarning": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع بياناتك نهائياً بما في ذلك المفضلة وعروض الأسعار وسجل المدفوعات.",
+    "deleteAccountConfirm": "اكتب DELETE للتأكيد",
+    "deleteAccountButton": "حذف حسابي",
+    "accountDeleted": "تم حذف الحساب بنجاح",
+    "cacheCleared": "تم مسح الكاش بنجاح"
   },
   "form": {
     "nameEn": "الاسم (بالإنجليزية)",
@@ -328,7 +385,16 @@
     "retryTabby": "فتح صفحة تابي",
     "alreadyUnlocked": "مفتوح بالفعل",
     "alreadyUnlockedDescription": "لقد قمت بفتح هذه السيرة الذاتية مسبقاً.",
-    "paymentPending": "الدفع معلق"
+    "paymentPending": "الدفع معلق",
+    "history": "سجل المدفوعات",
+    "noPayments": "لا توجد مدفوعات",
+    "noPaymentsDesc": "سيظهر سجل مدفوعاتك هنا",
+    "cvUnlockType": "فتح سيرة ذاتية",
+    "subscriptionType": "اشتراك",
+    "succeeded": "ناجح",
+    "failed": "فشل",
+    "pending": "معلق",
+    "refunded": "مسترد"
   },
   "subscription": {
     "title": "الاشتراك",

@@ -41,6 +41,7 @@ export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   phone: varchar('phone', { length: 20 }).unique(),
   email: varchar('email', { length: 255 }),
+  emailVerified: boolean('email_verified').default(false).notNull(),
   password: varchar('password', { length: 255 }),
   name: varchar('name', { length: 255 }),
   nameAr: varchar('name_ar', { length: 255 }),
@@ -149,6 +150,7 @@ export const customers = pgTable('customers', {
   userId: uuid('user_id').references(() => users.id).notNull().unique(),
   emirate: varchar('emirate', { length: 50 }),
   preferredLanguage: varchar('preferred_language', { length: 5 }).default('ar'),
+  notificationsEnabled: boolean('notifications_enabled').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

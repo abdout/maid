@@ -40,6 +40,12 @@ import SparklesIcon from './sparkles';
 import ChefHatIcon from './chef-hat';
 import BabyIcon from './baby';
 import CarIcon from './car';
+import GiftIcon from './gift';
+import ShieldIcon from './shield';
+import CreditCardIcon from './credit-card';
+import HelpCircleIcon from './help-circle';
+import SettingsIcon from './settings';
+import UnlockIcon from './unlock';
 
 // Icon map for easy access
 const icons = {
@@ -81,6 +87,12 @@ const icons = {
   'chef-hat': ChefHatIcon,
   baby: BabyIcon,
   car: CarIcon,
+  gift: GiftIcon,
+  shield: ShieldIcon,
+  'credit-card': CreditCardIcon,
+  'help-circle': HelpCircleIcon,
+  settings: SettingsIcon,
+  unlock: UnlockIcon,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -165,6 +177,12 @@ export {
   ChefHatIcon,
   BabyIcon,
   CarIcon,
+  GiftIcon,
+  ShieldIcon,
+  CreditCardIcon,
+  HelpCircleIcon,
+  SettingsIcon,
+  UnlockIcon,
 };
 
 export default Icon;
