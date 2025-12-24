@@ -46,6 +46,7 @@ import CreditCardIcon from './credit-card';
 import HelpCircleIcon from './help-circle';
 import SettingsIcon from './settings';
 import UnlockIcon from './unlock';
+import WalletIcon from './wallet';
 
 // Icon map for easy access
 const icons = {
@@ -93,6 +94,7 @@ const icons = {
   'help-circle': HelpCircleIcon,
   settings: SettingsIcon,
   unlock: UnlockIcon,
+  wallet: WalletIcon,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -183,6 +185,7 @@ export {
   HelpCircleIcon,
   SettingsIcon,
   UnlockIcon,
+  WalletIcon,
 };
 
 export default Icon;

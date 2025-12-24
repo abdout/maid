@@ -235,9 +235,10 @@ export const favoritesRelations = relations(favorites, ({ one }) => ({
 // Payment & Subscription Enums
 export const subscriptionTierEnum = pgEnum('subscription_tier', ['free', 'basic', 'pro', 'enterprise']);
 export const subscriptionStatusEnum = pgEnum('subscription_status', ['active', 'past_due', 'canceled', 'trialing']);
+export const billingCycleEnum = pgEnum('billing_cycle', ['monthly', 'yearly']);
 export const paymentStatusEnum = pgEnum('payment_status', ['pending', 'processing', 'succeeded', 'failed', 'refunded']);
 export const paymentProviderEnum = pgEnum('payment_provider', ['stripe', 'tabby']);
-export const paymentTypeEnum = pgEnum('payment_type', ['cv_unlock', 'subscription']);
+export const paymentTypeEnum = pgEnum('payment_type', ['cv_unlock', 'subscription', 'business_subscription']);
 
 // Subscription Plans
 export const subscriptionPlans = pgTable('subscription_plans', {
@@ -274,6 +275,52 @@ export const officeSubscriptions = pgTable('office_subscriptions', {
 }, (t) => ({
   officeIdx: index('office_subscriptions_office_idx').on(t.officeId),
   statusIdx: index('office_subscriptions_status_idx').on(t.status),
+}));
+
+// ==========================================
+// BUSINESS CUSTOMER SUBSCRIPTION SYSTEM
+// ==========================================
+
+// Business Plans (for customer companies/schools)
+export const businessPlans = pgTable('business_plans', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tier: subscriptionTierEnum('tier').notNull().unique(),
+  nameEn: varchar('name_en', { length: 100 }).notNull(),
+  nameAr: varchar('name_ar', { length: 100 }).notNull(),
+  descriptionEn: text('description_en'),
+  descriptionAr: text('description_ar'),
+  priceMonthly: integer('price_monthly').notNull().default(0),
+  priceYearly: integer('price_yearly'),
+  freeUnlocksPerMonth: integer('free_unlocks_per_month').notNull().default(0),
+  discountPercent: integer('discount_percent').notNull().default(0), // % off extra unlocks
+  features: text('features'), // JSON array of feature strings
+  isActive: boolean('is_active').default(true).notNull(),
+  stripePriceIdMonthly: varchar('stripe_price_id_monthly', { length: 255 }),
+  stripePriceIdYearly: varchar('stripe_price_id_yearly', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Customer Subscriptions (business plan subscriptions)
+export const customerSubscriptions = pgTable('customer_subscriptions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  customerId: uuid('customer_id').references(() => users.id).notNull().unique(),
+  planId: uuid('plan_id').references(() => businessPlans.id).notNull(),
+  status: subscriptionStatusEnum('status').default('active').notNull(),
+  billingCycle: billingCycleEnum('billing_cycle').default('monthly').notNull(),
+  stripeCustomerId: varchar('stripe_customer_id', { length: 255 }),
+  stripeSubscriptionId: varchar('stripe_subscription_id', { length: 255 }),
+  currentPeriodStart: timestamp('current_period_start'),
+  currentPeriodEnd: timestamp('current_period_end'),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false).notNull(),
+  freeUnlocksUsed: integer('free_unlocks_used').notNull().default(0),
+  freeUnlocksResetAt: timestamp('free_unlocks_reset_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (t) => ({
+  customerIdx: index('customer_subscriptions_customer_idx').on(t.customerId),
+  statusIdx: index('customer_subscriptions_status_idx').on(t.status),
+  planIdx: index('customer_subscriptions_plan_idx').on(t.planId),
 }));
 
 // CV Unlock Pricing (per nationality or flat rate)
@@ -406,6 +453,15 @@ export const officeSubscriptionsRelations = relations(officeSubscriptions, ({ on
   plan: one(subscriptionPlans, { fields: [officeSubscriptions.planId], references: [subscriptionPlans.id] }),
 }));
 
+export const businessPlansRelations = relations(businessPlans, ({ many }) => ({
+  subscriptions: many(customerSubscriptions),
+}));
+
+export const customerSubscriptionsRelations = relations(customerSubscriptions, ({ one }) => ({
+  customer: one(users, { fields: [customerSubscriptions.customerId], references: [users.id] }),
+  plan: one(businessPlans, { fields: [customerSubscriptions.planId], references: [businessPlans.id] }),
+}));
+
 export const cvUnlocksRelations = relations(cvUnlocks, ({ one }) => ({
   customer: one(users, { fields: [cvUnlocks.customerId], references: [users.id] }),
   maid: one(maids, { fields: [cvUnlocks.maidId], references: [maids.id] }),
@@ -431,4 +487,50 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
 
 export const notificationsRelations = relations(notifications, ({ one }) => ({
   admin: one(users, { fields: [notifications.adminId], references: [users.id] }),
+}));
+
+// ==========================================
+// WALLET SYSTEM
+// ==========================================
+
+export const walletTransactionTypeEnum = pgEnum('wallet_transaction_type', [
+  'topup', 'cv_unlock', 'refund', 'bonus', 'adjustment',
+]);
+
+// Customer Wallets
+export const wallets = pgTable('wallets', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').references(() => users.id).notNull().unique(),
+  balance: decimal('balance', { precision: 10, scale: 2 }).default('0').notNull(),
+  currency: varchar('currency', { length: 3 }).default('AED').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (t) => ({
+  userIdx: index('wallets_user_idx').on(t.userId),
+}));
+
+// Wallet Transactions
+export const walletTransactions = pgTable('wallet_transactions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  walletId: uuid('wallet_id').references(() => wallets.id).notNull(),
+  type: walletTransactionTypeEnum('type').notNull(),
+  amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
+  balanceAfter: decimal('balance_after', { precision: 10, scale: 2 }).notNull(),
+  description: text('description'),
+  referenceId: uuid('reference_id'), // maidId for cv_unlock, paymentId for topup
+  referenceType: varchar('reference_type', { length: 50 }), // 'maid', 'payment'
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+  walletIdx: index('wallet_transactions_wallet_idx').on(t.walletId),
+  typeIdx: index('wallet_transactions_type_idx').on(t.type),
+}));
+
+// Wallet Relations
+export const walletsRelations = relations(wallets, ({ one, many }) => ({
+  user: one(users, { fields: [wallets.userId], references: [users.id] }),
+  transactions: many(walletTransactions),
+}));
+
+export const walletTransactionsRelations = relations(walletTransactions, ({ one }) => ({
+  wallet: one(wallets, { fields: [walletTransactions.walletId], references: [wallets.id] }),
 }));

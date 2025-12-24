@@ -432,5 +432,69 @@
     "limitReached": "Maid limit reached",
     "upgradeToPublish": "Upgrade your plan to publish more maids",
     "usage": "{{current}} of {{limit}} maids"
+  },
+  "businessPlans": {
+    "title": "Business Plans",
+    "subtitle": "Save more with a subscription",
+    "viewPlans": "View Plans",
+    "free": "Free",
+    "basic": "Basic",
+    "pro": "Pro",
+    "enterprise": "Enterprise",
+    "currentPlan": "Current Plan",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "billingCycle": "Billing Cycle",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "saveYearly": "Save {{percent}}%",
+    "payPerUnlock": "Pay per CV unlock",
+    "freeUnlocks": "{{count}} free unlocks/month",
+    "unlimitedUnlocks": "Unlimited unlocks",
+    "discountExtra": "{{percent}}% off extra unlocks",
+    "features": "Features",
+    "subscribe": "Subscribe",
+    "upgrade": "Upgrade",
+    "contactSales": "Contact Sales",
+    "usage": {
+      "title": "Usage This Month",
+      "used": "{{used}} of {{total}} free unlocks used",
+      "remaining": "{{count}} free unlocks remaining",
+      "resetsOn": "Resets on {{date}}"
+    },
+    "cancel": "Cancel Plan",
+    "cancelConfirm": "Are you sure you want to cancel?",
+    "cancelDescription": "Your plan will remain active until the end of the billing period.",
+    "status": {
+      "active": "Active",
+      "past_due": "Past Due",
+      "canceled": "Canceled",
+      "trialing": "Trial"
+    },
+    "benefits": {
+      "prioritySupport": "Priority support",
+      "dedicatedManager": "Dedicated account manager",
+      "customSolutions": "Custom solutions",
+      "support247": "24/7 support",
+      "basicSupport": "Basic support"
+    },
+    "unlockPriceInfo": "{{price}} AED per unlock",
+    "withDiscount": "{{price}} AED per unlock ({{discount}}% off)",
+    "freeUnlockAvailable": "Free unlock available!"
+  },
+  "wallet": {
+    "title": "Wallet",
+    "currentBalance": "Current Balance",
+    "topUp": "Top Up",
+    "topUpRange": "Min: 10 AED | Max: 10,000 AED",
+    "proceedToPayment": "Proceed to Payment",
+    "transactionHistory": "Transaction History",
+    "noTransactions": "No transactions yet",
+    "cvUnlockInfo": "CV Unlock Information",
+    "cvUnlockPrice": "Each CV unlock costs 40 AED from your wallet balance.",
+    "insufficientBalance": "Insufficient Balance",
+    "insufficientBalanceDesc": "You need {{amount}} AED to unlock this CV. Please top up your wallet.",
+    "topUpNow": "Top Up Now",
+    "balanceAfterUnlock": "Balance after unlock: {{amount}} AED"
   }
 }

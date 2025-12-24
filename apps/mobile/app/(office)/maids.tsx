@@ -29,11 +29,11 @@ export default function OfficeMaidsScreen() {
   const total = data?.data?.total || 0;
 
   const handleAddMaid = () => {
-    router.push('/(office)/create-maid');
+    router.push('/maid-onboarding');
   };
 
   const handleEditMaid = (id: string) => {
-    router.push(`/(office)/edit-maid/${id}`);
+    router.push(`/edit-maid/${id}`);
   };
 
   const handleDeleteMaid = (id: string, name: string) => {

@@ -1,9 +1,9 @@
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
-import { HomeIcon, SearchIcon, HeartIcon, UserIcon } from '@/components/icons';
+import { HomeIcon, WalletIcon, HeartIcon, UserIcon } from '@/components/icons';
 
-type TabName = 'home' | 'search' | 'favorites' | 'profile';
+type TabName = 'home' | 'wallet' | 'favorites' | 'profile';
 
 function TabIcon({ name, focused }: { name: TabName; focused: boolean }) {
   const color = focused ? '#FF385C' : '#717171';
@@ -11,7 +11,7 @@ function TabIcon({ name, focused }: { name: TabName; focused: boolean }) {
 
   const icons: Record<TabName, React.ReactNode> = {
     home: <HomeIcon size={size} color={color} filled={focused} />,
-    search: <SearchIcon size={size} color={color} />,
+    wallet: <WalletIcon size={size} color={color} />,
     favorites: <HeartIcon size={size} color={color} filled={focused} />,
     profile: <UserIcon size={size} color={color} filled={focused} />,
   };
@@ -59,10 +59,16 @@ export default function CustomerLayout() {
         }}
       />
       <Tabs.Screen
+        name="wallet"
+        options={{
+          title: t('wallet.title'),
+          tabBarIcon: ({ focused }) => <TabIcon name="wallet" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
         name="search"
         options={{
-          title: t('search.title'),
-          tabBarIcon: ({ focused }) => <TabIcon name="search" focused={focused} />,
+          href: null, // Hide from tab bar, accessible from home search bar
         }}
       />
       <Tabs.Screen

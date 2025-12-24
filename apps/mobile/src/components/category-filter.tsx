@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, Image } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 // PNG image assets for categories
@@ -45,15 +45,10 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
   const isSelected = (id: string) => selected === id;
 
   return (
-    <View className="border-b border-background-100">
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-          gap: 0,
-          flexDirection: isRTL ? 'row-reverse' : 'row',
-        }}
+    <View className="px-6">
+      <View
+        className="flex-row justify-between"
+        style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}
       >
         {SERVICE_TYPES.map((category) => {
           const isActive = isSelected(category.id);
@@ -62,30 +57,30 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
             <Pressable
               key={category.id}
               onPress={() => handlePress(category.id)}
-              className={`flex-col items-center justify-center px-4 py-3 min-w-[72px] border-b-2 ${
-                isActive
-                  ? 'border-primary-500'
-                  : 'border-transparent'
-              }`}
+              className="flex-1 flex-col items-center justify-center py-3"
+              style={{ opacity: isActive ? 1 : 0.35 }}
             >
-              <Image
-                source={categoryImages[category.image]}
-                style={{ width: 32, height: 32, opacity: isActive ? 1 : 0.5 }}
-                resizeMode="contain"
-              />
-              <Text
-                className={`text-xs font-medium mt-1 ${
-                  isActive
-                    ? 'text-typography-900'
-                    : 'text-typography-400'
-                }`}
-              >
+              <View className="relative">
+                <Image
+                  source={categoryImages[category.image]}
+                  style={{ width: 32, height: 32 }}
+                  resizeMode="contain"
+                />
+                {/* Selection indicator dot */}
+                {isActive && (
+                  <View
+                    className="absolute w-2 h-2 rounded-full bg-typography-900"
+                    style={{ top: -2, [isRTL ? 'right' : 'left']: -2 }}
+                  />
+                )}
+              </View>
+              <Text className="text-xs font-medium mt-1 text-typography-900">
                 {isRTL ? category.labelAr : category.labelEn}
               </Text>
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
     </View>
   );
 }

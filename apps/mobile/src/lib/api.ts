@@ -539,6 +539,78 @@ export const notificationsApi = {
     }),
 };
 
+// Business Plans types
+interface BusinessPlan {
+  id: string;
+  tier: 'free' | 'basic' | 'pro' | 'enterprise';
+  nameEn: string;
+  nameAr: string;
+  descriptionEn: string | null;
+  descriptionAr: string | null;
+  priceMonthly: number;
+  priceYearly: number | null;
+  freeUnlocksPerMonth: number;
+  discountPercent: number;
+  features: string[] | null;
+  isActive: boolean;
+}
+
+interface CustomerSubscription {
+  id: string;
+  customerId: string;
+  planId: string;
+  plan: BusinessPlan | null;
+  status: 'active' | 'past_due' | 'canceled' | 'trialing';
+  billingCycle: 'monthly' | 'yearly';
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  freeUnlocksUsed: number;
+  freeUnlocksResetAt: string | null;
+  stripeSubscriptionId: string | null;
+  stripeCustomerId: string | null;
+}
+
+interface UnlockPriceResult {
+  basePrice: number;
+  finalPrice: number;
+  discountPercent: number;
+  canUseFreeUnlock: boolean;
+  freeUnlocksRemaining: number;
+  currency: string;
+}
+
+// Business Plans API
+export const businessPlansApi = {
+  getPlans: () =>
+    apiFetch<{ success: boolean; data: BusinessPlan[] }>('/business-plans'),
+
+  getSubscription: () =>
+    apiFetch<{ success: boolean; data: CustomerSubscription | null }>('/business-plans/subscription'),
+
+  getUnlockPrice: (maidId: string) =>
+    apiFetch<{ success: boolean; data: UnlockPriceResult }>(`/business-plans/unlock-price/${maidId}`),
+
+  subscribe: (planId: string, billingCycle: 'monthly' | 'yearly' = 'monthly') =>
+    apiFetch<{ success: boolean; data: { subscriptionId: string; checkoutUrl?: string } }>(
+      '/business-plans/subscribe',
+      {
+        method: 'POST',
+        body: JSON.stringify({ planId, billingCycle }),
+      }
+    ),
+
+  cancel: () =>
+    apiFetch<{ success: boolean; message: string }>('/business-plans/cancel', {
+      method: 'POST',
+    }),
+
+  useFreeUnlock: () =>
+    apiFetch<{ success: boolean; message: string }>('/business-plans/use-free-unlock', {
+      method: 'POST',
+    }),
+};
+
 // User Profile types
 interface UserProfile {
   user: {
@@ -582,4 +654,91 @@ export const usersApi = {
       method: 'DELETE',
       body: JSON.stringify({ confirmation }),
     }),
+};
+
+// Wallet types
+interface WalletBalance {
+  balance: number;
+  currency: string;
+}
+
+interface WalletTransaction {
+  id: string;
+  walletId: string;
+  type: 'topup' | 'cv_unlock' | 'refund' | 'bonus' | 'adjustment';
+  amount: string;
+  balanceAfter: string;
+  description: string | null;
+  referenceId: string | null;
+  referenceType: string | null;
+  createdAt: string;
+}
+
+interface WalletTransactionsResponse {
+  transactions: WalletTransaction[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+interface TopUpResult {
+  transaction: WalletTransaction;
+  newBalance: number;
+}
+
+interface CvUnlockResult {
+  alreadyUnlocked: boolean;
+  cvUnlock?: {
+    id: string;
+    customerId: string;
+    maidId: string;
+    unlockedAt: string;
+  };
+  transaction?: WalletTransaction;
+  newBalance?: number;
+}
+
+interface CanUnlockResult {
+  canUnlock: boolean;
+  balance: number;
+  requiredAmount: number;
+  shortfall: number;
+}
+
+// Wallet API
+export const walletApi = {
+  getBalance: () =>
+    apiFetch<{ success: boolean; data: WalletBalance }>('/wallet/balance'),
+
+  getTransactions: (page = 1, limit = 20) =>
+    apiFetch<{ success: boolean; data: WalletTransactionsResponse }>(
+      `/wallet/transactions?page=${page}&limit=${limit}`
+    ),
+
+  createTopUpIntent: (amount: number) =>
+    apiFetch<{
+      success: boolean;
+      data: { intentId: string; amount: number; currency: string };
+    }>('/wallet/topup/intent', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    }),
+
+  topUp: (amount: number) =>
+    apiFetch<{ success: boolean; data: TopUpResult }>('/wallet/topup/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    }),
+
+  unlockCv: (maidId: string) =>
+    apiFetch<{ success: boolean; data: CvUnlockResult }>('/wallet/cv-unlock', {
+      method: 'POST',
+      body: JSON.stringify({ maidId }),
+    }),
+
+  canUnlock: () =>
+    apiFetch<{ success: boolean; data: CanUnlockResult }>('/wallet/can-unlock'),
 };

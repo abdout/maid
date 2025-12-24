@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, Pressable, ScrollView, Switch, Alert } from 'react-native';
+import { View, Text, Pressable, ScrollView, Switch, Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,7 @@ import {
   SettingsIcon,
   UnlockIcon,
   CreditCardIcon,
+  BuildingIcon,
 } from '@/components/icons';
 
 interface UserProfile {
@@ -95,6 +96,7 @@ export default function ProfileScreen() {
     { key: 'favorites', icon: HeartIcon, label: t('profile.favorites'), route: '/(customer)/favorites' as const },
     { key: 'quotations', icon: FileTextIcon, label: t('profile.myQuotations'), route: '/(customer)/quotations' as const },
     { key: 'unlockedCvs', icon: UnlockIcon, label: t('profile.unlockedCvs'), route: '/(customer)/unlocked-cvs' as const },
+    { key: 'businessPlans', icon: BuildingIcon, label: t('businessPlans.title'), route: '/(customer)/plans' as const },
     { key: 'paymentHistory', icon: CreditCardIcon, label: t('profile.paymentHistory'), route: '/payment-history' as const },
   ];
 
@@ -166,7 +168,8 @@ export default function ProfileScreen() {
                 <Pressable
                   key={item.key}
                   onPress={() => router.push(item.route)}
-                  className={`flex-row items-center px-4 py-3.5 ${isRTL ? 'flex-row-reverse' : ''} ${index < accountItems.length - 1 ? 'border-b border-outline-100' : ''}`}
+                  className={`flex-row items-center px-4 py-3.5 ${isRTL ? 'flex-row-reverse' : ''}`}
+                  style={index < accountItems.length - 1 ? styles.divider : undefined}
                 >
                   <View className="w-9 h-9 rounded-full bg-background-50 items-center justify-center">
                     <IconComponent size={20} color="#717171" />
@@ -196,7 +199,8 @@ export default function ProfileScreen() {
             {/* Language Toggle */}
             <Pressable
               onPress={toggleLanguage}
-              className={`flex-row items-center px-4 py-3.5 border-b border-outline-100 ${isRTL ? 'flex-row-reverse' : ''}`}
+              className={`flex-row items-center px-4 py-3.5 ${isRTL ? 'flex-row-reverse' : ''}`}
+              style={styles.divider}
             >
               <View className="w-9 h-9 rounded-full bg-background-50 items-center justify-center">
                 <GlobeIcon size={20} color="#717171" />
@@ -262,3 +266,10 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  divider: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+  },
+});

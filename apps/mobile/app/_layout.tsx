@@ -24,6 +24,20 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen
+            name="maid-onboarding"
+            options={{
+              presentation: 'fullScreenModal',
+              animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen
+            name="edit-maid/[id]"
+            options={{
+              presentation: 'fullScreenModal',
+              animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen
             name="profile-edit"
             options={{
               presentation: 'modal',

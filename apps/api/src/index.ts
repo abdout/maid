@@ -13,10 +13,12 @@ import lookups from './routes/lookups';
 import favorites from './routes/favorites';
 import payments from './routes/payments';
 import subscriptions from './routes/subscriptions';
+import businessPlans from './routes/business-plans';
 import webhooks from './routes/webhooks';
 import admin from './routes/admin';
 import notifications from './routes/notifications';
 import users from './routes/users';
+import wallet from './routes/wallet';
 
 // Import middleware
 import {
@@ -57,9 +59,11 @@ app.use('/lookups/*', standardRateLimit);
 app.use('/favorites/*', standardRateLimit);
 app.use('/payments/*', standardRateLimit);
 app.use('/subscriptions/*', standardRateLimit);
+app.use('/business-plans/*', standardRateLimit);
 app.use('/admin/*', standardRateLimit);
 app.use('/notifications/*', standardRateLimit);
 app.use('/users/*', standardRateLimit);
+app.use('/wallet/*', standardRateLimit);
 
 // API Routes
 app.route('/health', health);
@@ -73,10 +77,12 @@ app.route('/lookups', lookups);
 app.route('/favorites', favorites);
 app.route('/payments', payments);
 app.route('/subscriptions', subscriptions);
+app.route('/business-plans', businessPlans);
 app.route('/webhooks', webhooks);
 app.route('/admin', admin);
 app.route('/notifications', notifications);
 app.route('/users', users);
+app.route('/wallet', wallet);
 
 // Root route
 app.get('/', (c) => {
@@ -96,9 +102,11 @@ app.get('/', (c) => {
       favorites: '/favorites',
       payments: '/payments',
       subscriptions: '/subscriptions',
+      businessPlans: '/business-plans',
       webhooks: '/webhooks',
       admin: '/admin',
       users: '/users',
+      wallet: '/wallet',
     },
   });
 });

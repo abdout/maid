@@ -432,5 +432,69 @@
     "limitReached": "تم الوصول للحد الأقصى",
     "upgradeToPublish": "قم بترقية خطتك لنشر المزيد من العاملات",
     "usage": "{{current}} من {{limit}} عاملة"
+  },
+  "businessPlans": {
+    "title": "خطط الأعمال",
+    "subtitle": "وفّر أكثر مع الاشتراك",
+    "viewPlans": "عرض الخطط",
+    "free": "مجاني",
+    "basic": "أساسي",
+    "pro": "احترافي",
+    "enterprise": "مؤسسي",
+    "currentPlan": "الخطة الحالية",
+    "perMonth": "/شهر",
+    "perYear": "/سنة",
+    "billingCycle": "دورة الفوترة",
+    "monthly": "شهري",
+    "yearly": "سنوي",
+    "saveYearly": "وفّر {{percent}}%",
+    "payPerUnlock": "ادفع مقابل كل فتح سيرة",
+    "freeUnlocks": "{{count}} فتح مجاني/شهر",
+    "unlimitedUnlocks": "فتح غير محدود",
+    "discountExtra": "خصم {{percent}}% على الفتح الإضافي",
+    "features": "المميزات",
+    "subscribe": "اشترك",
+    "upgrade": "ترقية",
+    "contactSales": "تواصل مع المبيعات",
+    "usage": {
+      "title": "الاستخدام هذا الشهر",
+      "used": "{{used}} من {{total}} فتح مجاني مستخدم",
+      "remaining": "{{count}} فتح مجاني متبقي",
+      "resetsOn": "يتجدد في {{date}}"
+    },
+    "cancel": "إلغاء الخطة",
+    "cancelConfirm": "هل أنت متأكد من الإلغاء؟",
+    "cancelDescription": "ستظل خطتك نشطة حتى نهاية فترة الفوترة.",
+    "status": {
+      "active": "نشط",
+      "past_due": "متأخر",
+      "canceled": "ملغى",
+      "trialing": "تجريبي"
+    },
+    "benefits": {
+      "prioritySupport": "دعم أولوي",
+      "dedicatedManager": "مدير حساب مخصص",
+      "customSolutions": "حلول مخصصة",
+      "support247": "دعم على مدار الساعة",
+      "basicSupport": "دعم أساسي"
+    },
+    "unlockPriceInfo": "{{price}} درهم لكل فتح",
+    "withDiscount": "{{price}} درهم لكل فتح (خصم {{discount}}%)",
+    "freeUnlockAvailable": "فتح مجاني متاح!"
+  },
+  "wallet": {
+    "title": "المحفظة",
+    "currentBalance": "الرصيد الحالي",
+    "topUp": "شحن الرصيد",
+    "topUpRange": "الحد الأدنى: 10 درهم | الحد الأقصى: 10,000 درهم",
+    "proceedToPayment": "المتابعة للدفع",
+    "transactionHistory": "سجل المعاملات",
+    "noTransactions": "لا توجد معاملات بعد",
+    "cvUnlockInfo": "معلومات فتح السيرة",
+    "cvUnlockPrice": "كل فتح سيرة يكلف 40 درهم من رصيد محفظتك.",
+    "insufficientBalance": "رصيد غير كافٍ",
+    "insufficientBalanceDesc": "تحتاج {{amount}} درهم لفتح هذه السيرة. يرجى شحن محفظتك.",
+    "topUpNow": "اشحن الآن",
+    "balanceAfterUnlock": "الرصيد بعد الفتح: {{amount}} درهم"
   }
 }

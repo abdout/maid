@@ -204,12 +204,12 @@ export default function HomeScreen() {
 
       {/* See More Button */}
       {hasMoreToShow && (
-        <View className="px-6 py-4">
+        <View className="py-4 items-center">
           <Pressable
             onPress={() => setShowAllListings(true)}
-            className="py-4 bg-background-50 rounded-xl items-center border border-background-200"
+            className="px-8 py-3 bg-background-100 rounded-full"
           >
-            <Text className="text-typography-900 font-semibold">
+            <Text className="text-typography-700 font-medium">
               {t('home.seeMore')}
             </Text>
           </Pressable>

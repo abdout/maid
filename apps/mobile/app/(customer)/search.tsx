@@ -80,7 +80,7 @@ export default function SearchScreen() {
       <View className="px-6 pt-4 pb-4">
         <View className={`flex-row items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <View
-            className={`flex-1 flex-row items-center bg-background-0 rounded-pill px-4 py-3 ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex-1 flex-row items-center bg-background-0 rounded-full px-4 py-3 gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}
             style={{
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 1 },
@@ -95,7 +95,8 @@ export default function SearchScreen() {
               onChangeText={setSearchQuery}
               placeholder={t('home.searchPlaceholder')}
               placeholderTextColor="#717171"
-              className={`flex-1 text-typography-900 ${isRTL ? 'text-right mr-3' : 'text-left ml-3'}`}
+              className={`flex-1 text-typography-900 ${isRTL ? 'text-right' : 'text-left'}`}
+              style={{ writingDirection: isRTL ? 'rtl' : 'ltr' }}
             />
           </View>
           <Pressable

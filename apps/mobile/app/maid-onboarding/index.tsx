@@ -45,24 +45,41 @@ export default function CreateMaidScreen() {
   };
 
   const handleSubmit = async () => {
+    // Validate required fields
+    if (!formData.name || !formData.nationalityId || !formData.dateOfBirth || !formData.salary) {
+      Alert.alert(
+        t('common.error'),
+        isRTL ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill in all required fields'
+      );
+      return;
+    }
+
     try {
-      const data = {
+      // Build data object matching the API schema
+      const data: Record<string, unknown> = {
         name: formData.name,
-        nameAr: formData.nameAr || undefined,
         nationalityId: formData.nationalityId,
-        dateOfBirth: new Date(formData.dateOfBirth),
+        dateOfBirth: new Date(formData.dateOfBirth).toISOString(),
         maritalStatus: formData.maritalStatus,
         religion: formData.religion,
         experienceYears: formData.experienceYears,
         salary: parseFloat(formData.salary),
-        languageIds: formData.languageIds,
-        photoUrl: formData.photoUrl,
-        bio: formData.bio || undefined,
-        bioAr: formData.bioAr || undefined,
-        status: formData.status,
       };
 
+      // Only include optional fields if they have values
+      if (formData.nameAr) data.nameAr = formData.nameAr;
+      if (formData.photoUrl) data.photoUrl = formData.photoUrl;
+      if (formData.bio) data.bio = formData.bio;
+      if (formData.bioAr) data.bioAr = formData.bioAr;
+      if (formData.languageIds && formData.languageIds.length > 0) {
+        data.languageIds = formData.languageIds;
+      }
+
+      console.log('Submitting maid data:', JSON.stringify(data, null, 2));
+
       if (isEditing && editingMaidId) {
+        // For update, include status
+        data.status = formData.status;
         await updateMaid.mutateAsync({ id: editingMaidId, data });
         Alert.alert(t('common.success'), t('form.maidUpdated'), [
           { text: t('common.ok'), onPress: () => {
@@ -79,9 +96,13 @@ export default function CreateMaidScreen() {
           }},
         ]);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Save maid error:', error);
-      Alert.alert(t('common.error'), t('form.saveFailed'));
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert(
+        t('common.error'),
+        `${t('form.saveFailed')}\n\n${errorMessage}`
+      );
     }
   };
 
@@ -98,7 +119,7 @@ export default function CreateMaidScreen() {
   // Render overview screen
   if (showOverview && !isEditing) {
     return (
-      <SafeAreaView className="flex-1 bg-background-0" edges={['top']}>
+      <SafeAreaView className="flex-1 bg-background-0" edges={['top', 'bottom']}>
         <Stack.Screen options={{ headerShown: false }} />
 
         {/* Close Button */}
@@ -135,7 +156,7 @@ export default function CreateMaidScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-0" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-background-0" edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Header */}
@@ -160,7 +181,7 @@ export default function CreateMaidScreen() {
       {/* Step Content */}
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >

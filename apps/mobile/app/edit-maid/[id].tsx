@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useMaid } from '@/hooks';
 import { useMaidForm, type MaidFormData } from '@/store/maid-form';
 
-// Import the create-maid screen components
-import CreateMaidScreen from '../create-maid';
+// Import the maid-onboarding screen components
+import CreateMaidScreen from '../maid-onboarding';
 
 export default function EditMaidScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

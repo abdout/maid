@@ -83,13 +83,6 @@ export default function OfficeLayout() {
       {/* Hidden screens - not shown in tab bar */}
       <Tabs.Screen name="maid-form" options={{ href: null }} />
       <Tabs.Screen name="subscription" options={{ href: null }} />
-      <Tabs.Screen name="create-maid/index" options={{ href: null }} />
-      <Tabs.Screen name="create-maid/step-basic" options={{ href: null }} />
-      <Tabs.Screen name="create-maid/step-experience" options={{ href: null }} />
-      <Tabs.Screen name="create-maid/step-languages" options={{ href: null }} />
-      <Tabs.Screen name="create-maid/step-documents" options={{ href: null }} />
-      <Tabs.Screen name="create-maid/step-review" options={{ href: null }} />
-      <Tabs.Screen name="edit-maid/[id]" options={{ href: null }} />
     </Tabs>
   );
 }

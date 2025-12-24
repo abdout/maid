@@ -1,5 +1,16 @@
 # Maid UAE - Domestic Worker Hiring Platform
 
+## Live URLs
+
+| Resource | URL |
+|----------|-----|
+| **Production App** | https://maid-xi.vercel.app |
+| **Vercel Dashboard** | https://vercel.com/osman-abdouts-projects/maid |
+| **GitHub Repo** | https://github.com/abdout/maid |
+| **API** | https://maid-api.osmanabdout.workers.dev |
+
+---
+
 A full-stack mobile platform connecting UAE recruitment offices with customers seeking domestic workers. Built with modern technologies for optimal performance and developer experience.
 
 ## Tech Stack

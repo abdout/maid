@@ -1,5 +1,18 @@
 # Maid UAE Platform - Claude Code Instructions
 
+## ⚠️ PRODUCTION URLS - MEMORIZE THIS
+
+| Resource | URL |
+|----------|-----|
+| **Production App** | https://maid-xi.vercel.app |
+| **Vercel Dashboard** | https://vercel.com/osman-abdouts-projects/maid |
+| **GitHub Repo** | https://github.com/abdout/maid |
+| **API** | https://maid-api.osmanabdout.workers.dev |
+
+**ONE REPO → ONE VERCEL PROJECT → ONE URL: `maid-xi.vercel.app`**
+
+---
+
 ## Project Overview
 
 UAE maid hiring platform connecting recruitment offices with customers seeking domestic workers.

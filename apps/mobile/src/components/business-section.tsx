@@ -8,8 +8,9 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { BuildingIcon, XIcon, CheckIcon } from './icons';
+import { BuildingIcon, XIcon, CheckIcon, ChevronRightIcon, ChevronLeftIcon } from './icons';
 
 type TeamSize = 'small' | 'medium' | 'large';
 type ServiceType = 'cleaning' | 'cooking' | 'babysitter' | 'elderly';
@@ -37,6 +38,7 @@ const SERVICE_TYPES: { value: ServiceType; labelKey: string }[] = [
 
 export function BusinessSection() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const isRTL = i18n.language === 'ar';
   const [showModal, setShowModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -85,21 +87,21 @@ export function BusinessSection() {
 
   return (
     <>
-      {/* Business CTA Card */}
-      <View className="px-6 pb-6">
+      {/* Business Section - Distinct visual separation */}
+      <View className="mt-4 pt-5 pb-6 bg-background-50">
         <Pressable
           onPress={() => setShowModal(true)}
-          className="bg-primary-50 rounded-xl p-5 border border-primary-100"
+          className="mx-6 bg-background-0 rounded-xl p-5"
           style={{
-            shadowColor: '#FF385C',
+            shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.08,
+            shadowOpacity: 0.06,
             shadowRadius: 8,
             elevation: 2,
           }}
         >
           <View className={`flex-row items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <View className="w-14 h-14 rounded-full bg-primary-100 items-center justify-center">
+            <View className="w-14 h-14 rounded-full bg-primary-50 items-center justify-center">
               <BuildingIcon size={28} color="#FF385C" />
             </View>
             <View className="flex-1">
@@ -158,6 +160,29 @@ export function BusinessSection() {
                     <XIcon size={18} color="#717171" />
                   </Pressable>
                 </View>
+
+                {/* View Plans Link */}
+                <Pressable
+                  onPress={() => {
+                    setShowModal(false);
+                    router.push('/(customer)/plans');
+                  }}
+                  className={`mx-6 mt-4 mb-2 p-4 bg-primary-50 rounded-xl flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}
+                >
+                  <View className="flex-1">
+                    <Text className={`text-primary-700 font-semibold ${isRTL ? 'text-right' : 'text-left'}`}>
+                      {t('businessPlans.title')}
+                    </Text>
+                    <Text className={`text-primary-600 text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                      {t('businessPlans.subtitle')}
+                    </Text>
+                  </View>
+                  {isRTL ? (
+                    <ChevronLeftIcon size={20} color="#FF385C" />
+                  ) : (
+                    <ChevronRightIcon size={20} color="#FF385C" />
+                  )}
+                </Pressable>
 
                 <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
                   {/* Name Input */}
