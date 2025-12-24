@@ -136,8 +136,8 @@ export default function HomeScreen() {
             </Text>
             <ChevronDownIcon size={14} color="#222222" />
             {activeFilterCount > 0 && (
-              <View className="w-5 h-5 bg-primary-500 rounded-full items-center justify-center">
-                <Text className="text-white text-xs font-bold">{activeFilterCount}</Text>
+              <View className="w-4 h-4 bg-primary-500 rounded-full items-center justify-center">
+                <Text className="text-white text-[10px] font-bold">{activeFilterCount}</Text>
               </View>
             )}
           </Pressable>
@@ -155,7 +155,7 @@ export default function HomeScreen() {
           />
 
           {/* Search Button */}
-          <Pressable className="w-9 h-9 rounded-full bg-primary-500 items-center justify-center mr-1">
+          <Pressable className="w-9 h-9 rounded-full bg-primary-500 items-center justify-center mr-1.5">
             <SearchIcon size={16} color="#FFFFFF" />
           </Pressable>
         </View>
