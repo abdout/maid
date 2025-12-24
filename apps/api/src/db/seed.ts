@@ -11,8 +11,20 @@ async function seed() {
   const sql = postgres(DATABASE_URL, { prepare: false });
   const db = drizzle(sql, { schema });
 
-  // Clear existing data
+  // Clear existing data (order matters due to foreign keys)
   console.log('🗑️  Clearing existing data...');
+  // New tables first
+  await db.delete(schema.walletTransactions);
+  await db.delete(schema.wallets);
+  await db.delete(schema.cvUnlocks);
+  await db.delete(schema.payments);
+  await db.delete(schema.paymentMethods);
+  await db.delete(schema.notifications);
+  await db.delete(schema.pushTokens);
+  await db.delete(schema.customerSubscriptions);
+  await db.delete(schema.officeSubscriptions);
+  await db.delete(schema.auditLogs);
+  // Original tables
   await db.delete(schema.favorites);
   await db.delete(schema.quotations);
   await db.delete(schema.maidDocuments);
@@ -25,6 +37,11 @@ async function seed() {
   await db.delete(schema.offices);
   await db.delete(schema.languages);
   await db.delete(schema.nationalities);
+  // Pricing and plans (no user deps)
+  await db.delete(schema.cvUnlockPricing);
+  await db.delete(schema.businessPlans);
+  await db.delete(schema.subscriptionPlans);
+  await db.delete(schema.platformSettings);
 
   // Seed Nationalities
   console.log('🌍 Seeding nationalities...');

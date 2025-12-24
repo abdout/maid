@@ -70,18 +70,17 @@ export function MaidCard({
             </View>
           )}
 
-          {/* Favorite Button - Airbnb style with backdrop blur */}
+          {/* Favorite Button - Airbnb style with larger touch target */}
           <Pressable
             onPress={handleFavoritePress}
-            className={`absolute top-3 ${isRTL ? 'left-3' : 'right-3'} w-7 h-7 rounded-full items-center justify-center`}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            className={`absolute top-2 ${isRTL ? 'left-2' : 'right-2'} w-9 h-9 rounded-full items-center justify-center`}
             style={{
-              backgroundColor: isFavorite ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.2)',
-              borderWidth: 1,
-              borderColor: 'rgba(255, 255, 255, 0.3)',
+              backgroundColor: isFavorite ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.3)',
             }}
           >
             <HeartIcon
-              size={16}
+              size={18}
               color={isFavorite ? '#FF385C' : '#FFFFFF'}
               filled={isFavorite}
             />
