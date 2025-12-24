@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -38,14 +38,25 @@ export default function HomeScreen() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Partial<MaidFilters>>({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
   const [selectedServiceType, setSelectedServiceType] = useState<ServiceType | null>(null);
   const [showAllListings, setShowAllListings] = useState(false);
+
+  // Debounce search query for real-time filtering (300ms delay)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1); // Reset to first page on search change
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const { data: nationalitiesData } = useNationalities();
   const { data: maidsData, isLoading, isRefetching, refetch } = useMaids({
     ...filters,
     serviceType: selectedServiceType || undefined,
+    search: debouncedSearch || undefined,
     page,
     pageSize: 20,
   });
@@ -61,7 +72,7 @@ export default function HomeScreen() {
     : maids.slice(0, INITIAL_DISPLAY_COUNT);
   const hasMoreToShow = !showAllListings && maids.length > INITIAL_DISPLAY_COUNT;
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  const activeFilterCount = Object.values(filters).filter(Boolean).length + (debouncedSearch ? 1 : 0) + (selectedServiceType ? 1 : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
   const handleApplyFilters = useCallback((newFilters: Partial<MaidFilters>) => {
@@ -72,6 +83,8 @@ export default function HomeScreen() {
   const handleResetFilters = useCallback(() => {
     setFilters({});
     setSearchQuery('');
+    setDebouncedSearch('');
+    setSelectedServiceType(null);
     setPage(1);
   }, []);
 
