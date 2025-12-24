@@ -30,6 +30,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundler: 'metro',
     output: 'single',
     favicon: './assets/favicon.png',
+    head: [
+      ['meta', { name: 'google-site-verification', content: '5R0nMTlBV9R6vAe4Y3mImjCVbfd0oTZvDarpGtPg7_Q' }]
+    ]
   },
   experiments: {
     typedRoutes: true,
