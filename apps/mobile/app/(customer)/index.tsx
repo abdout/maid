@@ -86,14 +86,14 @@ export default function HomeScreen() {
           {/* Filter Button - Sharp inner corner */}
           <Pressable
             onPress={() => setShowFilters(true)}
-            className={`flex-row items-center px-4 h-11 gap-1.5 bg-background-50 ${isRTL ? 'rounded-r-full' : 'rounded-l-full'}`}
+            className={`flex-row items-center px-4 h-12 gap-1.5 ${isRTL ? 'rounded-r-full' : 'rounded-l-full'}`}
             style={isRTL
               ? { borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }
               : { borderTopRightRadius: 0, borderBottomRightRadius: 0 }
             }
           >
             <Text className="text-sm font-medium text-typography-900">
-              {t('search.filters')}
+              {t('common.filter')}
             </Text>
             <ChevronDownIcon size={14} color="#222222" />
             {activeFilterCount > 0 && (
@@ -110,9 +110,9 @@ export default function HomeScreen() {
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholder={t('home.searchPlaceholder')}
+            placeholder={t('common.search')}
             placeholderTextColor="#717171"
-            className={`flex-1 h-11 px-3 text-typography-900 ${isRTL ? 'text-right' : 'text-left'}`}
+            className={`flex-1 h-12 px-3 text-typography-900 ${isRTL ? 'text-right' : 'text-left'}`}
           />
 
           {/* Search Button */}
@@ -130,22 +130,19 @@ export default function HomeScreen() {
         />
       </View>
 
-      {/* Results Header */}
-      <View className="px-6 mb-3">
-        <View className={`flex-row justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <Text className="text-lg font-semibold text-typography-900">
-            {hasActiveFilters ? t('search.results', { count: total }) : t('home.allListings')}
-          </Text>
-          {hasActiveFilters && (
+      {/* Results Header - Only show when filters active */}
+      {hasActiveFilters && (
+        <View className="px-6 mb-3">
+          <View className={`flex-row justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <Text className="text-lg font-semibold text-typography-900">
+              {t('search.results', { count: total })}
+            </Text>
             <Pressable onPress={handleResetFilters}>
               <Text className="text-primary-500 font-medium">{t('filters.reset')}</Text>
             </Pressable>
-          )}
+          </View>
         </View>
-        <Text className="text-typography-500 text-sm mt-1">
-          {total} {t('home.maidsAvailable')}
-        </Text>
-      </View>
+      )}
     </>
   );
 

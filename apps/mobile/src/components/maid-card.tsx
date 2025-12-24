@@ -87,14 +87,6 @@ export function MaidCard({
             />
           </Pressable>
 
-          {/* Status Badge - Subtle style */}
-          {maid.status === 'available' && (
-            <View className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} bg-white px-2 py-1 rounded`}>
-              <Text className="text-typography-900 text-xs font-medium">
-                {t('maid.available')}
-              </Text>
-            </View>
-          )}
         </View>
       </View>
 
