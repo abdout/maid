@@ -63,8 +63,8 @@ export default function MaidDetailScreen() {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Check out this maid profile: https://maid-uae.vercel.app/maid/${id}`,
-        url: `https://maid-uae.vercel.app/maid/${id}`,
+        message: `Check out this maid profile: https://maid-xi.vercel.app/maid/${id}`,
+        url: `https://maid-xi.vercel.app/maid/${id}`,
       });
     } catch (error) {
       console.error('Share failed:', error);
