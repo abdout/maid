@@ -327,7 +327,7 @@ async function seed() {
       experienceYears: 2,
       salary: '2100.00',
       status: 'available' as const,
-      photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+      photoUrl: 'https://images.unsplash.com/photo-1499887142886-791eca5918cd?w=400&h=400&fit=crop&crop=face',
       bio: 'Young and eager to learn. Basic cooking and cleaning skills. Very polite and respectful.',
       bioAr: 'شابة ومتحمسة للتعلم. مهارات أساسية في الطبخ والتنظيف. مهذبة ومحترمة جداً.',
     },

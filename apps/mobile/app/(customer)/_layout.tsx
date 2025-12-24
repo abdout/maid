@@ -91,6 +91,18 @@ export default function CustomerLayout() {
           href: null, // Hide from tab bar
         }}
       />
+      <Tabs.Screen
+        name="plans"
+        options={{
+          href: null, // Hide from tab bar, accessible from profile
+        }}
+      />
+      <Tabs.Screen
+        name="unlocked-cvs"
+        options={{
+          href: null, // Hide from tab bar, accessible from profile
+        }}
+      />
     </Tabs>
   );
 }
