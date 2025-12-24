@@ -1,9 +1,13 @@
 import { Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { enableFreeze } from 'react-native-screens';
 import '../global.css';
 // Initialize i18n - must be imported to execute the init() call
 import '@/lib/i18n';
+
+// Enable screen freezing for tab state preservation (uses React Suspense internally)
+enableFreeze(true);
 
 const queryClient = new QueryClient({
   defaultOptions: {
