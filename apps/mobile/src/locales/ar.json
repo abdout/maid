@@ -97,11 +97,11 @@
     "business": {
       "title": "تحتاج فريقاً؟",
       "subtitle": "مدارس وشركات وتوظيف جماعي",
-      "cta": "احصل على عرض سعر"
+      "cta": "عرض الخطط"
     }
   },
   "promotions": {
-    "firstBooking": "خصم 20% على أول حجز",
+    "firstBooking": "خصم 20%",
     "firstBookingDesc": "استخدم كود FIRST20",
     "referFriend": "أحل واربح",
     "referFriendDesc": "احصل على 100 درهم رصيد",

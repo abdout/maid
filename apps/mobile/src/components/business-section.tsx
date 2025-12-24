@@ -87,40 +87,25 @@ export function BusinessSection() {
 
   return (
     <>
-      {/* Business Section - Distinct visual separation */}
+      {/* Business Section - Column layout on gray background */}
       <View className="mt-4 pt-5 pb-6 bg-background-50">
         <Pressable
           onPress={() => setShowModal(true)}
-          className="mx-6 bg-background-0 rounded-xl p-5"
-          style={{
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.06,
-            shadowRadius: 8,
-            elevation: 2,
-          }}
+          className="mx-6 items-center py-4"
         >
-          <View className={`flex-row items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <View className="w-14 h-14 rounded-full bg-primary-50 items-center justify-center">
-              <BuildingIcon size={28} color="#FF385C" />
-            </View>
-            <View className="flex-1">
-              <Text
-                className={`text-lg font-bold text-typography-900 mb-1 ${isRTL ? 'text-right' : 'text-left'}`}
-              >
-                {t('home.business.title')}
-              </Text>
-              <Text
-                className={`text-sm text-typography-500 ${isRTL ? 'text-right' : 'text-left'}`}
-              >
-                {t('home.business.subtitle')}
-              </Text>
-            </View>
-            <View className="bg-primary-500 px-4 py-2 rounded-full">
-              <Text className="text-white font-semibold text-sm">
-                {t('home.business.cta')}
-              </Text>
-            </View>
+          <View className="w-14 h-14 rounded-full bg-primary-50 items-center justify-center mb-3">
+            <BuildingIcon size={28} color="#FF385C" />
+          </View>
+          <Text className="text-lg font-bold text-typography-900 mb-1 text-center">
+            {t('home.business.title')}
+          </Text>
+          <Text className="text-sm text-typography-500 mb-4 text-center">
+            {t('home.business.subtitle')}
+          </Text>
+          <View className="bg-primary-500 px-6 py-2.5 rounded-full">
+            <Text className="text-white font-semibold text-sm">
+              {t('home.business.cta')}
+            </Text>
           </View>
         </Pressable>
       </View>
