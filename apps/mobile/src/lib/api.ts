@@ -106,8 +106,14 @@ export const authApi = {
 
 // Maids API
 export const maidsApi = {
-  list: (params?: Record<string, string | number>) => {
-    const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
+  list: (params?: Record<string, string | number | undefined>) => {
+    // Filter out undefined/null values before creating query string
+    const cleanParams = params
+      ? Object.fromEntries(Object.entries(params).filter(([_, v]) => v != null))
+      : {};
+    const query = Object.keys(cleanParams).length > 0
+      ? '?' + new URLSearchParams(cleanParams as Record<string, string>).toString()
+      : '';
     return apiFetch<{
       success: boolean;
       data: {
@@ -167,8 +173,13 @@ export const maidsApi = {
     }>(`/maids/${id}`),
 
   // Office routes
-  officeList: (params?: Record<string, string | number>) => {
-    const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : '';
+  officeList: (params?: Record<string, string | number | undefined>) => {
+    const cleanParams = params
+      ? Object.fromEntries(Object.entries(params).filter(([_, v]) => v != null))
+      : {};
+    const query = Object.keys(cleanParams).length > 0
+      ? '?' + new URLSearchParams(cleanParams as Record<string, string>).toString()
+      : '';
     return apiFetch<{
       success: boolean;
       data: {
