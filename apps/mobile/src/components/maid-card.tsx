@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Pressable, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { HeartIcon, UserIcon, DirhamIcon, StarIcon } from './icons';
@@ -57,7 +57,7 @@ export function MaidCard({
     >
       {/* Image Container */}
       <View className="relative mb-3">
-        <View className="relative w-full h-52 bg-background-100 rounded-lg overflow-hidden">
+        <View className="w-full h-52 bg-background-100 rounded-lg overflow-hidden">
           {maid.photoUrl ? (
             <Image
               source={{ uri: maid.photoUrl }}
@@ -69,26 +69,25 @@ export function MaidCard({
               <UserIcon size={48} color="#B0B0B0" />
             </View>
           )}
-
-          {/* Favorite Button - Original size with expanded touch area */}
-          <Pressable
-            onPress={handleFavoritePress}
-            hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
-            className={`absolute top-3 ${isRTL ? 'left-3' : 'right-3'} w-7 h-7 rounded-full items-center justify-center`}
-            style={{
-              backgroundColor: isFavorite ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.2)',
-              borderWidth: 1,
-              borderColor: 'rgba(255, 255, 255, 0.3)',
-            }}
-          >
-            <HeartIcon
-              size={16}
-              color={isFavorite ? '#FF385C' : '#FFFFFF'}
-              filled={isFavorite}
-            />
-          </Pressable>
-
         </View>
+
+        {/* Favorite Button - Outside overflow:hidden for proper touch handling */}
+        <TouchableOpacity
+          onPress={handleFavoritePress}
+          activeOpacity={0.7}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          className={`absolute top-3 ${isRTL ? 'left-3' : 'right-3'} w-8 h-8 rounded-full items-center justify-center`}
+          style={{
+            backgroundColor: isFavorite ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.4)',
+            zIndex: 10,
+          }}
+        >
+          <HeartIcon
+            size={16}
+            color={isFavorite ? '#FF385C' : '#FFFFFF'}
+            filled={isFavorite}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Content - Airbnb style */}

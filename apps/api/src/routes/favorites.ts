@@ -32,6 +32,7 @@ favoritesRoute.get('/', authMiddleware, async (c) => {
       success: true,
       data: items.map((row) => ({
         id: row.favorite.id,
+        maidId: row.favorite.maidId,
         createdAt: row.favorite.createdAt,
         maid: {
           ...row.maid,
