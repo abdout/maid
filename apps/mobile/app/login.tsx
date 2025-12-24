@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import { authApi } from '@/lib/api';
 import { useAuth } from '@/store/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'react-native';
+import { storage } from '@/lib/storage';
 
 export default function LoginScreen() {
   const { t, i18n } = useTranslation();
@@ -25,7 +26,16 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [userIntent, setUserIntent] = useState<'customer' | 'office' | null>(null);
   const isRTL = i18n.language === 'ar';
+
+  useEffect(() => {
+    const loadUserIntent = async () => {
+      const intent = await storage.getItem('user_intent');
+      setUserIntent(intent as 'customer' | 'office' | null);
+    };
+    loadUserIntent();
+  }, []);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -127,44 +137,34 @@ export default function LoginScreen() {
                   </Text>
 
                   {/* Email Input */}
-                  <View className="bg-white/10 border border-white/30 rounded-t-xl px-4 py-3">
-                    <Text className="text-white/60 text-xs mb-1">
-                      {isRTL ? 'البريد الإلكتروني' : 'Email'}
-                    </Text>
-                    <TextInput
-                      value={email}
-                      onChangeText={setEmail}
-                      placeholder={isRTL ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      autoComplete="email"
-                      className={`text-white text-base ${isRTL ? 'text-right' : 'text-left'}`}
-                      placeholderTextColor="rgba(255,255,255,0.4)"
-                    />
-                  </View>
+                  <TextInput
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder={isRTL ? 'البريد الإلكتروني' : 'Email'}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    className={`bg-white/10 border border-white/30 rounded-t-xl px-4 py-4 text-white text-base ${isRTL ? 'text-right' : 'text-left'}`}
+                    placeholderTextColor="rgba(255,255,255,0.5)"
+                  />
 
                   {/* Password Input */}
-                  <View className="bg-white/10 border border-t-0 border-white/30 rounded-b-xl px-4 py-3 mb-4">
-                    <Text className="text-white/60 text-xs mb-1">
-                      {isRTL ? 'كلمة المرور' : 'Password'}
-                    </Text>
-                    <TextInput
-                      value={password}
-                      onChangeText={setPassword}
-                      placeholder={isRTL ? 'أدخل كلمة المرور' : 'Enter your password'}
-                      secureTextEntry
-                      autoCapitalize="none"
-                      autoComplete="password"
-                      className={`text-white text-base ${isRTL ? 'text-right' : 'text-left'}`}
-                      placeholderTextColor="rgba(255,255,255,0.4)"
-                    />
-                  </View>
+                  <TextInput
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder={isRTL ? 'كلمة المرور' : 'Password'}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoComplete="password"
+                    className={`bg-white/10 border border-t-0 border-white/30 rounded-b-xl px-4 py-4 text-white text-base mb-4 ${isRTL ? 'text-right' : 'text-left'}`}
+                    placeholderTextColor="rgba(255,255,255,0.5)"
+                  />
 
-                  {/* Dev hint */}
+                  {/* Test credentials hint */}
                   <Text className="text-white/40 text-xs mb-4">
-                    {isRTL
-                      ? 'للاختبار: customer@hotmail.com / 1234'
-                      : 'For testing: customer@hotmail.com / 1234'}
+                    {userIntent === 'office'
+                      ? (isRTL ? 'للاختبار: office@hotmail.com / 1234' : 'For testing: office@hotmail.com / 1234')
+                      : (isRTL ? 'للاختبار: customer@hotmail.com / 1234' : 'For testing: customer@hotmail.com / 1234')}
                   </Text>
 
                   {/* Login Button */}
