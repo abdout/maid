@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { useAuth } from '@/store/auth';
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl || 'http://localhost:8787';
+const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://maid-api.osmanabdout.workers.dev';
 
 // Fetch wrapper with auth token
 export async function fetchWithAuth(

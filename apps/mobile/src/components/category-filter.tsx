@@ -57,7 +57,7 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
             <Pressable
               key={category.id}
               onPress={() => handlePress(category.id)}
-              className="flex-1 flex-col items-center justify-center py-3"
+              className="flex-col items-center justify-center py-3"
               style={{ opacity: isActive ? 1 : 0.35 }}
             >
               <View className="relative">
