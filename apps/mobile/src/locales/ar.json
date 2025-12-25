@@ -253,7 +253,11 @@
     "statistics": "الإحصائيات",
     "recentQuotations": "آخر العروض",
     "address": "العنوان",
-    "verified": "موثق"
+    "verified": "موثق",
+    "quickActions": "إجراءات سريعة",
+    "manage": "إدارة العاملات",
+    "admit": "قبول عاملة جديدة",
+    "viewQuotations": "عرض الأسعار"
   },
   "quotation": {
     "title": "طلب عرض سعر",

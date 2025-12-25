@@ -253,7 +253,11 @@
     "statistics": "Statistics",
     "recentQuotations": "Recent Quotations",
     "address": "Address",
-    "verified": "Verified"
+    "verified": "Verified",
+    "quickActions": "Quick Actions",
+    "manage": "Manage Maids",
+    "admit": "Admit New Maid",
+    "viewQuotations": "View Quotations"
   },
   "quotation": {
     "title": "Request Quote",

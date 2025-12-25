@@ -10,8 +10,8 @@ export default function OfficeDashboardScreen() {
 
   const stats = [
     { key: 'maids', label: t('office.maids'), value: '0', color: 'bg-primary-500' },
-    { key: 'available', label: t('maid.available'), value: '0', color: 'bg-success-500' },
-    { key: 'quotations', label: t('office.quotations'), value: '0', color: 'bg-warning-500' },
+    { key: 'available', label: t('maid.available'), value: '0', color: 'bg-background-900' },
+    { key: 'quotations', label: t('office.quotations'), value: '0', color: 'bg-primary-700' },
   ];
 
   return (
@@ -37,18 +37,43 @@ export default function OfficeDashboardScreen() {
         {/* Quick Actions */}
         <View className="px-6 mb-6">
           <Text className={`text-lg font-semibold text-typography-900 mb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
-            Quick Actions
+            {t('office.quickActions')}
           </Text>
 
-          <Pressable
-            onPress={() => router.push('/(office)/maids')}
-            className={`flex-row items-center p-4 bg-primary-500 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}
-          >
-            <Text className="text-2xl">➕</Text>
-            <Text className={`text-white font-semibold text-lg ${isRTL ? 'mr-3' : 'ml-3'}`}>
-              {t('office.addMaid')}
-            </Text>
-          </Pressable>
+          <View className="gap-3">
+            {/* Manage Action */}
+            <Pressable
+              onPress={() => router.push('/(office)/maids')}
+              className={`flex-row items-center p-4 bg-primary-500 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              <Text className="text-2xl">📋</Text>
+              <Text className={`text-white font-semibold text-lg ${isRTL ? 'mr-3' : 'ml-3'}`}>
+                {t('office.manage')}
+              </Text>
+            </Pressable>
+
+            {/* Admit Action */}
+            <Pressable
+              onPress={() => router.push('/maid-onboarding')}
+              className={`flex-row items-center p-4 bg-background-900 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              <Text className="text-2xl">➕</Text>
+              <Text className={`text-white font-semibold text-lg ${isRTL ? 'mr-3' : 'ml-3'}`}>
+                {t('office.admit')}
+              </Text>
+            </Pressable>
+
+            {/* View Quotations Action */}
+            <Pressable
+              onPress={() => router.push('/(office)/quotations')}
+              className={`flex-row items-center p-4 bg-primary-700 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              <Text className="text-2xl">📄</Text>
+              <Text className={`text-white font-semibold text-lg ${isRTL ? 'mr-3' : 'ml-3'}`}>
+                {t('office.viewQuotations')}
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Recent Activity */}
