@@ -21,12 +21,15 @@ import {
 } from '@/components/icons';
 
 interface UserProfile {
-  id: string;
-  name: string | null;
-  nameAr: string | null;
-  phone: string;
-  email: string | null;
-  role: string;
+  user: {
+    id: string;
+    phone: string | null;
+    email: string | null;
+    emailVerified: boolean;
+    name: string | null;
+    nameAr: string | null;
+    role: string;
+  };
   customer: {
     emirate: string | null;
     preferredLanguage: string | null;
@@ -89,8 +92,8 @@ export default function ProfileScreen() {
     router.replace('/onboarding');
   };
 
-  const displayName = profile?.name || user?.name || t('home.welcome');
-  const displayPhone = profile?.phone || user?.phone || '';
+  const displayName = profile?.user.name || user?.name || t('home.welcome');
+  const displayPhone = profile?.user.phone || user?.phone || '';
 
   const accountItems = [
     { key: 'favorites', icon: HeartIcon, label: t('profile.favorites'), route: '/(customer)/favorites' as const },

@@ -8,12 +8,15 @@ import { usersApi } from '@/lib/api';
 import { UserIcon, XIcon, LockClosedIcon } from '@/components/icons';
 
 interface UserProfile {
-  id: string;
-  name: string | null;
-  nameAr: string | null;
-  phone: string;
-  email: string | null;
-  role: string;
+  user: {
+    id: string;
+    phone: string | null;
+    email: string | null;
+    emailVerified: boolean;
+    name: string | null;
+    nameAr: string | null;
+    role: string;
+  };
   customer: {
     emirate: string | null;
     preferredLanguage: string | null;
@@ -42,9 +45,9 @@ export default function ProfileEditScreen() {
     try {
       const response = await usersApi.getMe();
       if (response.success && response.data) {
-        setName(response.data.name || '');
-        setEmail(response.data.email || '');
-        setPhone(response.data.phone || user?.phone || '');
+        setName(response.data.user.name || '');
+        setEmail(response.data.user.email || '');
+        setPhone(response.data.user.phone || user?.phone || '');
       } else {
         // Fallback to auth store data
         setName(user?.name || '');
