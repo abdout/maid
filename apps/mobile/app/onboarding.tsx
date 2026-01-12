@@ -96,17 +96,19 @@ export default function OnboardingScreen() {
                 </Pressable>
               </View>
 
-              {/* Login Link */}
-              <View className="items-center pb-2">
-                <Pressable onPress={handleLogin} className="flex-row items-center">
-                  <Text className="text-white/70 text-base">
-                    {isRTL ? 'لديك حساب بالفعل؟' : 'Already have an account?'}
-                  </Text>
-                  <Text className="text-white font-semibold text-base ml-2 underline">
-                    {isRTL ? 'تسجيل الدخول' : 'Log in'}
-                  </Text>
-                </Pressable>
-              </View>
+              {/* Login Link - only shown when auth is enabled */}
+              {!authConfig.guestModeEnabled && (
+                <View className="items-center pb-2">
+                  <Pressable onPress={handleLogin} className="flex-row items-center">
+                    <Text className="text-white/70 text-base">
+                      {isRTL ? 'لديك حساب بالفعل؟' : 'Already have an account?'}
+                    </Text>
+                    <Text className="text-white font-semibold text-base ml-2 underline">
+                      {isRTL ? 'تسجيل الدخول' : 'Log in'}
+                    </Text>
+                  </Pressable>
+                </View>
+              )}
             </View>
           </SafeAreaView>
         </LinearGradient>
