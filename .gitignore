@@ -45,3 +45,4 @@ web-build/
 # Analysis (large extracted files)
 analysis/
 .vercel
+.wrangler/
