@@ -1,7 +1,9 @@
-import { Tabs } from 'expo-router';
+import { useEffect } from 'react';
+import { Tabs, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { DashboardIcon, UsersIcon, FileTextIcon, UserIcon } from '@/components/icons';
+import { useAuth } from '@/store/auth';
 
 type TabName = 'dashboard' | 'maids' | 'quotations' | 'profile';
 
@@ -40,6 +42,24 @@ function TabIcon({ name, focused }: { name: TabName; focused: boolean }) {
 
 export default function OfficeLayout() {
   const { t } = useTranslation();
+  const router = useRouter();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  // Office screens always require authentication
+  useEffect(() => {
+    if (!isLoading && (!isAuthenticated || user?.role !== 'office_admin')) {
+      router.replace('/login');
+    }
+  }, [isLoading, isAuthenticated, user]);
+
+  // Show loading while checking auth
+  if (isLoading || !isAuthenticated || user?.role !== 'office_admin') {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#FF385C" />
+      </View>
+    );
+  }
 
   return (
     <Tabs

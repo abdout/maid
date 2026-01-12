@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import Constants from 'expo-constants';
 import { useAuth } from '@/store/auth';
 import { storage, STORAGE_KEYS } from '@/lib/storage';
+import { authConfig } from '@/config';
 
-// Guest mode: when false, customers can browse without login (free trial period)
-const requireCustomerAuth = Constants.expoConfig?.extra?.requireCustomerAuth ?? false;
+// Use centralized auth config - toggle GUEST_MODE in src/config/auth.ts
+const { requireCustomerAuth, requireOfficeAuth } = authConfig;
 
 export default function Index() {
   const router = useRouter();

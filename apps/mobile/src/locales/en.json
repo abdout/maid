@@ -52,6 +52,16 @@
     "haveAccount": "Already have an account?",
     "noAccount": "Don't have an account?"
   },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "guest": "Guest",
+    "loginForFullAccess": "Login for full access",
+    "loginToSaveFavorites": "Login to save favorites",
+    "loginToSaveFavoritesDesc": "Create an account to save your favorite workers",
+    "loginBenefits": "Login to access all features",
+    "loginBenefitsDesc": "Save favorites, get quotations, and more"
+  },
   "verify": {
     "title": "Verify Number",
     "subtitle": "Enter the code sent to {{phone}}",

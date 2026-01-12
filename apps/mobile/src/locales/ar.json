@@ -52,6 +52,16 @@
     "haveAccount": "لديك حساب بالفعل؟",
     "noAccount": "ليس لديك حساب؟"
   },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "guest": "زائر",
+    "loginForFullAccess": "سجل الدخول للوصول الكامل",
+    "loginToSaveFavorites": "سجل الدخول لحفظ المفضلة",
+    "loginToSaveFavoritesDesc": "أنشئ حساباً لحفظ العمال المفضلين لديك",
+    "loginBenefits": "سجل الدخول للوصول إلى جميع الميزات",
+    "loginBenefitsDesc": "احفظ المفضلة، واحصل على عروض الأسعار، والمزيد"
+  },
   "verify": {
     "title": "تأكيد الرقم",
     "subtitle": "أدخل الرمز المرسل إلى {{phone}}",
