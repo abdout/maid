@@ -21,6 +21,14 @@ export const quotationStatusEnum = pgEnum('quotation_status', ['pending', 'sent'
 export const oauthProviderEnum = pgEnum('oauth_provider', ['google', 'apple']);
 export const serviceTypeEnum = pgEnum('service_type', ['individual', 'business', 'cleaning', 'cooking', 'babysitter', 'elderly', 'driver']);
 
+// New enums for client feedback
+export const packageTypeEnum = pgEnum('package_type', ['traditional', 'flexible', 'hourly']);
+export const cookingSkillsEnum = pgEnum('cooking_skills', ['good', 'average', 'willing_to_learn', 'none']);
+export const availabilityTypeEnum = pgEnum('availability_type', ['inside_uae', 'outside_uae']);
+export const sexEnum = pgEnum('sex', ['male', 'female']);
+export const educationLevelEnum = pgEnum('education_level', ['college', 'high_school', 'primary', 'none']);
+export const jobTypeEnum = pgEnum('job_type', ['domestic_worker', 'nurse_caregiver', 'driver']);
+
 // Offices (Recruitment Agencies)
 export const offices = pgTable('offices', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -32,9 +40,22 @@ export const offices = pgTable('offices', {
   addressAr: text('address_ar'),
   logoUrl: text('logo_url'),
   isVerified: boolean('is_verified').default(false).notNull(),
+  // License info
+  licenseNumber: varchar('license_number', { length: 100 }),
+  licenseExpiry: timestamp('license_expiry'),
+  licenseImageUrl: text('license_image_url'),
+  // Manager contact
+  managerPhone1: varchar('manager_phone_1', { length: 20 }),
+  managerPhone2: varchar('manager_phone_2', { length: 20 }),
+  // Location
+  googleMapsUrl: text('google_maps_url'),
+  emirate: varchar('emirate', { length: 50 }),
+  website: varchar('website', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (t) => ({
+  emirateIdx: index('offices_emirate_idx').on(t.emirate),
+}));
 
 // Users
 export const users = pgTable('users', {
@@ -82,6 +103,19 @@ export const otpCodes = pgTable('otp_codes', {
   phoneIdx: index('otp_phone_idx').on(t.phone),
 }));
 
+// Password Reset Tokens
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').references(() => users.id).notNull(),
+  tokenHash: varchar('token_hash', { length: 255 }).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  used: boolean('used').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+  userIdx: index('password_reset_user_idx').on(t.userId),
+  tokenIdx: index('password_reset_token_idx').on(t.tokenHash),
+}));
+
 // Nationalities
 export const nationalities = pgTable('nationalities', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -115,6 +149,22 @@ export const maids = pgTable('maids', {
   serviceType: serviceTypeEnum('service_type').default('individual').notNull(),
   bio: text('bio'),
   bioAr: text('bio_ar'),
+  // New fields from client feedback
+  sex: sexEnum('sex').default('female'),
+  educationLevel: educationLevelEnum('education_level'),
+  hasChildren: boolean('has_children').default(false),
+  jobType: jobTypeEnum('job_type').default('domestic_worker'),
+  packageType: packageTypeEnum('package_type').default('traditional'),
+  hasExperience: boolean('has_experience').default(false),
+  experienceDetails: varchar('experience_details', { length: 70 }),
+  skillsDetails: varchar('skills_details', { length: 70 }),
+  cookingSkills: cookingSkillsEnum('cooking_skills'),
+  babySitter: boolean('baby_sitter').default(false),
+  officeFees: decimal('office_fees', { precision: 10, scale: 2 }),
+  availability: availabilityTypeEnum('availability').default('inside_uae'),
+  whatsappNumber: varchar('whatsapp_number', { length: 20 }),
+  contactNumber: varchar('contact_number', { length: 20 }),
+  cvReference: varchar('cv_reference', { length: 50 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
@@ -122,6 +172,10 @@ export const maids = pgTable('maids', {
   statusIdx: index('maids_status_idx').on(t.status),
   nationalityIdx: index('maids_nationality_idx').on(t.nationalityId),
   serviceTypeIdx: index('maids_service_type_idx').on(t.serviceType),
+  jobTypeIdx: index('maids_job_type_idx').on(t.jobType),
+  packageTypeIdx: index('maids_package_type_idx').on(t.packageType),
+  availabilityIdx: index('maids_availability_idx').on(t.availability),
+  cvReferenceIdx: index('maids_cv_reference_idx').on(t.cvReference),
 }));
 
 // Maid Languages (many-to-many)

@@ -1,4 +1,4 @@
-import type { R2Bucket } from '@cloudflare/workers-types';
+import { S3Service } from './s3.service';
 
 interface PresignedUrlResult {
   uploadUrl: string;
@@ -6,27 +6,34 @@ interface PresignedUrlResult {
   key: string;
 }
 
+export interface UploadServiceConfig {
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucketName: string;
+  cloudfrontUrl: string;
+  cloudfrontKeyPairId: string;
+  cloudfrontPrivateKey: string;
+}
+
 export class UploadService {
-  constructor(private bucket: R2Bucket) {}
+  private s3: S3Service;
+
+  constructor(config: UploadServiceConfig) {
+    this.s3 = new S3Service(config);
+  }
 
   async generatePresignedUrl(
     folder: string,
     filename: string,
     contentType: string
   ): Promise<PresignedUrlResult> {
-    // Generate unique key
-    const timestamp = Date.now();
-    const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const key = `${folder}/${timestamp}-${sanitizedFilename}`;
+    const parts = folder.split('/');
+    const baseFolder = parts[0] as 'maids' | 'documents' | 'logos';
+    const officeId = parts[1] || 'default';
 
-    // For R2, we use a custom upload endpoint
-    // The actual presigned URL generation requires custom implementation
-    // Here we return the key and let the client upload via our endpoint
-    return {
-      uploadUrl: `/uploads/file`, // Our upload endpoint
-      publicUrl: `https://cdn.maid.ae/${key}`, // Public CDN URL
-      key,
-    };
+    const key = this.s3.generateKey(baseFolder, officeId, filename);
+    return this.s3.generatePresignedUploadUrl(key, contentType);
   }
 
   async upload(
@@ -34,23 +41,27 @@ export class UploadService {
     file: ArrayBuffer,
     contentType: string
   ): Promise<string> {
-    await this.bucket.put(key, file, {
-      httpMetadata: {
-        contentType,
-      },
-    });
-
-    return `https://cdn.maid.ae/${key}`;
+    const result = await this.s3.upload(key, file, contentType);
+    return result.publicUrl;
   }
 
   async delete(key: string): Promise<void> {
-    await this.bucket.delete(key);
+    await this.s3.delete(key);
   }
 
-  async getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
-    // R2 doesn't have native signed URLs like S3
-    // We return the public URL assuming the bucket is public
-    // For private files, implement a proxy endpoint
-    return `https://cdn.maid.ae/${key}`;
+  async getSignedUrl(key: string, expiresIn = 86400): Promise<string> {
+    return this.s3.generateSignedUrl(key, expiresIn);
+  }
+
+  async getPublicUrl(key: string): Promise<string> {
+    return this.s3.getPublicUrl(key);
+  }
+
+  generateKey(
+    folder: 'maids' | 'documents' | 'logos',
+    officeId: string,
+    filename: string
+  ): string {
+    return this.s3.generateKey(folder, officeId, filename);
   }
 }

@@ -7,13 +7,58 @@ interface RateLimitConfig {
   keyPrefix?: string;
 }
 
-// In-memory rate limit store (for development)
-// In production, use Cloudflare KV or Durable Objects
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+interface RateLimitRecord {
+  count: number;
+  resetTime: number;
+}
+
+// In-memory fallback for local development (when KV is not available)
+const memoryStore = new Map<string, RateLimitRecord>();
 
 /**
- * Simple rate limiting middleware
- * Uses in-memory store - for production, use Cloudflare KV
+ * Get rate limit record from KV or memory
+ */
+async function getRecord(
+  key: string,
+  kv?: Bindings['RATE_LIMIT_KV']
+): Promise<RateLimitRecord | null> {
+  if (kv) {
+    const record = await kv.get<RateLimitRecord>(key, 'json');
+    return record;
+  }
+  return memoryStore.get(key) || null;
+}
+
+/**
+ * Set rate limit record in KV or memory
+ */
+async function setRecord(
+  key: string,
+  record: RateLimitRecord,
+  windowMs: number,
+  kv?: Bindings['RATE_LIMIT_KV']
+): Promise<void> {
+  if (kv) {
+    // KV TTL is in seconds, add buffer to ensure cleanup
+    const ttlSeconds = Math.ceil(windowMs / 1000) + 60;
+    await kv.put(key, JSON.stringify(record), { expirationTtl: ttlSeconds });
+  } else {
+    memoryStore.set(key, record);
+    // Clean up old records in memory periodically
+    if (memoryStore.size > 10000) {
+      const now = Date.now();
+      Array.from(memoryStore.entries()).forEach(([k, v]) => {
+        if (v.resetTime < now) {
+          memoryStore.delete(k);
+        }
+      });
+    }
+  }
+}
+
+/**
+ * Rate limiting middleware with Cloudflare KV support
+ * Falls back to in-memory store for local development
  */
 export function rateLimiter(config: RateLimitConfig) {
   const { windowMs, max, keyPrefix = 'rl' } = config;
@@ -25,23 +70,20 @@ export function rateLimiter(config: RateLimitConfig) {
     const key = `${keyPrefix}:${clientId}`;
 
     const now = Date.now();
-    const record = rateLimitStore.get(key);
-
-    // Clean up old records periodically
-    if (rateLimitStore.size > 10000) {
-      for (const [k, v] of rateLimitStore) {
-        if (v.resetTime < now) {
-          rateLimitStore.delete(k);
-        }
-      }
-    }
+    const kv = c.env.RATE_LIMIT_KV;
+    const record = await getRecord(key, kv);
 
     if (!record || record.resetTime < now) {
       // New window
-      rateLimitStore.set(key, {
+      const newRecord: RateLimitRecord = {
         count: 1,
         resetTime: now + windowMs,
-      });
+      };
+      await setRecord(key, newRecord, windowMs, kv);
+
+      c.header('X-RateLimit-Limit', String(max));
+      c.header('X-RateLimit-Remaining', String(max - 1));
+      c.header('X-RateLimit-Reset', String(Math.ceil(newRecord.resetTime / 1000)));
     } else if (record.count >= max) {
       // Rate limit exceeded
       const retryAfter = Math.ceil((record.resetTime - now) / 1000);
@@ -61,14 +103,16 @@ export function rateLimiter(config: RateLimitConfig) {
       );
     } else {
       // Increment counter
-      record.count++;
-    }
+      const updatedRecord: RateLimitRecord = {
+        count: record.count + 1,
+        resetTime: record.resetTime,
+      };
+      await setRecord(key, updatedRecord, windowMs, kv);
 
-    // Set rate limit headers
-    const currentRecord = rateLimitStore.get(key)!;
-    c.header('X-RateLimit-Limit', String(max));
-    c.header('X-RateLimit-Remaining', String(Math.max(0, max - currentRecord.count)));
-    c.header('X-RateLimit-Reset', String(Math.ceil(currentRecord.resetTime / 1000)));
+      c.header('X-RateLimit-Limit', String(max));
+      c.header('X-RateLimit-Remaining', String(Math.max(0, max - updatedRecord.count)));
+      c.header('X-RateLimit-Reset', String(Math.ceil(record.resetTime / 1000)));
+    }
 
     await next();
   };

@@ -331,6 +331,7 @@ export class MaidService {
         ...maidData,
         officeId,
         salary: maidData.salary.toString(),
+        officeFees: maidData.officeFees?.toString(),
       })
       .returning();
 
@@ -369,6 +370,9 @@ export class MaidService {
     const updateData: Record<string, unknown> = { ...maidData, updatedAt: new Date() };
     if (maidData.salary !== undefined) {
       updateData.salary = maidData.salary.toString();
+    }
+    if (maidData.officeFees !== undefined) {
+      updateData.officeFees = maidData.officeFees.toString();
     }
 
     const [updated] = await this.db

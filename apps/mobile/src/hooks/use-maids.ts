@@ -1,6 +1,35 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import { maidsApi, favoritesApi } from '@/lib/api';
 import type { MaidFilters } from '@maid/shared';
+
+// Global optimistic state for instant UI updates
+// This is a simple store that lives outside React for maximum speed
+const optimisticToggles = new Map<string, boolean>(); // maidId -> pending state
+const listeners = new Set<() => void>();
+
+function notifyListeners() {
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+  return optimisticToggles;
+}
+
+function setOptimisticToggle(maidId: string, isFavorite: boolean) {
+  optimisticToggles.set(maidId, isFavorite);
+  notifyListeners();
+}
+
+function clearOptimisticToggle(maidId: string) {
+  optimisticToggles.delete(maidId);
+  notifyListeners();
+}
 
 interface MaidQueryParams extends Partial<MaidFilters> {
   page?: number;
@@ -36,6 +65,7 @@ export function useCreateMaid() {
     mutationFn: (data: Record<string, unknown>) => maidsApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['office-maids'] });
+      queryClient.invalidateQueries({ queryKey: ['maids'] });
     },
   });
 }
@@ -94,6 +124,45 @@ export function useIsFavorite(maidId: string) {
   });
 }
 
+/**
+ * Hook that provides instant optimistic favorite state.
+ * Combines server data with local optimistic toggles for instant UI updates.
+ */
+export function useOptimisticFavorites() {
+  const { data: favoritesData } = useFavorites();
+
+  // Subscribe to optimistic toggle changes for instant re-renders
+  const togglesRef = useRef(optimisticToggles);
+  useSyncExternalStore(
+    subscribe,
+    () => {
+      // Return a new reference only if the map has changed
+      if (togglesRef.current !== optimisticToggles) {
+        togglesRef.current = optimisticToggles;
+      }
+      return togglesRef.current.size;
+    },
+    () => 0
+  );
+
+  // Memoize the server favorites set
+  const serverFavoriteIds = useMemo(() => {
+    return new Set(favoritesData?.data?.map((f) => f.maidId) || []);
+  }, [favoritesData?.data]);
+
+  // Function to check if a maid is favorited, considering optimistic state
+  const isFavorite = useCallback((maidId: string): boolean => {
+    // Check if there's a pending optimistic toggle for this maid
+    if (optimisticToggles.has(maidId)) {
+      return optimisticToggles.get(maidId)!;
+    }
+    // Otherwise use server state
+    return serverFavoriteIds.has(maidId);
+  }, [serverFavoriteIds]);
+
+  return { isFavorite, serverFavoriteIds };
+}
+
 export function useToggleFavorite() {
   const queryClient = useQueryClient();
 
@@ -104,7 +173,34 @@ export function useToggleFavorite() {
       }
       return favoritesApi.add(maidId);
     },
-    onSuccess: (_, { maidId }) => {
+    // Optimistic update - immediately update UI BEFORE API call starts
+    onMutate: async ({ maidId, isFavorite }) => {
+      // Set optimistic state instantly - this happens synchronously
+      setOptimisticToggle(maidId, !isFavorite);
+
+      // Cancel any outgoing refetches to avoid overwriting
+      await queryClient.cancelQueries({ queryKey: ['favorites'] });
+
+      // Snapshot current value for rollback
+      const previousFavorites = queryClient.getQueryData(['favorites']);
+
+      return { previousFavorites, maidId };
+    },
+    // Rollback on error
+    onError: (_err, { maidId, isFavorite }, context) => {
+      // Revert optimistic state to original
+      setOptimisticToggle(maidId, isFavorite);
+
+      if (context?.previousFavorites) {
+        queryClient.setQueryData(['favorites'], context.previousFavorites);
+      }
+    },
+    // Sync with server after mutation settles
+    onSettled: (_, __, { maidId }) => {
+      // Clear optimistic toggle since server is now source of truth
+      clearOptimisticToggle(maidId);
+
+      // Invalidate to get fresh data from server
       queryClient.invalidateQueries({ queryKey: ['favorites'] });
       queryClient.invalidateQueries({ queryKey: ['favorite', maidId] });
     },

@@ -117,14 +117,14 @@ export class TabbyService {
       },
     });
 
-    const data = await response.json();
+    const data = await response.json() as T & { error?: { message?: string } };
 
     if (!response.ok) {
       console.error('Tabby API error:', data);
       throw new Error(data.error?.message || 'Tabby API error');
     }
 
-    return data;
+    return data as T;
   }
 
   // Create a checkout session

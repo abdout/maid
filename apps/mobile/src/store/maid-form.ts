@@ -1,8 +1,16 @@
 import { create } from 'zustand';
 
 export type MaritalStatus = 'single' | 'married' | 'divorced' | 'widowed';
-export type Religion = 'muslim' | 'non_muslim';
+export type Religion = 'muslim' | 'non_muslim' | 'christian' | 'other';
 export type MaidStatus = 'available' | 'inactive';
+
+// New types from client requirements
+export type PackageType = 'traditional' | 'flexible' | 'hourly';
+export type CookingSkill = 'good' | 'average' | 'willing_to_learn' | 'none';
+export type Availability = 'inside_uae' | 'outside_uae';
+export type Education = 'college' | 'high_school' | 'primary';
+export type JobType = 'domestic_worker' | 'nurse_caregiver' | 'driver';
+export type Sex = 'male' | 'female';
 
 export interface MaidFormData {
   // Step 1: Basic Info
@@ -10,64 +18,104 @@ export interface MaidFormData {
   nameAr: string;
   nationalityId: string;
   dateOfBirth: string; // YYYY-MM-DD format
+  sex: Sex;
   maritalStatus: MaritalStatus;
   religion: Religion;
+  hasChildren: boolean;
+  education: Education;
 
-  // Step 2: Experience & Salary
+  // Step 2: Job & Package
+  jobType: JobType;
+  packageType: PackageType;
+
+  // Step 3: Experience & Skills
   experienceYears: number;
+  hasExperience: boolean;
+  experienceDetails: string; // 70 chars max
+  skillsDetails: string; // 70 chars max
+  cookingSkills: CookingSkill;
+  babySitter: boolean;
   salary: string;
-  skills: string[];
+  officeFees: string;
+  availability: Availability;
 
-  // Step 3: Languages
+  // Step 4: Languages
   languageIds: string[];
 
-  // Step 4: Documents & Photos
+  // Step 5: Photo
   photoUrl: string;
-  additionalPhotos: string[];
-  passportUrl: string;
 
-  // Step 5: Review & Publish
+  // Step 6: Bio & Contact
   bio: string;
   bioAr: string;
+  whatsappNumber: string;
+  contactNumber: string;
+  cvReference: string;
+
+  // Step 7: Review & Publish
   status: MaidStatus;
+
+  // Legacy field (kept for backward compatibility)
+  skills: string[];
 }
 
 export const INITIAL_FORM_DATA: MaidFormData = {
-  // Step 1
+  // Step 1: Basic Info
   name: '',
   nameAr: '',
   nationalityId: '',
   dateOfBirth: '',
+  sex: 'female',
   maritalStatus: 'single',
   religion: 'muslim',
+  hasChildren: false,
+  education: 'primary',
 
-  // Step 2
+  // Step 2: Job & Package
+  jobType: 'domestic_worker',
+  packageType: 'traditional',
+
+  // Step 3: Experience & Skills
   experienceYears: 0,
+  hasExperience: false,
+  experienceDetails: '',
+  skillsDetails: '',
+  cookingSkills: 'none',
+  babySitter: false,
   salary: '',
-  skills: [],
+  officeFees: '',
+  availability: 'inside_uae',
 
-  // Step 3
+  // Step 4: Languages
   languageIds: [],
 
-  // Step 4
+  // Step 5: Photo
   photoUrl: '',
-  additionalPhotos: [],
-  passportUrl: '',
 
-  // Step 5
+  // Step 6: Bio & Contact
   bio: '',
   bioAr: '',
+  whatsappNumber: '',
+  contactNumber: '',
+  cvReference: '',
+
+  // Step 7: Review
   status: 'available',
+
+  // Legacy
+  skills: [],
 };
 
-export const TOTAL_STEPS = 5;
+export const TOTAL_STEPS = 7;
 
 export const STEP_TITLES = {
   1: { en: 'Basic Info', ar: 'المعلومات الأساسية' },
-  2: { en: 'Experience', ar: 'الخبرة' },
-  3: { en: 'Languages', ar: 'اللغات' },
-  4: { en: 'Documents', ar: 'المستندات' },
-  5: { en: 'Review', ar: 'المراجعة' },
+  2: { en: 'Job & Package', ar: 'الوظيفة والباقة' },
+  3: { en: 'Experience & Skills', ar: 'الخبرة والمهارات' },
+  4: { en: 'Languages', ar: 'اللغات' },
+  5: { en: 'Photo', ar: 'الصورة' },
+  6: { en: 'Contact', ar: 'التواصل' },
+  7: { en: 'Review', ar: 'المراجعة' },
 };
 
 interface MaidFormState {
@@ -159,12 +207,58 @@ export const useMaidForm = create<MaidFormState>((set, get) => ({
   },
 }));
 
-// Skills options
+// Package type options (client requirement)
+export const PACKAGE_TYPE_OPTIONS = [
+  { id: 'traditional', labelEn: 'Traditional Package', labelAr: 'الباقة التقليدية' },
+  { id: 'flexible', labelEn: 'Flexible & Temp Package', labelAr: 'الباقة المرنة والمؤقتة' },
+  { id: 'hourly', labelEn: 'Daily / Hourly Basis', labelAr: 'نظام الساعات والأيام' },
+] as const;
+
+// Job type options (client requirement)
+export const JOB_TYPE_OPTIONS = [
+  { id: 'domestic_worker', labelEn: 'Domestic Worker', labelAr: 'عاملة منزلية' },
+  { id: 'nurse_caregiver', labelEn: 'Nurse / Caregiver', labelAr: 'مساعدة تمريض / ممرضة' },
+  { id: 'driver', labelEn: 'Driver', labelAr: 'سائق / سائقة' },
+] as const;
+
+// Cooking skill options (client requirement)
+export const COOKING_SKILL_OPTIONS = [
+  { id: 'good', labelEn: 'Good', labelAr: 'جيد' },
+  { id: 'average', labelEn: 'Average', labelAr: 'متوسط' },
+  { id: 'willing_to_learn', labelEn: 'Willing to Learn', labelAr: 'مستعدة لتعلم الطبخ' },
+  { id: 'none', labelEn: 'No', labelAr: 'لا' },
+] as const;
+
+// Education options (client requirement)
+export const EDUCATION_OPTIONS = [
+  { id: 'college', labelEn: 'College', labelAr: 'جامعي' },
+  { id: 'high_school', labelEn: 'High School', labelAr: 'ثانوية' },
+  { id: 'primary', labelEn: 'Primary', labelAr: 'ابتدائي' },
+] as const;
+
+// Availability options (client requirement)
+export const AVAILABILITY_OPTIONS = [
+  { id: 'inside_uae', labelEn: 'Inside UAE', labelAr: 'داخل الإمارات' },
+  { id: 'outside_uae', labelEn: 'Outside UAE', labelAr: 'خارج الإمارات' },
+] as const;
+
+// Religion options (updated per client requirement)
+export const RELIGION_OPTIONS = [
+  { id: 'muslim', labelEn: 'Islam', labelAr: 'الإسلام' },
+  { id: 'christian', labelEn: 'Christianity', labelAr: 'المسيحية' },
+  { id: 'other', labelEn: 'Others', labelAr: 'أخرى' },
+] as const;
+
+// Sex options (client requirement)
+export const SEX_OPTIONS = [
+  { id: 'female', labelEn: 'Female', labelAr: 'أنثى' },
+  { id: 'male', labelEn: 'Male', labelAr: 'ذكر' },
+] as const;
+
+// Legacy: Skills options (kept for backward compatibility)
 export const SKILL_OPTIONS = [
   { id: 'cleaning', labelEn: 'Cleaning', labelAr: 'التنظيف' },
   { id: 'cooking', labelEn: 'Cooking', labelAr: 'الطبخ' },
-  { id: 'childcare', labelEn: 'Childcare', labelAr: 'رعاية الأطفال' },
-  { id: 'elderly_care', labelEn: 'Elderly Care', labelAr: 'رعاية المسنين' },
-  { id: 'laundry', labelEn: 'Laundry', labelAr: 'الغسيل' },
-  { id: 'ironing', labelEn: 'Ironing', labelAr: 'الكي' },
+  { id: 'babysitting', labelEn: 'Babysitting', labelAr: 'رعاية الأطفال' },
+  { id: 'elderly', labelEn: 'Elderly Care', labelAr: 'رعاية المسنين' },
 ] as const;

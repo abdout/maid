@@ -31,11 +31,9 @@ export default function EditMaidScreen() {
         religion: maid.religion as MaidFormData['religion'],
         experienceYears: maid.experienceYears || 0,
         salary: maid.salary?.toString() || '',
-        skills: [], // Skills might need to be loaded separately
+        skills: [],
         languageIds: languages.map((l) => l.id),
         photoUrl: maid.photoUrl || '',
-        additionalPhotos: [], // Additional photos might be stored in documents
-        passportUrl: '',
         bio: maid.bio || '',
         bioAr: maid.bioAr || '',
         status: maid.status as MaidFormData['status'],

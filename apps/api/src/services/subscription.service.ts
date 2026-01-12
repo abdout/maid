@@ -12,13 +12,12 @@ type Database = ReturnType<typeof createDb>;
 export interface SubscriptionPlan {
   id: string;
   tier: 'free' | 'basic' | 'pro' | 'enterprise';
-  name: string;
-  nameAr: string | null;
-  description: string | null;
+  nameEn: string;
+  nameAr: string;
+  descriptionEn: string | null;
   descriptionAr: string | null;
   priceMonthly: string;
   priceYearly: string | null;
-  currency: string;
   maxMaids: number;
   features: string[] | null;
   stripePriceIdMonthly: string | null;
@@ -137,7 +136,7 @@ export class SubscriptionService {
 
     if (subscription?.plan) {
       limit = subscription.plan.maxMaids;
-      planName = subscription.plan.name;
+      planName = subscription.plan.nameEn;
 
       // Check if subscription is active
       if (subscription.status !== 'active' && subscription.status !== 'trialing') {
@@ -367,54 +366,50 @@ export class SubscriptionService {
     const defaultPlans = [
       {
         tier: 'free' as const,
-        name: 'Free',
+        nameEn: 'Free',
         nameAr: 'مجاني',
-        description: 'Get started with basic features',
+        descriptionEn: 'Get started with basic features',
         descriptionAr: 'ابدأ مع الميزات الأساسية',
         priceMonthly: '0',
         priceYearly: '0',
-        currency: 'AED',
         maxMaids: 3,
-        features: ['Up to 3 maid listings', 'Basic support', 'Standard visibility'],
+        features: JSON.stringify(['Up to 3 maid listings', 'Basic support', 'Standard visibility']),
         isActive: true,
       },
       {
         tier: 'basic' as const,
-        name: 'Basic',
+        nameEn: 'Basic',
         nameAr: 'أساسي',
-        description: 'Perfect for small offices',
+        descriptionEn: 'Perfect for small offices',
         descriptionAr: 'مثالي للمكاتب الصغيرة',
         priceMonthly: '199',
         priceYearly: '1990',
-        currency: 'AED',
         maxMaids: 15,
-        features: ['Up to 15 maid listings', 'Priority support', 'Enhanced visibility', 'Analytics dashboard'],
+        features: JSON.stringify(['Up to 15 maid listings', 'Priority support', 'Enhanced visibility', 'Analytics dashboard']),
         isActive: true,
       },
       {
         tier: 'pro' as const,
-        name: 'Professional',
+        nameEn: 'Professional',
         nameAr: 'احترافي',
-        description: 'For growing businesses',
+        descriptionEn: 'For growing businesses',
         descriptionAr: 'للأعمال النامية',
         priceMonthly: '499',
         priceYearly: '4990',
-        currency: 'AED',
         maxMaids: 50,
-        features: ['Up to 50 maid listings', 'Premium support', 'Top visibility', 'Advanced analytics', 'Featured listings'],
+        features: JSON.stringify(['Up to 50 maid listings', 'Premium support', 'Top visibility', 'Advanced analytics', 'Featured listings']),
         isActive: true,
       },
       {
         tier: 'enterprise' as const,
-        name: 'Enterprise',
+        nameEn: 'Enterprise',
         nameAr: 'مؤسسي',
-        description: 'Unlimited for large agencies',
+        descriptionEn: 'Unlimited for large agencies',
         descriptionAr: 'غير محدود للوكالات الكبيرة',
         priceMonthly: '999',
         priceYearly: '9990',
-        currency: 'AED',
         maxMaids: 999,
-        features: ['Unlimited maid listings', 'Dedicated support', 'Maximum visibility', 'Custom analytics', 'API access'],
+        features: JSON.stringify(['Unlimited maid listings', 'Dedicated support', 'Maximum visibility', 'Custom analytics', 'API access']),
         isActive: true,
       },
     ];

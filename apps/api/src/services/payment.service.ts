@@ -18,7 +18,7 @@ export interface CvUnlockPrice {
 
 export interface PaymentRecord {
   id: string;
-  type: 'cv_unlock' | 'subscription';
+  type: 'cv_unlock' | 'subscription' | 'business_subscription';
   status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'refunded';
   amount: string;
   currency: string;
@@ -153,6 +153,8 @@ export class PaymentService {
     paymentId: string;
     amount: number;
     currency: string;
+    customerId?: string;
+    customerSessionClientSecret?: string;
   }> {
     if (!this.stripeService) {
       throw new Error('Stripe service not configured');
@@ -216,7 +218,18 @@ export class PaymentService {
         type: 'cv_unlock',
       },
       description: `CV Unlock for maid`,
+      idempotencyKey: payment.id, // Prevent duplicate charges
     });
+
+    // Create customer session for secure payment sheet
+    let customerSessionClientSecret: string | undefined;
+    try {
+      const customerSession = await this.stripeService.createCustomerSession(stripeCustomer.id);
+      customerSessionClientSecret = customerSession.client_secret;
+    } catch (error) {
+      // CustomerSession is optional - payment sheet works without it
+      console.warn('Failed to create customer session:', error);
+    }
 
     // Update payment with Stripe intent ID
     await this.db
@@ -233,6 +246,8 @@ export class PaymentService {
       paymentId: payment.id,
       amount: pricing.price,
       currency: pricing.currency,
+      customerId: stripeCustomer.id,
+      customerSessionClientSecret,
     };
   }
 
@@ -345,7 +360,7 @@ export class PaymentService {
     data: {
       object: {
         id: string;
-        metadata?: Record<string, string>;
+        metadata?: Record<string, string> | null;
         status?: string;
         last_payment_error?: { message?: string };
       };

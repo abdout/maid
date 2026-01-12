@@ -8,11 +8,23 @@ enabled = true
 
 [vars]
 ENVIRONMENT = "production"
+# AWS S3 Configuration
+AWS_REGION = "ap-south-1"
+S3_BUCKET_NAME = "ae-win"
+# CloudFront CDN
+CLOUDFRONT_URL = "https://d25neuja5so22n.cloudfront.net"
+CLOUDFRONT_KEY_PAIR_ID = "KA45U2Z6QWRTA"
 
-# Note: R2 bucket and Hyperdrive to be configured after initial deployment
-# [[r2_buckets]]
-# binding = "BUCKET"
-# bucket_name = "maid-uploads"
+# KV namespace for rate limiting
+# Create via: wrangler kv:namespace create "RATE_LIMIT_KV"
+# Then replace the id below with the returned ID
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "7e9098a9305548ce871bbde625eaa509"
+
+[[kv_namespaces]]
+binding = "TOKEN_BLACKLIST_KV"
+id = "47155b90ecb84797bb7168a26c0eac61"
 
 # Staging environment
 [env.staging]

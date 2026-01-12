@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useMaids, useNationalities, useFavorites, useToggleFavorite } from '@/hooks';
+import { useMaids, useNationalities, useOptimisticFavorites, useToggleFavorite } from '@/hooks';
 import { useAuth } from '@/store/auth';
 import { MaidCard, CategoryFilter, FilterModal, PromotionsSection, BusinessSection } from '@/components';
 import {
@@ -29,10 +29,9 @@ export default function HomeScreen() {
   const { isAuthenticated } = useAuth();
   const isRTL = i18n.language === 'ar';
 
-  // Favorites
-  const { data: favoritesData } = useFavorites();
+  // Favorites - using optimistic state for instant UI updates
+  const { isFavorite: checkIsFavorite } = useOptimisticFavorites();
   const toggleFavorite = useToggleFavorite();
-  const favoriteIds = new Set(favoritesData?.data?.map((f) => f.maidId) || []);
 
   // Filter state
   const [showFilters, setShowFilters] = useState(false);
@@ -252,13 +251,13 @@ export default function HomeScreen() {
           data={displayedMaids}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
-            const isFavorite = favoriteIds.has(item.id);
+            const isFav = checkIsFavorite(item.id);
             return (
               <View className="px-6">
                 <MaidCard
                   maid={item}
-                  isFavorite={isFavorite}
-                  onFavoritePress={() => handleFavoritePress(item.id, isFavorite)}
+                  isFavorite={isFav}
+                  onFavoritePress={() => handleFavoritePress(item.id, isFav)}
                 />
               </View>
             );

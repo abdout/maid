@@ -27,6 +27,7 @@ import {
   CheckIcon,
   UserIcon,
 } from '@/components/icons';
+import { usePaymentSheet } from '@/hooks/use-payment-sheet';
 
 type PaymentMethod = 'stripe' | 'tabby';
 
@@ -54,6 +55,7 @@ export default function CvUnlockPaymentScreen() {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('stripe');
   const [isProcessing, setIsProcessing] = useState(false);
   const [tabbySession, setTabbySession] = useState<TabbySession | null>(null);
+  const { initializePaymentSheet, openPaymentSheet } = usePaymentSheet();
 
   const maid = maidData?.data?.maid;
   const nationality = maidData?.data?.nationality;
@@ -177,18 +179,46 @@ export default function CvUnlockPaymentScreen() {
 
     try {
       if (selectedMethod === 'stripe') {
-        // Create payment intent
+        // Create payment intent on backend
         const result = await createPaymentIntent.mutateAsync(maidId);
 
         if (result.success && result.data) {
-          // In a real app, you would use Stripe's payment sheet here
-          // For now, we'll simulate a successful payment
-          // TODO: Integrate @stripe/stripe-react-native
+          const { clientSecret, paymentId, customerId, customerSessionClientSecret } = result.data;
 
-          // Confirm the payment
+          // Initialize the Stripe payment sheet
+          const initialized = await initializePaymentSheet({
+            clientSecret,
+            merchantDisplayName: 'Maid UAE',
+            customerId,
+            customerSessionClientSecret,
+            applePay: {
+              merchantCountryCode: 'AE',
+            },
+            googlePay: {
+              merchantCountryCode: 'AE',
+              testEnv: __DEV__,
+            },
+          });
+
+          if (!initialized) {
+            throw new Error('Failed to initialize payment sheet');
+          }
+
+          // Present the payment sheet to user
+          const { success, error } = await openPaymentSheet();
+
+          if (error === 'canceled') {
+            setIsProcessing(false);
+            return;
+          }
+
+          if (!success) {
+            throw new Error(error || 'Payment failed');
+          }
+
+          // Confirm payment on backend (webhook will handle the actual unlock)
           const confirmResult = await confirmPayment.mutateAsync({
-            paymentId: result.data.paymentId,
-            stripePaymentIntentId: 'pi_simulated', // This would come from Stripe
+            paymentId,
           });
 
           if (confirmResult.success) {

@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useMaids, useFavorites, useToggleFavorite, useDebounce } from '@/hooks';
+import { useMaids, useOptimisticFavorites, useToggleFavorite, useDebounce } from '@/hooks';
 import { useAuth } from '@/store/auth';
 import { MaidCard, FilterModal } from '@/components';
 import { SearchIcon, FilterIcon } from '@/components/icons';
@@ -24,16 +24,15 @@ export default function SearchScreen() {
   const { isAuthenticated } = useAuth();
   const isRTL = i18n.language === 'ar';
 
-  // Favorites
-  const { data: favoritesData } = useFavorites();
+  // Favorites - using optimistic state for instant UI updates
+  const { isFavorite: checkIsFavorite } = useOptimisticFavorites();
   const toggleFavorite = useToggleFavorite();
-  const favoriteIds = new Set(favoritesData?.data?.map((f) => f.maidId) || []);
 
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Partial<MaidFilters>>(
-    nationalityId ? { nationalityId } : {}
+    nationalityId ? { nationalityIds: [nationalityId] } : {}
   );
   const [page, setPage] = useState(1);
 
@@ -152,12 +151,12 @@ export default function SearchScreen() {
           data={maids}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
-            const isFavorite = favoriteIds.has(item.id);
+            const isFav = checkIsFavorite(item.id);
             return (
               <MaidCard
                 maid={item}
-                isFavorite={isFavorite}
-                onFavoritePress={() => handleFavoritePress(item.id, isFavorite)}
+                isFavorite={isFav}
+                onFavoritePress={() => handleFavoritePress(item.id, isFav)}
               />
             );
           }}

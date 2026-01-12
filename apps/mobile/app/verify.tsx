@@ -97,10 +97,15 @@ export default function VerifyScreen() {
 
       if (result.success && result.data) {
         await login({
-          token: result.data.token,
+          tokens: {
+            accessToken: result.data.accessToken,
+            refreshToken: result.data.refreshToken,
+            expiresIn: result.data.expiresIn,
+          },
           user: {
             id: result.data.user.id,
             phone: result.data.user.phone,
+            email: result.data.user.email,
             name: result.data.user.name,
             role: result.data.user.role as 'customer' | 'office_admin' | 'super_admin',
             officeId: result.data.user.officeId,
@@ -185,7 +190,7 @@ export default function VerifyScreen() {
                 </Text>
 
                 {/* OTP Input */}
-                <View className={`flex-row justify-between mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <View className={`flex-row justify-between mb-6 gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   {otp.map((digit, index) => (
                     <TextInput
                       key={index}
@@ -198,7 +203,7 @@ export default function VerifyScreen() {
                       keyboardType="number-pad"
                       maxLength={1}
                       selectTextOnFocus
-                      className={`w-12 h-14 bg-white/10 border-2 rounded-xl text-center text-2xl text-white ${
+                      className={`flex-1 h-14 bg-white/10 border-2 rounded-xl text-center text-2xl text-white ${
                         digit ? 'border-[#FF385C]' : 'border-white/30'
                       }`}
                     />

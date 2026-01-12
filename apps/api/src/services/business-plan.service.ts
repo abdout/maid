@@ -22,6 +22,8 @@ export interface BusinessPlan {
   discountPercent: number;
   features: string[] | null;
   isActive: boolean;
+  stripePriceIdMonthly: string | null;
+  stripePriceIdYearly: string | null;
 }
 
 export interface CustomerSubscription {

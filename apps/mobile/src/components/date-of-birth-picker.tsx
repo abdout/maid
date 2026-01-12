@@ -1,8 +1,10 @@
-import { useState } from 'react';
-import { View, Text, Pressable, Platform, Modal } from 'react-native';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useState, useCallback, useRef } from 'react';
+import { View, Text, Pressable, Platform, Modal, TextInput } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { CalendarIcon } from '@/components/icons';
+
+const isWeb = Platform.OS === 'web';
 
 interface DateOfBirthPickerProps {
   value: string;
@@ -23,16 +25,24 @@ function calculateAge(birthDate: Date): number {
 }
 
 function formatDate(date: Date): string {
-  return date.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
-function parseDate(dateString: string): Date {
+function getDefaultDate(minAge: number): Date {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - minAge - 5);
+  return date;
+}
+
+function parseDate(dateString: string, minAge: number): Date {
   if (!dateString) {
-    const defaultDate = new Date();
-    defaultDate.setFullYear(defaultDate.getFullYear() - 25);
-    return defaultDate;
+    return getDefaultDate(minAge);
   }
-  return new Date(dateString + 'T00:00:00');
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
 }
 
 export function DateOfBirthPicker({
@@ -46,39 +56,55 @@ export function DateOfBirthPicker({
   const isRTL = i18n.language === 'ar';
 
   const [showPicker, setShowPicker] = useState(false);
-  const [tempDate, setTempDate] = useState<Date>(parseDate(value));
+  const [tempDate, setTempDate] = useState<Date>(() => parseDate(value, minAge));
 
   const today = new Date();
   const maxDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
   const minDate = new Date(today.getFullYear() - maxAge, today.getMonth(), today.getDate());
 
-  const currentDate = value ? parseDate(value) : null;
+  const currentDate = value ? parseDate(value, minAge) : null;
   const age = currentDate ? calculateAge(currentDate) : null;
-
   const isAgeValid = age !== null && age >= minAge && age <= maxAge;
 
-  const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+  const webInputRef = useRef<TextInput>(null);
+
+  const openPicker = useCallback(() => {
+    if (isWeb) {
+      // On web, trigger the hidden date input
+      (webInputRef.current as unknown as HTMLInputElement)?.showPicker?.();
+      (webInputRef.current as unknown as HTMLInputElement)?.click?.();
+    } else {
+      setTempDate(currentDate || getDefaultDate(minAge));
+      setShowPicker(true);
+    }
+  }, [currentDate, minAge]);
+
+  const handleWebDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const dateValue = e.target.value;
+    if (dateValue) {
+      onChange(dateValue);
+    }
+  }, [onChange]);
+
+  const handleDateChange = useCallback((_event: unknown, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
       setShowPicker(false);
-      if (event.type === 'set' && selectedDate) {
+      if (selectedDate) {
         onChange(formatDate(selectedDate));
       }
-    } else {
-      if (selectedDate) {
-        setTempDate(selectedDate);
-      }
+    } else if (selectedDate) {
+      setTempDate(selectedDate);
     }
-  };
+  }, [onChange]);
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     onChange(formatDate(tempDate));
     setShowPicker(false);
-  };
+  }, [onChange, tempDate]);
 
-  const handleCancel = () => {
-    setTempDate(currentDate || parseDate(''));
+  const handleCancel = useCallback(() => {
     setShowPicker(false);
-  };
+  }, []);
 
   const displayDate = currentDate
     ? currentDate.toLocaleDateString(isRTL ? 'ar-AE' : 'en-US', {
@@ -89,16 +115,13 @@ export function DateOfBirthPicker({
     : null;
 
   return (
-    <View className="mb-5">
+    <View className="mb-5" style={isWeb ? { position: 'relative' } : undefined}>
       <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
         {t('form.dateOfBirth')} *
       </Text>
 
       <Pressable
-        onPress={() => {
-          setTempDate(currentDate || parseDate(''));
-          setShowPicker(true);
-        }}
+        onPress={openPicker}
         className={`bg-background-50 rounded-xl px-4 py-3.5 flex-row items-center justify-between ${
           error ? 'border border-error-500' : ''
         } ${isRTL ? 'flex-row-reverse' : ''}`}
@@ -119,6 +142,28 @@ export function DateOfBirthPicker({
         )}
       </Pressable>
 
+      {/* Web date input - styled to overlay the Pressable */}
+      {isWeb && (
+        <input
+          ref={webInputRef as unknown as React.RefObject<HTMLInputElement>}
+          type="date"
+          value={value || ''}
+          onChange={handleWebDateChange as unknown as React.ChangeEventHandler<HTMLInputElement>}
+          min={formatDate(minDate)}
+          max={formatDate(maxDate)}
+          style={{
+            position: 'absolute',
+            top: 28,
+            left: 0,
+            right: 0,
+            height: 52,
+            opacity: 0,
+            cursor: 'pointer',
+            zIndex: 10,
+          }}
+        />
+      )}
+
       {error && (
         <Text className="text-error-500 text-sm mt-1">{error}</Text>
       )}
@@ -132,37 +177,46 @@ export function DateOfBirthPicker({
         </Text>
       )}
 
-      {Platform.OS === 'ios' && (
+      {Platform.OS === 'ios' && showPicker && (
         <Modal
-          visible={showPicker}
+          visible={true}
           transparent
           animationType="slide"
+          onRequestClose={handleCancel}
         >
-          <View className="flex-1 justify-end">
+          <View style={{ flex: 1, justifyContent: 'flex-end' }}>
             <Pressable
-              className="flex-1 bg-black/50"
+              style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}
               onPress={handleCancel}
             />
-            <View className="bg-background-0 rounded-t-3xl">
-              <View className={`flex-row items-center justify-between px-6 py-4 border-b border-background-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <Pressable onPress={handleCancel}>
-                  <Text className="text-typography-500 text-base">
+            <View style={{ backgroundColor: 'white', borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
+              <View style={{
+                flexDirection: isRTL ? 'row-reverse' : 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 24,
+                paddingVertical: 16,
+                borderBottomWidth: 1,
+                borderBottomColor: '#F3F4F6'
+              }}>
+                <Pressable onPress={handleCancel} hitSlop={10}>
+                  <Text style={{ color: '#6B7280', fontSize: 16 }}>
                     {t('common.cancel')}
                   </Text>
                 </Pressable>
-                <Text className="text-typography-900 font-semibold text-lg">
+                <Text style={{ color: '#111827', fontWeight: '600', fontSize: 18 }}>
                   {t('form.dateOfBirth')}
                 </Text>
-                <Pressable onPress={handleConfirm}>
-                  <Text className="text-primary-500 font-semibold text-base">
+                <Pressable onPress={handleConfirm} hitSlop={10}>
+                  <Text style={{ color: '#FF385C', fontWeight: '600', fontSize: 16 }}>
                     {t('common.done')}
                   </Text>
                 </Pressable>
               </View>
 
-              <View className="items-center py-4">
-                <View className="bg-primary-100 px-6 py-2 rounded-full">
-                  <Text className="text-primary-700 font-bold text-xl">
+              <View style={{ alignItems: 'center', paddingVertical: 16 }}>
+                <View style={{ backgroundColor: '#FFE4E6', paddingHorizontal: 24, paddingVertical: 8, borderRadius: 20 }}>
+                  <Text style={{ color: '#BE123C', fontWeight: '700', fontSize: 20 }}>
                     {calculateAge(tempDate)} {t('common.years')}
                   </Text>
                 </View>
@@ -175,10 +229,9 @@ export function DateOfBirthPicker({
                 onChange={handleDateChange}
                 maximumDate={maxDate}
                 minimumDate={minDate}
-                locale={isRTL ? 'ar' : 'en'}
               />
 
-              <View className="h-8" />
+              <View style={{ height: 32 }} />
             </View>
           </View>
         </Modal>

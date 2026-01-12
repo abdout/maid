@@ -50,9 +50,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         sounds: [],
       },
     ],
+    [
+      '@stripe/stripe-react-native',
+      {
+        merchantIdentifier: 'merchant.ae.maid.app',
+        enableGooglePay: true,
+      },
+    ],
   ],
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_URL || 'https://maid-api.osmanabdout.workers.dev',
+    stripePublishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    // Guest mode: when false, customers can browse without login (free trial period)
+    requireCustomerAuth: process.env.EXPO_PUBLIC_REQUIRE_CUSTOMER_AUTH === 'true',
     eas: {
       projectId: 'f0a7f098-5bff-46de-95b3-65fa4d52a587',
     },

@@ -184,6 +184,8 @@
   "religion": {
     "muslim": "مسلمة",
     "non_muslim": "غير مسلمة",
+    "christian": "مسيحية",
+    "other": "أخرى",
     "any": "أي ديانة"
   },
   "maid": {

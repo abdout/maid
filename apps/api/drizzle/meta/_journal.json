@@ -26,50 +26,64 @@
     {
       "idx": 3,
       "version": "7",
-      "when": 1766398330489,
-      "tag": "0003_smart_juggernaut",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
       "when": 1766398668400,
       "tag": "0004_chemical_harpoon",
       "breakpoints": true
     },
     {
-      "idx": 5,
+      "idx": 4,
       "version": "7",
       "when": 1766487437836,
       "tag": "0005_robust_omega_red",
       "breakpoints": true
     },
     {
-      "idx": 6,
+      "idx": 5,
       "version": "7",
       "when": 1766520864188,
       "tag": "0006_add_service_type",
       "breakpoints": true
     },
     {
-      "idx": 7,
+      "idx": 6,
       "version": "7",
       "when": 1766521961771,
       "tag": "0007_plain_thaddeus_ross",
       "breakpoints": true
     },
     {
-      "idx": 8,
+      "idx": 7,
       "version": "7",
       "when": 1766564218850,
       "tag": "0008_left_steel_serpent",
       "breakpoints": true
     },
     {
-      "idx": 9,
+      "idx": 8,
       "version": "7",
       "when": 1766568943834,
       "tag": "0009_wallet-system",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1766569261000,
+      "tag": "0010_business-plans",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1767023620291,
+      "tag": "0011_password_reset_tokens",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1736697600000,
+      "tag": "0012_client_feedback_fields",
       "breakpoints": true
     }
   ]

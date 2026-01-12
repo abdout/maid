@@ -40,18 +40,20 @@ interface UserProfile {
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const isRTL = i18n.language === 'ar';
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isUpdatingNotifications, setIsUpdatingNotifications] = useState(false);
 
-  // Fetch profile on mount and focus
+  // Fetch profile on mount and focus (only if authenticated)
   useFocusEffect(
     useCallback(() => {
-      fetchProfile();
-    }, [])
+      if (isAuthenticated) {
+        fetchProfile();
+      }
+    }, [isAuthenticated])
   );
 
   const fetchProfile = async () => {
@@ -65,6 +67,100 @@ export default function ProfileScreen() {
       // Silent fail - user may not have complete profile
     }
   };
+
+  // Guest mode: show login prompt
+  if (!isAuthenticated) {
+    return (
+      <SafeAreaView className="flex-1 bg-background-50" edges={['top']}>
+        <View className="px-6 pt-4 pb-4">
+          <Text className={`text-2xl font-bold text-typography-900 ${isRTL ? 'text-right' : 'text-left'}`}>
+            {t('profile.title')}
+          </Text>
+        </View>
+
+        {/* Guest Card */}
+        <View className="mx-4 mb-6 p-5 bg-primary-500 rounded-2xl">
+          <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center">
+              <UserIcon size={32} color="#FFFFFF" />
+            </View>
+            <View className={`flex-1 ${isRTL ? 'mr-4 items-end' : 'ml-4'}`}>
+              <Text className="text-white font-semibold text-lg">
+                {t('auth.guest', 'Guest')}
+              </Text>
+              <Text className="text-white/80 mt-1">
+                {t('auth.loginForFullAccess', 'Login for full access')}
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => router.push('/login')}
+              className="bg-white px-4 py-2.5 rounded-xl"
+            >
+              <Text className="text-primary-500 font-medium text-sm">
+                {t('auth.login')}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Language Toggle (available for guests) */}
+        <View className="mx-4 mb-6">
+          <Text className={`text-xs font-semibold text-typography-500 uppercase tracking-wide mb-3 ${isRTL ? 'text-right mr-1' : 'ml-1'}`}>
+            {t('profile.quickSettings')}
+          </Text>
+          <View className="bg-background-0 rounded-2xl overflow-hidden" style={{
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.05,
+            shadowRadius: 3,
+            elevation: 1,
+          }}>
+            <Pressable
+              onPress={() => {
+                const newLang = i18n.language === 'ar' ? 'en' : 'ar';
+                i18n.changeLanguage(newLang);
+              }}
+              className={`flex-row items-center px-4 py-3.5 ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              <View className="w-9 h-9 rounded-full bg-background-50 items-center justify-center">
+                <GlobeIcon size={20} color="#717171" />
+              </View>
+              <Text className={`flex-1 text-typography-900 font-medium ${isRTL ? 'mr-3 text-right' : 'ml-3'}`}>
+                {t('profile.language')}
+              </Text>
+              <View className="bg-primary-50 px-3 py-1 rounded-lg">
+                <Text className="text-primary-600 font-medium text-sm">
+                  {i18n.language === 'ar' ? 'العربية' : 'EN'}
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Login CTA */}
+        <View className="mx-4 px-4 py-6 bg-background-0 rounded-2xl items-center" style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.05,
+          shadowRadius: 3,
+          elevation: 1,
+        }}>
+          <Text className="text-typography-900 font-semibold text-lg text-center mb-2">
+            {t('auth.loginBenefits', 'Login to access all features')}
+          </Text>
+          <Text className="text-typography-500 text-sm text-center mb-4">
+            {t('auth.loginBenefitsDesc', 'Save favorites, get quotations, and more')}
+          </Text>
+          <Pressable
+            onPress={() => router.push('/login')}
+            className="bg-primary-500 px-8 py-3 rounded-full"
+          >
+            <Text className="text-white font-semibold">{t('auth.login')}</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const handleNotificationToggle = async (value: boolean) => {
     setNotificationsEnabled(value);

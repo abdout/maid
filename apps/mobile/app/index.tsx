@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
 import { useAuth } from '@/store/auth';
 import { storage, STORAGE_KEYS } from '@/lib/storage';
+
+// Guest mode: when false, customers can browse without login (free trial period)
+const requireCustomerAuth = Constants.expoConfig?.extra?.requireCustomerAuth ?? false;
 
 export default function Index() {
   const router = useRouter();
@@ -25,8 +29,14 @@ export default function Index() {
           return;
         }
 
+        // Guest mode: allow customers to browse without login
         if (!isAuthenticated) {
-          router.replace('/login');
+          if (requireCustomerAuth) {
+            router.replace('/login');
+          } else {
+            // Free trial mode: go directly to customer screens
+            router.replace('/(customer)');
+          }
           return;
         }
 

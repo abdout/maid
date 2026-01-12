@@ -283,12 +283,12 @@ paymentsRoute.post(
         .insert(payments)
         .values({
           userId: user.sub,
-          maidId,
           type: 'cv_unlock',
           provider: 'tabby',
           amount: pricing.price.toString(),
           currency: pricing.currency,
           status: 'pending',
+          metadata: JSON.stringify({ maidId }),
         })
         .returning();
 
@@ -336,7 +336,7 @@ paymentsRoute.post(
       await db
         .update(payments)
         .set({
-          providerPaymentId: session.id,
+          tabbyPaymentId: session.id,
           status: 'processing',
           updatedAt: new Date(),
         })
@@ -418,15 +418,24 @@ paymentsRoute.post(
         .update(payments)
         .set({
           status: 'succeeded',
-          providerPaymentId: tabbyPaymentId,
+          tabbyPaymentId: tabbyPaymentId,
           updatedAt: new Date(),
         })
         .where(eq(payments.id, paymentId));
 
+      // Parse maidId from metadata
+      const metadata = payment.metadata ? JSON.parse(payment.metadata) : {};
+      const maidId = metadata.maidId;
+
+      if (!maidId) {
+        console.error('Missing maidId in payment metadata');
+        return c.json({ success: false, error: 'Invalid payment metadata' }, 400);
+      }
+
       // Create CV unlock record
       await db.insert(cvUnlocks).values({
         customerId: user.sub,
-        maidId: payment.maidId!,
+        maidId,
         paymentId,
       });
 
@@ -438,5 +447,61 @@ paymentsRoute.post(
     }
   }
 );
+
+// ============ STRIPE WEBHOOK ============
+
+// Stripe webhook endpoint (no auth middleware - uses signature verification)
+paymentsRoute.post('/webhooks/stripe', async (c) => {
+  try {
+    const signature = c.req.header('stripe-signature');
+    if (!signature) {
+      return c.json({ success: false, error: 'Missing signature' }, 400);
+    }
+
+    if (!c.env.STRIPE_SECRET_KEY || !c.env.STRIPE_WEBHOOK_SECRET) {
+      return c.json({ success: false, error: 'Stripe not configured' }, 500);
+    }
+
+    const stripeService = new StripeService({
+      secretKey: c.env.STRIPE_SECRET_KEY,
+      webhookSecret: c.env.STRIPE_WEBHOOK_SECRET,
+      publishableKey: c.env.STRIPE_PUBLISHABLE_KEY || '',
+    });
+
+    // Get raw body for signature verification
+    const rawBody = await c.req.text();
+
+    // Verify and construct webhook event
+    let event;
+    try {
+      event = stripeService.constructWebhookEvent(rawBody, signature);
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err);
+      return c.json({ success: false, error: 'Invalid signature' }, 400);
+    }
+
+    // Process the webhook event
+    const db = createDb(c.env.DATABASE_URL);
+    const paymentService = createPaymentService(db, c.env);
+
+    // Cast event to the expected type - processStripeWebhook only needs type and data.object
+    await paymentService.processStripeWebhook(event as {
+      type: string;
+      data: {
+        object: {
+          id: string;
+          metadata?: Record<string, string> | null;
+          status?: string;
+          last_payment_error?: { message?: string };
+        };
+      };
+    });
+
+    return c.json({ success: true, received: true });
+  } catch (error) {
+    console.error('Stripe webhook error:', error);
+    return c.json({ success: false, error: 'Webhook processing failed' }, 500);
+  }
+});
 
 export default paymentsRoute;

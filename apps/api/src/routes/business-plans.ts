@@ -51,7 +51,7 @@ businessPlansRoute.get(
       const db = createDb(c.env.DATABASE_URL);
       const businessPlanService = createBusinessPlanService(db, c.env);
 
-      const subscription = await businessPlanService.getCustomerSubscription(user.id);
+      const subscription = await businessPlanService.getCustomerSubscription(user.sub);
 
       return c.json({ success: true, data: subscription });
     } catch (error) {
@@ -74,7 +74,7 @@ businessPlansRoute.get(
       const db = createDb(c.env.DATABASE_URL);
       const businessPlanService = createBusinessPlanService(db, c.env);
 
-      const priceInfo = await businessPlanService.getUnlockPriceForCustomer(user.id, maidId);
+      const priceInfo = await businessPlanService.getUnlockPriceForCustomer(user.sub, maidId);
 
       return c.json({ success: true, data: priceInfo });
     } catch (error) {
@@ -104,7 +104,7 @@ businessPlansRoute.post(
       const db = createDb(c.env.DATABASE_URL);
       const businessPlanService = createBusinessPlanService(db, c.env);
 
-      const result = await businessPlanService.subscribe(user.id, planId, billingCycle);
+      const result = await businessPlanService.subscribe(user.sub, planId, billingCycle);
 
       return c.json({ success: true, data: result });
     } catch (error) {
@@ -127,7 +127,7 @@ businessPlansRoute.post(
       const db = createDb(c.env.DATABASE_URL);
       const businessPlanService = createBusinessPlanService(db, c.env);
 
-      await businessPlanService.cancelSubscription(user.id);
+      await businessPlanService.cancelSubscription(user.sub);
 
       return c.json({ success: true, message: 'Subscription will be canceled at period end' });
     } catch (error) {
@@ -150,7 +150,7 @@ businessPlansRoute.post(
       const db = createDb(c.env.DATABASE_URL);
       const businessPlanService = createBusinessPlanService(db, c.env);
 
-      const success = await businessPlanService.useFreeUnlock(user.id);
+      const success = await businessPlanService.useFreeUnlock(user.sub);
 
       if (!success) {
         return c.json({ success: false, error: 'No free unlocks available' }, 400);

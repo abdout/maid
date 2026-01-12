@@ -48,13 +48,23 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const result = await authApi.login(email, password);
+      const result = await authApi.login(email.trim().toLowerCase(), password);
       if (result.success && result.data) {
+        // Validate tokens exist before storing
+        if (!result.data.accessToken || !result.data.user) {
+          console.error('Login response missing required data:', result.data);
+          Alert.alert(isRTL ? 'خطأ' : 'Error', isRTL ? 'استجابة غير صالحة من الخادم' : 'Invalid response from server');
+          return;
+        }
         await login({
-          token: result.data.token,
+          tokens: {
+            accessToken: result.data.accessToken,
+            refreshToken: result.data.refreshToken || '',
+            expiresIn: result.data.expiresIn || 900,
+          },
           user: {
             id: result.data.user.id,
-            phone: null,
+            phone: result.data.user.phone,
             email: result.data.user.email,
             name: result.data.user.name,
             role: result.data.user.role as 'customer' | 'office_admin' | 'super_admin',
@@ -63,8 +73,11 @@ export default function LoginScreen() {
           },
         });
         router.replace('/');
+      } else {
+        Alert.alert(isRTL ? 'خطأ' : 'Error', isRTL ? 'فشل تسجيل الدخول' : 'Login failed');
       }
     } catch (error) {
+      console.error('Login error:', error);
       const message = error instanceof Error ? error.message : 'Login failed';
       Alert.alert(isRTL ? 'خطأ' : 'Error', message);
     } finally {
@@ -163,8 +176,8 @@ export default function LoginScreen() {
                   {/* Test credentials hint */}
                   <Text className="text-white/40 text-xs mb-4">
                     {userIntent === 'office'
-                      ? (isRTL ? 'للاختبار: office@hotmail.com / 1234' : 'For testing: office@hotmail.com / 1234')
-                      : (isRTL ? 'للاختبار: customer@hotmail.com / 1234' : 'For testing: customer@hotmail.com / 1234')}
+                      ? (isRTL ? 'للاختبار: office@hotmail.com / Test123456' : 'For testing: office@hotmail.com / Test123456')
+                      : (isRTL ? 'للاختبار: customer@hotmail.com / Test123456' : 'For testing: customer@hotmail.com / Test123456')}
                   </Text>
 
                   {/* Login Button */}

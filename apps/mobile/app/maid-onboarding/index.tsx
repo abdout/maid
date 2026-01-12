@@ -1,5 +1,21 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, Pressable, ScrollView, Alert, Platform } from 'react-native';
+
+// Cross-platform alert that works on web
+const showAlert = (title: string, message: string, buttons?: Array<{text: string, onPress?: () => void}>) => {
+  if (Platform.OS === 'web') {
+    // Use browser's native alert/confirm on web
+    if (buttons && buttons.length > 0 && buttons[0].onPress) {
+      if (window.confirm(`${title}\n\n${message}`)) {
+        buttons[0].onPress();
+      }
+    } else {
+      window.alert(`${title}\n\n${message}`);
+    }
+  } else {
+    Alert.alert(title, message, buttons);
+  }
+};
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -9,9 +25,11 @@ import { XIcon } from '@/components/icons';
 import { StepsOverview, StepFooter } from '@/components/maid-onboarding';
 
 import StepBasic from './step-basic';
+import StepJobPackage from './step-job-package';
 import StepExperience from './step-experience';
 import StepLanguages from './step-languages';
-import StepDocuments from './step-documents';
+import StepPhoto from './step-photo';
+import StepBio from './step-bio';
 import StepReview from './step-review';
 
 export default function CreateMaidScreen() {
@@ -47,12 +65,43 @@ export default function CreateMaidScreen() {
   const handleSubmit = async () => {
     // Validate required fields
     if (!formData.name || !formData.nationalityId || !formData.dateOfBirth || !formData.salary) {
-      Alert.alert(
+      showAlert(
         t('common.error'),
         isRTL ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill in all required fields'
       );
       return;
     }
+
+    // Validate photo is required
+    if (!formData.photoUrl) {
+      showAlert(
+        t('common.error'),
+        isRTL ? 'يرجى إضافة صورة' : 'Please add a photo'
+      );
+      return;
+    }
+
+    // Validate contact numbers are required
+    if (!formData.whatsappNumber || !formData.contactNumber) {
+      showAlert(
+        t('common.error'),
+        isRTL ? 'يرجى إدخال أرقام الاتصال' : 'Please enter contact numbers'
+      );
+      return;
+    }
+
+    // Validate salary is a positive number
+    const salaryNum = parseFloat(formData.salary);
+    if (isNaN(salaryNum) || salaryNum <= 0) {
+      showAlert(
+        t('common.error'),
+        isRTL ? 'يرجى إدخال راتب صحيح' : 'Please enter a valid salary'
+      );
+      return;
+    }
+
+    // Parse office fees
+    const officeFeesNum = formData.officeFees ? parseFloat(formData.officeFees) : null;
 
     try {
       // Build data object matching the API schema
@@ -60,17 +109,33 @@ export default function CreateMaidScreen() {
         name: formData.name,
         nationalityId: formData.nationalityId,
         dateOfBirth: new Date(formData.dateOfBirth).toISOString(),
+        sex: formData.sex,
         maritalStatus: formData.maritalStatus,
         religion: formData.religion,
+        hasChildren: formData.hasChildren,
+        education: formData.education,
+        jobType: formData.jobType,
+        packageType: formData.packageType,
         experienceYears: formData.experienceYears,
-        salary: parseFloat(formData.salary),
+        hasExperience: formData.hasExperience,
+        cookingSkills: formData.cookingSkills,
+        babySitter: formData.babySitter,
+        salary: salaryNum,
+        availability: formData.availability,
+        photoUrl: formData.photoUrl,
+        status: formData.status,
+        whatsappNumber: formData.whatsappNumber,
+        contactNumber: formData.contactNumber,
       };
 
       // Only include optional fields if they have values
       if (formData.nameAr) data.nameAr = formData.nameAr;
-      if (formData.photoUrl) data.photoUrl = formData.photoUrl;
       if (formData.bio) data.bio = formData.bio;
       if (formData.bioAr) data.bioAr = formData.bioAr;
+      if (formData.experienceDetails) data.experienceDetails = formData.experienceDetails;
+      if (formData.skillsDetails) data.skillsDetails = formData.skillsDetails;
+      if (formData.cvReference) data.cvReference = formData.cvReference;
+      if (officeFeesNum && officeFeesNum > 0) data.officeFees = officeFeesNum;
       if (formData.languageIds && formData.languageIds.length > 0) {
         data.languageIds = formData.languageIds;
       }
@@ -78,10 +143,8 @@ export default function CreateMaidScreen() {
       console.log('Submitting maid data:', JSON.stringify(data, null, 2));
 
       if (isEditing && editingMaidId) {
-        // For update, include status
-        data.status = formData.status;
         await updateMaid.mutateAsync({ id: editingMaidId, data });
-        Alert.alert(t('common.success'), t('form.maidUpdated'), [
+        showAlert(t('common.success'), t('form.maidUpdated'), [
           { text: t('common.ok'), onPress: () => {
             reset();
             router.back();
@@ -89,7 +152,7 @@ export default function CreateMaidScreen() {
         ]);
       } else {
         await createMaid.mutateAsync(data);
-        Alert.alert(t('common.success'), t('form.maidCreated'), [
+        showAlert(t('common.success'), t('form.maidCreated'), [
           { text: t('common.ok'), onPress: () => {
             reset();
             router.back();
@@ -99,7 +162,7 @@ export default function CreateMaidScreen() {
     } catch (error: unknown) {
       console.error('Save maid error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      Alert.alert(
+      showAlert(
         t('common.error'),
         `${t('form.saveFailed')}\n\n${errorMessage}`
       );
@@ -137,18 +200,22 @@ export default function CreateMaidScreen() {
     );
   }
 
-  // Render steps
+  // Render steps (7 total)
   const renderStep = () => {
     switch (currentStep) {
       case 1:
         return <StepBasic />;
       case 2:
-        return <StepExperience />;
+        return <StepJobPackage />;
       case 3:
-        return <StepLanguages />;
+        return <StepExperience />;
       case 4:
-        return <StepDocuments />;
+        return <StepLanguages />;
       case 5:
+        return <StepPhoto />;
+      case 6:
+        return <StepBio />;
+      case 7:
         return <StepReview />;
       default:
         return null;

@@ -14,6 +14,11 @@ export const storage = {
   },
 
   async setItem(key: string, value: string): Promise<void> {
+    // Guard against storing undefined/null values
+    if (value === undefined || value === null) {
+      console.warn(`[Storage] Attempted to store ${value} for key: ${key}`);
+      return;
+    }
     if (Platform.OS === 'web') {
       localStorage.setItem(key, value);
       return;
@@ -32,8 +37,11 @@ export const storage = {
 
 // Storage keys
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: 'auth_token',
+  ACCESS_TOKEN: 'access_token',
+  REFRESH_TOKEN: 'refresh_token',
   AUTH_USER: 'auth_user',
   ONBOARDING_COMPLETED: 'onboarding_completed',
   LANGUAGE: 'app_language',
+  // Legacy key for migration
+  AUTH_TOKEN: 'auth_token',
 } as const;

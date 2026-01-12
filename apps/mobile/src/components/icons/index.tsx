@@ -49,6 +49,7 @@ import UnlockIcon from './unlock';
 import WalletIcon from './wallet';
 import GalleryIcon from './gallery';
 import CalendarIcon from './calendar';
+import WhatsAppIcon from './whatsapp';
 
 // Icon map for easy access
 const icons = {
@@ -99,6 +100,7 @@ const icons = {
   wallet: WalletIcon,
   gallery: GalleryIcon,
   calendar: CalendarIcon,
+  whatsapp: WhatsAppIcon,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -192,6 +194,7 @@ export {
   WalletIcon,
   GalleryIcon,
   CalendarIcon,
+  WhatsAppIcon,
 };
 
 export default Icon;

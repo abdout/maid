@@ -15,6 +15,7 @@ export interface CreatePaymentIntentParams {
   customerId?: string;
   metadata?: Record<string, string>;
   description?: string;
+  idempotencyKey?: string;
 }
 
 export interface CreateCheckoutSessionParams {
@@ -74,9 +75,26 @@ export class StripeService {
     }
   }
 
+  // Customer Sessions (for secure mobile payment sheet)
+  async createCustomerSession(customerId: string): Promise<Stripe.CustomerSession> {
+    return this.stripe.customerSessions.create({
+      customer: customerId,
+      components: {
+        mobile_payment_element: {
+          enabled: true,
+          features: {
+            payment_method_save: 'enabled',
+            payment_method_redisplay: 'enabled',
+            payment_method_remove: 'enabled',
+          },
+        },
+      },
+    });
+  }
+
   // Payment Intents (for CV unlock one-time payments)
   async createPaymentIntent(params: CreatePaymentIntentParams): Promise<Stripe.PaymentIntent> {
-    return this.stripe.paymentIntents.create({
+    const options: Stripe.PaymentIntentCreateParams = {
       amount: params.amount,
       currency: params.currency.toLowerCase(),
       customer: params.customerId,
@@ -85,7 +103,14 @@ export class StripeService {
       automatic_payment_methods: {
         enabled: true,
       },
-    });
+    };
+
+    // Use idempotency key to prevent duplicate charges
+    const requestOptions = params.idempotencyKey
+      ? { idempotencyKey: params.idempotencyKey }
+      : undefined;
+
+    return this.stripe.paymentIntents.create(options, requestOptions);
   }
 
   async getPaymentIntent(paymentIntentId: string): Promise<Stripe.PaymentIntent> {

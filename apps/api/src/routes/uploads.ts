@@ -8,6 +8,18 @@ import { uploadRateLimit } from '../middleware/rate-limit';
 
 const uploadsRoute = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
+function createUploadService(env: Bindings): UploadService {
+  return new UploadService({
+    region: env.AWS_REGION,
+    accessKeyId: env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+    bucketName: env.S3_BUCKET_NAME,
+    cloudfrontUrl: env.CLOUDFRONT_URL,
+    cloudfrontKeyPairId: env.CLOUDFRONT_KEY_PAIR_ID,
+    cloudfrontPrivateKey: env.CLOUDFRONT_PRIVATE_KEY,
+  });
+}
+
 // Apply upload rate limit to all upload routes
 uploadsRoute.use('*', uploadRateLimit);
 
@@ -27,12 +39,7 @@ uploadsRoute.post(
     const officeId = c.get('officeId')!;
 
     try {
-      if (!c.env.BUCKET) {
-        return c.json({ success: false, error: 'Storage not configured' }, 500);
-      }
-      const uploadService = new UploadService(c.env.BUCKET);
-
-      // Include office ID in path for organization
+      const uploadService = createUploadService(c.env);
       const folderPath = `${folder}/${officeId}`;
       const result = await uploadService.generatePresignedUrl(folderPath, filename, contentType);
 
@@ -74,15 +81,11 @@ uploadsRoute.post(
         return c.json({ success: false, error: 'File too large (max 10MB)' }, 400);
       }
 
-      if (!c.env.BUCKET) {
-        return c.json({ success: false, error: 'Storage not configured' }, 500);
-      }
-      const uploadService = new UploadService(c.env.BUCKET);
+      const uploadService = createUploadService(c.env);
 
-      // Generate key
-      const timestamp = Date.now();
-      const ext = file.name.split('.').pop() || 'bin';
-      const key = `${folder}/${officeId}/${timestamp}.${ext}`;
+      // Generate key with tenant isolation
+      const validFolder = folder as 'maids' | 'documents' | 'logos';
+      const key = uploadService.generateKey(validFolder, officeId, file.name);
 
       // Upload
       const arrayBuffer = await file.arrayBuffer();
@@ -95,6 +98,28 @@ uploadsRoute.post(
     } catch (error) {
       console.error('Upload error:', error);
       return c.json({ success: false, error: 'Failed to upload file' }, 500);
+    }
+  }
+);
+
+// Get signed URL for private document access
+uploadsRoute.get(
+  '/signed/:key',
+  authMiddleware,
+  async (c) => {
+    const key = decodeURIComponent(c.req.param('key'));
+
+    try {
+      const uploadService = createUploadService(c.env);
+      const signedUrl = await uploadService.getSignedUrl(key);
+
+      return c.json({
+        success: true,
+        data: { url: signedUrl },
+      });
+    } catch (error) {
+      console.error('Signed URL error:', error);
+      return c.json({ success: false, error: 'Failed to generate signed URL' }, 500);
     }
   }
 );
@@ -115,10 +140,7 @@ uploadsRoute.delete(
     }
 
     try {
-      if (!c.env.BUCKET) {
-        return c.json({ success: false, error: 'Storage not configured' }, 500);
-      }
-      const uploadService = new UploadService(c.env.BUCKET);
+      const uploadService = createUploadService(c.env);
       await uploadService.delete(key);
 
       return c.json({ success: true, message: 'File deleted' });

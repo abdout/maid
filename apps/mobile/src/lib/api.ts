@@ -3,12 +3,85 @@ import { useAuth } from '@/store/auth';
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://maid-api.osmanabdout.workers.dev';
 
-// Fetch wrapper with auth token
+// Token refresh promise to prevent multiple simultaneous refreshes
+let refreshPromise: Promise<boolean> | null = null;
+
+// API response types for auth
+interface TokenPairResponse {
+  success: boolean;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
+}
+
+interface ApiErrorResponse {
+  success: boolean;
+  error: string;
+  code?: string;
+}
+
+/**
+ * Attempt to refresh the access token using the refresh token
+ * Returns true if refresh was successful, false otherwise
+ */
+async function refreshAccessToken(): Promise<boolean> {
+  const { refreshToken, updateTokens, logout, setRefreshing } = useAuth.getState();
+
+  if (!refreshToken) {
+    return false;
+  }
+
+  // If already refreshing, wait for existing promise
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  setRefreshing(true);
+
+  refreshPromise = (async () => {
+    try {
+      const response = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      const data = await response.json() as TokenPairResponse | ApiErrorResponse;
+
+      if (response.ok && 'data' in data && data.success) {
+        await updateTokens({
+          accessToken: data.data.accessToken,
+          refreshToken: data.data.refreshToken,
+          expiresIn: data.data.expiresIn,
+        });
+        return true;
+      }
+
+      // Refresh failed - force logout
+      await logout();
+      return false;
+    } catch {
+      // Network error during refresh
+      return false;
+    } finally {
+      refreshPromise = null;
+      setRefreshing(false);
+    }
+  })();
+
+  return refreshPromise;
+}
+
+// Fetch wrapper with auth token (for external use)
 export async function fetchWithAuth(
   input: RequestInfo | URL,
   init?: RequestInit
 ): Promise<Response> {
-  const token = useAuth.getState().token;
+  const token = useAuth.getState().accessToken;
 
   const headers = new Headers(init?.headers);
   if (token) {
@@ -22,19 +95,23 @@ export async function fetchWithAuth(
   });
 }
 
-// Base fetch function
+/**
+ * Base fetch function with automatic token refresh on 401
+ * Handles TOKEN_EXPIRED error code by attempting refresh and retry
+ */
 async function apiFetch<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  isRetry = false
 ): Promise<T> {
-  const token = useAuth.getState().token;
+  const { accessToken } = useAuth.getState();
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
   const response = await fetch(`${API_URL}${endpoint}`, {
@@ -42,65 +119,118 @@ async function apiFetch<T>(
     headers: { ...headers, ...options.headers },
   });
 
-  const data = await response.json();
+  const data = await response.json() as T | ApiErrorResponse;
 
-  if (!response.ok) {
-    throw new Error(data.error || 'Request failed');
+  // Handle 401 errors
+  if (response.status === 401 && !isRetry) {
+    const errorData = data as ApiErrorResponse;
+
+    // Check if token expired (can be refreshed)
+    if (errorData.code === 'TOKEN_EXPIRED' || errorData.error?.includes('expired')) {
+      const refreshed = await refreshAccessToken();
+
+      if (refreshed) {
+        // Retry the original request with new token
+        return apiFetch<T>(endpoint, options, true);
+      }
+    }
+
+    // Force logout on auth failure that can't be recovered
+    const { logout } = useAuth.getState();
+    await logout();
+    throw new Error(errorData.error || 'Session expired. Please log in again.');
   }
 
-  return data;
+  if (!response.ok) {
+    const errorData = data as ApiErrorResponse;
+    throw new Error(errorData.error || 'Request failed');
+  }
+
+  return data as T;
+}
+
+// Auth response types
+interface AuthUser {
+  id: string;
+  phone: string | null;
+  email: string | null;
+  name: string | null;
+  role: string;
+  officeId: string | null;
+}
+
+interface LoginResponse {
+  success: boolean;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+    user: AuthUser;
+  };
+}
+
+interface OtpRequestResponse {
+  success: boolean;
+  message: string;
+  data: {
+    phone: string;
+    expiresIn: number;
+  };
+}
+
+interface OtpVerifyResponse {
+  success: boolean;
+  message: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+    user: AuthUser;
+  };
+}
+
+interface MeResponse {
+  success: boolean;
+  data: AuthUser;
 }
 
 // Auth API
 export const authApi = {
   login: (email: string, password: string) =>
-    apiFetch<{
-      success: boolean;
-      data: {
-        token: string;
-        user: {
-          id: string;
-          email: string | null;
-          name: string | null;
-          role: string;
-          officeId: string | null;
-        };
-      };
-    }>('/auth/login', {
+    apiFetch<LoginResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
 
   requestOtp: (phone: string) =>
-    apiFetch<{ success: boolean; data: { phone: string } }>('/auth/otp/request', {
+    apiFetch<OtpRequestResponse>('/auth/otp/request', {
       method: 'POST',
       body: JSON.stringify({ phone }),
     }),
 
   verifyOtp: (phone: string, code: string) =>
-    apiFetch<{
-      success: boolean;
-      data: {
-        token: string;
-        user: {
-          id: string;
-          phone: string;
-          name: string | null;
-          role: string;
-          officeId: string | null;
-        };
-      };
-    }>('/auth/otp/verify', {
+    apiFetch<OtpVerifyResponse>('/auth/otp/verify', {
       method: 'POST',
       body: JSON.stringify({ phone, code }),
     }),
 
-  getMe: () =>
-    apiFetch<{ success: boolean; data: { id: string; phone: string; name: string | null; role: string; officeId: string | null } }>('/auth/me'),
+  getMe: () => apiFetch<MeResponse>('/auth/me'),
 
-  refresh: () =>
-    apiFetch<{ success: boolean; data: { token: string } }>('/auth/refresh', {
+  refresh: (refreshToken: string) =>
+    apiFetch<TokenPairResponse>('/auth/refresh', {
       method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    }),
+
+  logout: () =>
+    apiFetch<{ success: boolean; message: string }>('/auth/logout', {
+      method: 'POST',
+    }),
+
+  logoutAll: (password?: string) =>
+    apiFetch<{ success: boolean; message: string }>('/auth/logout-all', {
+      method: 'POST',
+      body: JSON.stringify({ password }),
     }),
 };
 
@@ -276,6 +406,8 @@ export const officesApi = {
 // Favorite type
 interface FavoriteItem {
   id: string;
+  maidId: string;
+  createdAt: string;
   maid: {
     id: string;
     name: string;
@@ -334,12 +466,15 @@ export const uploadsApi = {
     }),
 
   uploadFile: async (uri: string, folder: 'maids' | 'documents' | 'logos' = 'maids'): Promise<string> => {
-    const token = useAuth.getState().token;
+    const token = useAuth.getState().accessToken;
 
     // Get file info
     const filename = uri.split('/').pop() || 'image.jpg';
     const match = /\.(\w+)$/.exec(filename);
-    const type = match ? `image/${match[1]}` : 'image/jpeg';
+    // Fix MIME type: jpg -> jpeg, ensure valid image types
+    let extension = match ? match[1].toLowerCase() : 'jpeg';
+    if (extension === 'jpg') extension = 'jpeg';
+    const type = ['jpeg', 'png', 'webp'].includes(extension) ? `image/${extension}` : 'image/jpeg';
 
     // Create form data
     const formData = new FormData();
@@ -381,6 +516,8 @@ interface PaymentIntent {
   paymentId: string;
   amount: number;
   currency: string;
+  customerId?: string;
+  customerSessionClientSecret?: string;
 }
 
 interface UnlockedCv {

@@ -5,6 +5,7 @@ export { MaidService } from './maid.service';
 export { OfficeService } from './office.service';
 export { QuotationService } from './quotation.service';
 export { UploadService } from './upload.service';
+export { S3Service } from './s3.service';
 export { LookupService } from './lookup.service';
 export { StripeService } from './stripe.service';
 export { TabbyService } from './tabby.service';

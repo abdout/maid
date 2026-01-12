@@ -19,6 +19,14 @@ export type ServiceType = 'individual' | 'business' | 'cleaning' | 'cooking' | '
 // Quotation status
 export type QuotationStatus = 'pending' | 'sent' | 'accepted' | 'rejected' | 'expired';
 
+// New types from client feedback
+export type PackageType = 'traditional' | 'flexible' | 'hourly';
+export type CookingSkills = 'good' | 'average' | 'willing_to_learn' | 'none';
+export type AvailabilityType = 'inside_uae' | 'outside_uae';
+export type Sex = 'male' | 'female';
+export type EducationLevel = 'college' | 'high_school' | 'primary' | 'none';
+export type JobType = 'domestic_worker' | 'nurse_caregiver' | 'driver';
+
 // Common API response
 export interface ApiResponse<T> {
   success: boolean;
@@ -36,12 +44,17 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+// Age range presets for filtering
+export type AgeRangePreset = '20-30' | '31-40' | '40+';
+
 // Maid filters
 export interface MaidFilters {
   search?: string;
-  nationalityId?: string;
+  nationalityId?: string; // Single nationality (legacy)
+  nationalityIds?: string[]; // Multi-select nationalities (max 3)
   ageMin?: number;
   ageMax?: number;
+  ageRange?: AgeRangePreset; // Preset age range
   maritalStatus?: MaritalStatusFilter;
   religion?: Religion;
   experienceYears?: number;
@@ -98,6 +111,22 @@ export interface Maid {
   serviceType: ServiceType;
   bio: string | null;
   bioAr: string | null;
+  // New fields from client feedback
+  sex: Sex;
+  educationLevel: EducationLevel | null;
+  hasChildren: boolean;
+  jobType: JobType;
+  packageType: PackageType;
+  hasExperience: boolean;
+  experienceDetails: string | null;
+  skillsDetails: string | null;
+  cookingSkills: CookingSkills | null;
+  babySitter: boolean;
+  officeFees: number | null;
+  availability: AvailabilityType;
+  whatsappNumber: string | null;
+  contactNumber: string | null;
+  cvReference: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -112,6 +141,15 @@ export interface Office {
   address: string | null;
   logoUrl: string | null;
   isVerified: boolean;
+  // New fields from client feedback
+  licenseNumber: string | null;
+  licenseExpiry: Date | null;
+  licenseImageUrl: string | null;
+  managerPhone1: string | null;
+  managerPhone2: string | null;
+  googleMapsUrl: string | null;
+  emirate: string | null;
+  website: string | null;
   createdAt: Date;
 }
 

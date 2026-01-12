@@ -1,7 +1,8 @@
 import { View, Text, Pressable, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { HeartIcon, UserIcon, DirhamIcon, StarIcon } from './icons';
+import { HeartIcon, UserIcon, DirhamIcon, StarIcon, PhoneIcon, WhatsAppIcon } from './icons';
+import { openWhatsApp, openPhoneDialer, generateCVInquiryMessage } from '@/lib/linking';
 
 interface MaidCardProps {
   maid: {
@@ -13,10 +14,16 @@ interface MaidCardProps {
     salary: string;
     experienceYears: number;
     nationality: { id: string; nameEn: string; nameAr: string } | null;
+    cvReference?: string | null;
+    office?: {
+      phone: string;
+      whatsAppNumber?: string | null;
+    } | null;
   };
   onPress?: () => void;
   isFavorite?: boolean;
   onFavoritePress?: () => void;
+  showContactButtons?: boolean;
 }
 
 export function MaidCard({
@@ -24,10 +31,31 @@ export function MaidCard({
   onPress,
   isFavorite = false,
   onFavoritePress,
+  showContactButtons = true,
 }: MaidCardProps) {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.language === 'ar';
+
+  const officePhone = maid.office?.whatsAppNumber || maid.office?.phone;
+  const hasContactInfo = !!officePhone;
+
+  const handleWhatsApp = (e: { stopPropagation: () => void }) => {
+    e.stopPropagation();
+    if (!officePhone) return;
+    const message = generateCVInquiryMessage(
+      maid.cvReference || undefined,
+      maid.name,
+      isRTL
+    );
+    openWhatsApp(officePhone, message);
+  };
+
+  const handleCall = (e: { stopPropagation: () => void }) => {
+    e.stopPropagation();
+    if (!officePhone) return;
+    openPhoneDialer(officePhone);
+  };
 
   const handlePress = () => {
     if (onPress) {
@@ -130,6 +158,34 @@ export function MaidCard({
             </Text>
           </View>
         </View>
+
+        {/* Contact CTA Buttons - Free Mode */}
+        {showContactButtons && hasContactInfo && (
+          <View className={`flex-row gap-2 mt-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <TouchableOpacity
+              onPress={handleWhatsApp}
+              activeOpacity={0.7}
+              className="flex-1 flex-row items-center justify-center gap-2 bg-[#25D366] py-2.5 rounded-lg"
+              style={isRTL ? { flexDirection: 'row-reverse' } : undefined}
+            >
+              <WhatsAppIcon size={18} color="#FFFFFF" />
+              <Text className="text-white font-medium text-sm">
+                {t('contact.whatsapp', 'WhatsApp')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleCall}
+              activeOpacity={0.7}
+              className="flex-1 flex-row items-center justify-center gap-2 bg-primary-500 py-2.5 rounded-lg"
+              style={isRTL ? { flexDirection: 'row-reverse' } : undefined}
+            >
+              <PhoneIcon size={18} color="#FFFFFF" />
+              <Text className="text-white font-medium text-sm">
+                {t('contact.call', 'Call')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </Pressable>
   );
