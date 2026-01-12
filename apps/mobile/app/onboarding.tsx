@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { storage, STORAGE_KEYS } from '@/lib/storage';
 import { LinearGradient } from 'expo-linear-gradient';
+import { authConfig } from '@/config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -15,7 +16,18 @@ export default function OnboardingScreen() {
   const handleComplete = async (type: 'customer' | 'office') => {
     await storage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, 'true');
     await storage.setItem('user_intent', type);
-    router.replace('/login');
+
+    // Check if auth is required based on config
+    const requireAuth = type === 'customer'
+      ? authConfig.requireCustomerAuth
+      : authConfig.requireOfficeAuth;
+
+    if (requireAuth) {
+      router.replace('/login');
+    } else {
+      // Go directly to the respective screen without auth
+      router.replace(type === 'customer' ? '/(customer)' : '/(office)');
+    }
   };
 
   const handleLogin = async () => {

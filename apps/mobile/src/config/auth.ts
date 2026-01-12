@@ -22,8 +22,9 @@ export const authConfig = {
   // Whether to require auth for customer screens
   requireCustomerAuth: !GUEST_MODE,
 
-  // Whether to require auth for office screens (always true)
-  requireOfficeAuth: true,
+  // Whether to require auth for office screens
+  // Set to !GUEST_MODE to bypass auth during testing
+  requireOfficeAuth: !GUEST_MODE,
 
   // Features that always require auth even in guest mode
   authRequiredFeatures: [

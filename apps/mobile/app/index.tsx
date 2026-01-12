@@ -29,22 +29,33 @@ export default function Index() {
           return;
         }
 
-        // Guest mode: allow customers to browse without login
-        if (!isAuthenticated) {
-          if (requireCustomerAuth) {
-            router.replace('/login');
+        // If authenticated, redirect based on role
+        if (isAuthenticated) {
+          if (user?.role === 'office_admin') {
+            router.replace('/(office)');
           } else {
-            // Free trial mode: go directly to customer screens
             router.replace('/(customer)');
           }
           return;
         }
 
-        // Redirect based on user role
-        if (user?.role === 'office_admin') {
-          router.replace('/(office)');
+        // Not authenticated - check user intent from onboarding
+        const userIntent = await storage.getItem('user_intent');
+
+        if (userIntent === 'office') {
+          // Office path
+          if (requireOfficeAuth) {
+            router.replace('/login');
+          } else {
+            router.replace('/(office)');
+          }
         } else {
-          router.replace('/(customer)');
+          // Customer path (default)
+          if (requireCustomerAuth) {
+            router.replace('/login');
+          } else {
+            router.replace('/(customer)');
+          }
         }
       } catch (error) {
         console.error('Navigation error:', error);

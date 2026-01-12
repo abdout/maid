@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { View, ActivityIndicator } from 'react-native';
 import { DashboardIcon, UsersIcon, FileTextIcon, UserIcon } from '@/components/icons';
 import { useAuth } from '@/store/auth';
+import { authConfig } from '@/config';
 
 type TabName = 'dashboard' | 'maids' | 'quotations' | 'profile';
 
@@ -45,15 +46,17 @@ export default function OfficeLayout() {
   const router = useRouter();
   const { isAuthenticated, isLoading, user } = useAuth();
 
-  // Office screens always require authentication
+  // Check auth only if required by config
   useEffect(() => {
-    if (!isLoading && (!isAuthenticated || user?.role !== 'office_admin')) {
-      router.replace('/login');
+    if (authConfig.requireOfficeAuth && !isLoading) {
+      if (!isAuthenticated || user?.role !== 'office_admin') {
+        router.replace('/login');
+      }
     }
   }, [isLoading, isAuthenticated, user]);
 
-  // Show loading while checking auth
-  if (isLoading || !isAuthenticated || user?.role !== 'office_admin') {
+  // Show loading only when auth is required and checking
+  if (authConfig.requireOfficeAuth && (isLoading || !isAuthenticated || user?.role !== 'office_admin')) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#FF385C" />
