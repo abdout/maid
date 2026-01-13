@@ -2,7 +2,7 @@ import { View, Text, Pressable, ImageBackground, Dimensions } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { storage, STORAGE_KEYS } from '@/lib/storage';
+import { storage } from '@/lib/storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { authConfig } from '@/config';
 
@@ -14,7 +14,6 @@ export default function OnboardingScreen() {
   const isRTL = i18n.language === 'ar';
 
   const handleComplete = async (type: 'customer' | 'office') => {
-    await storage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, 'true');
     await storage.setItem('user_intent', type);
 
     // Check if auth is required based on config
@@ -31,7 +30,6 @@ export default function OnboardingScreen() {
   };
 
   const handleLogin = async () => {
-    await storage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, 'true');
     router.replace('/login');
   };
 

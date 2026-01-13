@@ -32,6 +32,7 @@ export default function RootLayout() {
           screenOptions={{
             headerShown: false,
           }}
+          initialRouteName="onboarding"
         >
           <Stack.Screen
             name="maid-onboarding"
