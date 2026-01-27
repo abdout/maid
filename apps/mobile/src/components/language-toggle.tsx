@@ -6,7 +6,7 @@ import { GlobeIcon } from './icons';
 
 interface LanguageToggleProps {
   /** Visual style of the toggle */
-  variant?: 'pill' | 'button' | 'icon';
+  variant?: 'pill' | 'button' | 'icon' | 'text';
   /** Show country flag emoji */
   showFlag?: boolean;
   /** Callback when language changes */
@@ -121,6 +121,23 @@ export function LanguageToggle({
             {getDisplayText()}
           </Text>
         </View>
+      </Pressable>
+    );
+  }
+
+  // Text-only variant (full word, no icon, no background)
+  if (variant === 'text') {
+    const fullText = currentLang === 'ar' ? 'English' : 'العربية';
+    return (
+      <Pressable
+        onPress={handleToggle}
+        disabled={isChanging}
+        className="px-2 py-1"
+        style={{ opacity: isChanging ? 0.5 : 1 }}
+      >
+        <Text className="text-white font-medium text-base">
+          {fullText}
+        </Text>
       </Pressable>
     );
   }

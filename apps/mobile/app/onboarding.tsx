@@ -47,9 +47,9 @@ export default function OnboardingScreen() {
           style={{ flex: 1 }}
         >
           <SafeAreaView className="flex-1">
-            {/* Language Toggle - Top corner */}
-            <View className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} z-10`}>
-              <LanguageToggle variant="pill" />
+            {/* Language Toggle - Top left corner */}
+            <View className="absolute top-4 left-4 z-10">
+              <LanguageToggle variant="text" />
             </View>
 
             {/* Spacer - pushes content to bottom */}
