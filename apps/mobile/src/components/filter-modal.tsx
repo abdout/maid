@@ -7,13 +7,14 @@ import {
   ScrollView,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { NATIONALITIES } from '@/constants';
 import { XIcon, RotateCcwIcon } from './icons';
 import { RangeSlider } from './range-slider';
 import { LanguageToggle } from './language-toggle';
-import type { MaidFilters, AgeRangePreset } from '@maid/shared';
+import type { MaidFilters, AgeRangePreset, ServiceType } from '@maid/shared';
 
 // Filter constants
 const SALARY_MIN = 0;
@@ -26,6 +27,26 @@ const AGE_RANGE_PRESETS: { value: AgeRangePreset; labelEn: string; labelAr: stri
   { value: '20-30', labelEn: '20-30', labelAr: '20-30', min: 20, max: 30 },
   { value: '31-40', labelEn: '31-40', labelAr: '31-40', min: 31, max: 40 },
   { value: '40+', labelEn: '40+', labelAr: '+40', min: 40, max: 65 },
+];
+
+// Service type categories with PNG images
+const serviceTypeImages = {
+  cleaning: require('../../assets/wipe.png'),
+  cooking: require('../../assets/chef-hat.png'),
+  babysitter: require('../../assets/baby-stroller.png'),
+  elderly: require('../../assets/old-people.png'),
+} as const;
+
+const SERVICE_TYPES: ReadonlyArray<{
+  id: ServiceType;
+  image: keyof typeof serviceTypeImages;
+  labelEn: string;
+  labelAr: string;
+}> = [
+  { id: 'cleaning', image: 'cleaning', labelEn: 'Cleaning', labelAr: 'تنظيف' },
+  { id: 'cooking', image: 'cooking', labelEn: 'Cooking', labelAr: 'طبخ' },
+  { id: 'babysitter', image: 'babysitter', labelEn: 'Babysitter', labelAr: 'مربية' },
+  { id: 'elderly', image: 'elderly', labelEn: 'Elderly', labelAr: 'مسنين' },
 ];
 
 interface FilterModalProps {
@@ -143,6 +164,40 @@ export function FilterModal({
     <Modal visible={visible} animationType="slide">
       <View className="flex-1 bg-background-0">
           <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
+            {/* Service Type - First section */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.serviceType')}
+              </Text>
+              <View
+                className="flex-row justify-between"
+                style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}
+              >
+                {SERVICE_TYPES.map((type) => {
+                  const isSelected = filters.serviceType === type.id;
+                  return (
+                    <Pressable
+                      key={type.id}
+                      onPress={() => updateFilter('serviceType', type.id)}
+                      className={`flex-1 items-center py-3 mx-1 rounded-xl ${
+                        isSelected ? 'border-2 border-typography-900' : 'border border-transparent'
+                      }`}
+                      style={{ opacity: isSelected ? 1 : 0.4 }}
+                    >
+                      <Image
+                        source={serviceTypeImages[type.image]}
+                        style={{ width: 36, height: 36 }}
+                        resizeMode="contain"
+                      />
+                      <Text className="text-xs font-medium mt-2 text-typography-900">
+                        {isRTL ? type.labelAr : type.labelEn}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+
             {/* Nationality - Multi-select with max 3 */}
             <View className="mb-6">
               <View className={`flex-row items-center justify-between mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
