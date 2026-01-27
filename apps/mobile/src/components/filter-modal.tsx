@@ -64,17 +64,10 @@ export function FilterModal({
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  // Default to 'cleaning' service type if not set
-  const [filters, setFilters] = useState<Partial<MaidFilters>>({
-    serviceType: 'cleaning',
-    ...initialFilters,
-  });
+  const [filters, setFilters] = useState<Partial<MaidFilters>>(initialFilters);
 
   useEffect(() => {
-    setFilters({
-      serviceType: 'cleaning',
-      ...initialFilters,
-    });
+    setFilters(initialFilters);
   }, [initialFilters, visible]);
 
   const maritalStatusOptions = [
@@ -88,7 +81,7 @@ export function FilterModal({
   ];
 
   const handleReset = () => {
-    setFilters({ serviceType: 'cleaning' });
+    setFilters({});
   };
 
   const handleApply = () => {
