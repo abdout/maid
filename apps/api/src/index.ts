@@ -46,6 +46,7 @@ app.use(
     'https://*.vercel.app',
     'https://*.trycloudflare.com',
     'https://dw.futuretech-innovations.com',
+    'https://*.databayt.org',
   ])
 );
 
