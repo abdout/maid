@@ -76,6 +76,10 @@ export default function HomeScreen() {
   const hasActiveFilters = activeFilterCount > 0;
 
   const handleApplyFilters = useCallback((newFilters: Partial<MaidFilters>) => {
+    // Sync serviceType with CategoryFilter state
+    if ('serviceType' in newFilters) {
+      setSelectedServiceType(newFilters.serviceType || null);
+    }
     setFilters(newFilters);
     setPage(1);
   }, []);
@@ -284,7 +288,7 @@ export default function HomeScreen() {
         visible={showFilters}
         onClose={() => setShowFilters(false)}
         onApply={handleApplyFilters}
-        initialFilters={filters}
+        initialFilters={{ ...filters, serviceType: selectedServiceType || undefined }}
       />
     </SafeAreaView>
   );
