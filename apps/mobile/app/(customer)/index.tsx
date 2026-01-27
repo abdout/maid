@@ -13,7 +13,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMaids, useNationalities, useOptimisticFavorites, useToggleFavorite } from '@/hooks';
 import { useAuth } from '@/store/auth';
-import { MaidCard, CategoryFilter, FilterModal, PromotionsSection, BusinessSection } from '@/components';
+import { MaidCard, CategoryFilter, FilterModal, PromotionsSection, BusinessSection, LanguageToggle } from '@/components';
 import {
   SearchIcon,
   ChevronDownIcon,
@@ -158,6 +158,12 @@ export default function HomeScreen() {
           <Pressable className="w-9 h-9 rounded-full bg-primary-500 items-center justify-center mr-1.5">
             <SearchIcon size={16} color="#FFFFFF" />
           </Pressable>
+
+          {/* Separator */}
+          <View className="w-px h-6 bg-background-200 mx-1" />
+
+          {/* Language Toggle */}
+          <LanguageToggle variant="icon" />
         </View>
       </View>
 
