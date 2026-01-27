@@ -7,13 +7,33 @@ import {
   ScrollView,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { NATIONALITIES } from '@/constants';
 import { XIcon, RotateCcwIcon } from './icons';
 import { RangeSlider } from './range-slider';
 import { LanguageToggle } from './language-toggle';
-import type { MaidFilters, AgeRangePreset } from '@maid/shared';
+import type { MaidFilters, AgeRangePreset, ServiceType } from '@maid/shared';
+
+// Service type images (same as CategoryFilter)
+const serviceTypeImages = {
+  cleaning: require('../../assets/wipe.png'),
+  cooking: require('../../assets/chef-hat.png'),
+  babysitter: require('../../assets/baby-stroller.png'),
+  elderly: require('../../assets/old-people.png'),
+} as const;
+
+const SERVICE_TYPES: ReadonlyArray<{
+  id: ServiceType;
+  labelEn: string;
+  labelAr: string;
+}> = [
+  { id: 'cleaning', labelEn: 'Cleaning', labelAr: 'تنظيف' },
+  { id: 'cooking', labelEn: 'Cooking', labelAr: 'طبخ' },
+  { id: 'babysitter', labelEn: 'Babysitter', labelAr: 'مربية' },
+  { id: 'elderly', labelEn: 'Elderly', labelAr: 'مسنين' },
+];
 
 // Filter constants
 const SALARY_MIN = 0;
@@ -44,10 +64,17 @@ export function FilterModal({
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  const [filters, setFilters] = useState<Partial<MaidFilters>>(initialFilters);
+  // Default to 'cleaning' service type if not set
+  const [filters, setFilters] = useState<Partial<MaidFilters>>({
+    serviceType: 'cleaning',
+    ...initialFilters,
+  });
 
   useEffect(() => {
-    setFilters(initialFilters);
+    setFilters({
+      serviceType: 'cleaning',
+      ...initialFilters,
+    });
   }, [initialFilters, visible]);
 
   const maritalStatusOptions = [
@@ -61,7 +88,7 @@ export function FilterModal({
   ];
 
   const handleReset = () => {
-    setFilters({});
+    setFilters({ serviceType: 'cleaning' });
   };
 
   const handleApply = () => {
@@ -143,6 +170,39 @@ export function FilterModal({
     <Modal visible={visible} animationType="slide">
       <View className="flex-1 bg-background-0">
           <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
+            {/* Service Type - First section with cleaning default */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.serviceType')}
+              </Text>
+              <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+                {SERVICE_TYPES.map((service) => {
+                  const isSelected = filters.serviceType === service.id;
+                  return (
+                    <Pressable
+                      key={service.id}
+                      onPress={() => updateFilter('serviceType', service.id)}
+                      className={`flex-1 items-center py-3 mx-1 rounded-lg border ${
+                        isSelected
+                          ? 'border-typography-900 border-2 bg-background-0'
+                          : 'border-background-200 bg-background-0'
+                      }`}
+                      style={{ opacity: isSelected ? 1 : 0.4 }}
+                    >
+                      <Image
+                        source={serviceTypeImages[service.id]}
+                        style={{ width: 28, height: 28 }}
+                        resizeMode="contain"
+                      />
+                      <Text className={`text-xs font-medium mt-1.5 ${isSelected ? 'text-typography-900' : 'text-typography-700'}`}>
+                        {isRTL ? service.labelAr : service.labelEn}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+
             {/* Nationality - Multi-select with max 3 */}
             <View className="mb-6">
               <View className={`flex-row items-center justify-between mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
@@ -334,9 +394,9 @@ export function FilterModal({
             <View className="h-32" />
           </ScrollView>
 
-          {/* Actions - Compact icon row footer */}
+          {/* Actions - Compact icon row footer with bigger gap */}
           <View
-            className={`flex-row items-center gap-2 px-4 py-3 bg-background-0 ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex-row items-center gap-4 px-4 py-3 bg-background-0 ${isRTL ? 'flex-row-reverse' : ''}`}
             style={{
               shadowColor: '#000',
               shadowOffset: { width: 0, height: -2 },
@@ -367,7 +427,7 @@ export function FilterModal({
             {/* Apply - Smaller button */}
             <Pressable
               onPress={handleApply}
-              className={`flex-1 py-2.5 bg-primary-500 rounded-lg items-center ${isRTL ? 'mr-2' : 'ml-2'}`}
+              className={`flex-1 py-2.5 bg-primary-500 rounded-lg items-center ${isRTL ? 'mr-4' : 'ml-4'}`}
             >
               <Text className="text-white font-semibold text-sm">{t('filters.apply')}</Text>
             </Pressable>

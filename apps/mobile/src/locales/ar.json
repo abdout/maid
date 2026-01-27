@@ -164,6 +164,7 @@
     "experience": "الأكثر خبرة"
   },
   "filters": {
+    "serviceType": "نوع الخدمة",
     "nationality": "الجنسية",
     "age": "العمر",
     "ageRange": "الفئة العمرية",

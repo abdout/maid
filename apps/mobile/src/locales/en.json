@@ -164,6 +164,7 @@
     "experience": "Most Experienced"
   },
   "filters": {
+    "serviceType": "Service Type",
     "nationality": "Nationality",
     "age": "Age",
     "ageRange": "Age Range",
