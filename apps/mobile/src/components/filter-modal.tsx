@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { NATIONALITIES } from '@/constants';
 import { XIcon, DirhamIcon } from './icons';
 import { RangeSlider } from './range-slider';
+import { CountryFlag } from './country-flag';
+import { LanguageToggle } from './language-toggle';
 import type { MaidFilters, AgeRangePreset } from '@maid/shared';
 
 // Filter constants
@@ -139,11 +141,8 @@ export function FilterModal({
   const isAllSelected = selectedNationalityIds.length === 0;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View className="flex-1 justify-end">
-        <Pressable onPress={onClose} className="flex-1 bg-black/50" />
-
-        <View className="bg-background-0 rounded-t-3xl max-h-[85%]">
+    <Modal visible={visible} animationType="slide">
+      <View className="flex-1 bg-background-0">
           {/* Header */}
           <View className={`flex-row items-center justify-between p-6 border-b border-background-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Text className="text-xl font-bold text-typography-900">
@@ -194,16 +193,17 @@ export function FilterModal({
                     <Pressable
                       key={nat.id}
                       onPress={() => toggleNationality(nat.id)}
-                      className={`px-4 py-2 rounded-full border ${
+                      className={`flex-row items-center gap-2 px-4 py-2 rounded-full border ${
                         isSelected
                           ? 'bg-primary-500 border-primary-500'
                           : 'bg-background-0 border-background-200'
                       }`}
                     >
+                      <CountryFlag code={nat.code} width={20} />
                       <Text
                         className={isSelected ? 'text-white font-medium' : 'text-typography-700'}
                       >
-                        {nat.flag} {isRTL ? nat.nameAr : nat.nameEn}
+                        {isRTL ? nat.nameAr : nat.nameEn}
                       </Text>
                     </Pressable>
                   );
@@ -351,7 +351,7 @@ export function FilterModal({
 
           {/* Actions - Sticky footer */}
           <View
-            className={`flex-row gap-3 p-6 bg-background-0 ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex-row items-center gap-3 p-6 bg-background-0 ${isRTL ? 'flex-row-reverse' : ''}`}
             style={{
               shadowColor: '#000',
               shadowOffset: { width: 0, height: -2 },
@@ -366,6 +366,7 @@ export function FilterModal({
             >
               <Text className="text-typography-700 font-medium">{t('filters.reset')}</Text>
             </Pressable>
+            <LanguageToggle variant="icon" />
             <Pressable
               onPress={handleApply}
               className="flex-1 py-4 bg-primary-500 rounded-lg items-center"
@@ -373,7 +374,6 @@ export function FilterModal({
               <Text className="text-white font-semibold">{t('filters.apply')}</Text>
             </Pressable>
           </View>
-        </View>
       </View>
     </Modal>
   );

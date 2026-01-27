@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { storage } from '@/lib/storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { authConfig } from '@/config';
+import { LanguageToggle } from '@/components';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,7 +26,7 @@ export default function OnboardingScreen() {
       router.replace('/login');
     } else {
       // Go directly to the respective screen without auth
-      router.replace(type === 'customer' ? '/(customer)' : '/(office)');
+      router.replace(type === 'customer' ? '/(customer)?initFilter=true' : '/(office)');
     }
   };
 
@@ -46,6 +47,11 @@ export default function OnboardingScreen() {
           style={{ flex: 1 }}
         >
           <SafeAreaView className="flex-1">
+            {/* Language Toggle - Top corner */}
+            <View className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} z-10`}>
+              <LanguageToggle variant="pill" />
+            </View>
+
             {/* Spacer - pushes content to bottom */}
             <View className="flex-1" />
 

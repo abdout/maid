@@ -9,11 +9,11 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMaids, useNationalities, useOptimisticFavorites, useToggleFavorite } from '@/hooks';
 import { useAuth } from '@/store/auth';
-import { MaidCard, CategoryFilter, FilterModal, PromotionsSection, BusinessSection } from '@/components';
+import { MaidCard, CategoryFilter, FilterModal, PromotionsSection, BusinessSection, LanguageToggle } from '@/components';
 import {
   SearchIcon,
   ChevronDownIcon,
@@ -26,6 +26,7 @@ const INITIAL_DISPLAY_COUNT = 7;
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const { initFilter } = useLocalSearchParams<{ initFilter?: string }>();
   const { isAuthenticated } = useAuth();
   const isRTL = i18n.language === 'ar';
 
@@ -33,8 +34,8 @@ export default function HomeScreen() {
   const { isFavorite: checkIsFavorite } = useOptimisticFavorites();
   const toggleFavorite = useToggleFavorite();
 
-  // Filter state
-  const [showFilters, setShowFilters] = useState(false);
+  // Filter state - auto-open on first visit from onboarding
+  const [showFilters, setShowFilters] = useState(initFilter === 'true');
   const [filters, setFilters] = useState<Partial<MaidFilters>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -157,6 +158,12 @@ export default function HomeScreen() {
           <Pressable className="w-9 h-9 rounded-full bg-primary-500 items-center justify-center mr-1.5">
             <SearchIcon size={16} color="#FFFFFF" />
           </Pressable>
+
+          {/* Separator */}
+          <View className="w-px h-6 bg-background-200 mx-1" />
+
+          {/* Language Toggle */}
+          <LanguageToggle variant="icon" />
         </View>
       </View>
 

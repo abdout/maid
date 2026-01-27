@@ -36,7 +36,9 @@
     "month": "شهر",
     "perMonth": "شهرياً",
     "min": "الحد الأدنى",
-    "max": "الحد الأقصى"
+    "max": "الحد الأقصى",
+    "reject": "رفض",
+    "now": "الآن"
   },
   "login": {
     "title": "مرحباً بك",
@@ -269,7 +271,22 @@
     "quickActions": "إجراءات سريعة",
     "manage": "إدارة العاملات",
     "admit": "قبول عاملة جديدة",
-    "viewQuotations": "عرض الأسعار"
+    "viewQuotations": "عرض الأسعار",
+    "recentActivity": "النشاط الأخير",
+    "total": "إجمالي",
+    "noMaidsAdded": "لم تتم إضافة عاملات بعد",
+    "setAvailable": "تعيين كمتاحة",
+    "setBusy": "تعيين كمشغولة",
+    "setReserved": "تعيين كمحجوزة",
+    "setInactive": "تعيين كغير نشطة",
+    "deleteMaidTitle": "حذف العاملة",
+    "deleteMaidConfirm": "هل أنت متأكد من حذف {{name}}؟",
+    "quotationRequestsAppear": "طلبات عروض الأسعار من العملاء ستظهر هنا",
+    "requests": "طلب",
+    "customer": "العميل",
+    "filterByStatus": "تصفية حسب الحالة",
+    "allStatuses": "جميع الحالات",
+    "searchMaids": "البحث عن عاملات..."
   },
   "quotation": {
     "title": "طلب عرض سعر",
@@ -291,7 +308,8 @@
     "contactOffice": "تواصل مع المكتب",
     "quotationSent": "تم إرسال العرض",
     "quotationAccepted": "تم قبول العرض",
-    "quotationRejected": "تم رفض العرض"
+    "quotationRejected": "تم رفض العرض",
+    "contract": "العقد"
   },
   "settings": {
     "title": "الإعدادات",
@@ -512,5 +530,14 @@
     "insufficientBalanceDesc": "تحتاج {{amount}} درهم لفتح هذه السيرة. يرجى شحن محفظتك.",
     "topUpNow": "اشحن الآن",
     "balanceAfterUnlock": "الرصيد بعد الفتح: {{amount}} درهم"
+  },
+  "language": {
+    "toggle": "اللغة",
+    "english": "English",
+    "arabic": "العربية",
+    "restartRequired": "إعادة التشغيل مطلوبة",
+    "restartMessage": "أعد تشغيل التطبيق لتطبيق تغييرات التخطيط.",
+    "restartNow": "إعادة التشغيل",
+    "later": "لاحقاً"
   }
 }

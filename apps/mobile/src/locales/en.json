@@ -36,7 +36,9 @@
     "month": "month",
     "perMonth": "per month",
     "min": "Min",
-    "max": "Max"
+    "max": "Max",
+    "reject": "Reject",
+    "now": "now"
   },
   "login": {
     "title": "Welcome",
@@ -269,7 +271,22 @@
     "quickActions": "Quick Actions",
     "manage": "Manage Maids",
     "admit": "Admit New Maid",
-    "viewQuotations": "View Quotations"
+    "viewQuotations": "View Quotations",
+    "recentActivity": "Recent Activity",
+    "total": "total",
+    "noMaidsAdded": "No maids added yet",
+    "setAvailable": "Set Available",
+    "setBusy": "Set Busy",
+    "setReserved": "Set Reserved",
+    "setInactive": "Set Inactive",
+    "deleteMaidTitle": "Delete Maid",
+    "deleteMaidConfirm": "Are you sure you want to delete {{name}}?",
+    "quotationRequestsAppear": "Quotation requests from customers will appear here",
+    "requests": "requests",
+    "customer": "Customer",
+    "filterByStatus": "Filter by Status",
+    "allStatuses": "All Statuses",
+    "searchMaids": "Search maids..."
   },
   "quotation": {
     "title": "Request Quote",
@@ -291,7 +308,8 @@
     "contactOffice": "Contact Office",
     "quotationSent": "Quotation Sent",
     "quotationAccepted": "Quotation Accepted",
-    "quotationRejected": "Quotation Rejected"
+    "quotationRejected": "Quotation Rejected",
+    "contract": "Contract"
   },
   "settings": {
     "title": "Settings",
@@ -512,5 +530,14 @@
     "insufficientBalanceDesc": "You need {{amount}} AED to unlock this CV. Please top up your wallet.",
     "topUpNow": "Top Up Now",
     "balanceAfterUnlock": "Balance after unlock: {{amount}} AED"
+  },
+  "language": {
+    "toggle": "Language",
+    "english": "English",
+    "arabic": "العربية",
+    "restartRequired": "Restart Required",
+    "restartMessage": "Restart the app to apply layout changes.",
+    "restartNow": "Restart Now",
+    "later": "Later"
   }
 }

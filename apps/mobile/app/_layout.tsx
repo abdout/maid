@@ -1,11 +1,12 @@
+import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
-import { Platform } from 'react-native';
+import { Platform, View, ActivityIndicator } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppStripeProvider } from '@/components/stripe-provider';
 import '../global.css';
 // Initialize i18n - must be imported to execute the init() call
-import '@/lib/i18n';
+import { initializeLanguage } from '@/lib/i18n';
 
 // Enable screen freezing for tab state preservation (native only)
 if (Platform.OS !== 'web') {
@@ -24,6 +25,24 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+  const [isLanguageReady, setIsLanguageReady] = useState(false);
+
+  // Initialize language from storage on app start
+  useEffect(() => {
+    initializeLanguage()
+      .then(() => setIsLanguageReady(true))
+      .catch(() => setIsLanguageReady(true)); // Continue even if init fails
+  }, []);
+
+  // Show loading while initializing language
+  if (!isLanguageReady) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
+        <ActivityIndicator size="large" color="#FF385C" />
+      </View>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
