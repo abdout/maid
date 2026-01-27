@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, useWindowDimensions } from 'react-native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import { useTranslation } from 'react-i18next';
 
@@ -32,6 +32,9 @@ export function RangeSlider({
 }: RangeSliderProps) {
   const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+  const { width: screenWidth } = useWindowDimensions();
+  // Parent padding (48px) + thumb width (24px) to align with other filter sections
+  const sliderWidth = screenWidth - 72;
 
   const handleValuesChange = useCallback(
     (values: number[]) => {
@@ -49,22 +52,10 @@ export function RangeSlider({
     <View>
       {/* Label */}
       <Text
-        className={`text-typography-900 font-semibold mb-2 ${isRTL ? 'text-right' : ''}`}
+        className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}
       >
         {label}
       </Text>
-
-      {/* Current values display */}
-      <View
-        className={`flex-row justify-between mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}
-      >
-        <Text className="text-primary-500 font-medium text-base">
-          {formatValue(minValue)}
-        </Text>
-        <Text className="text-primary-500 font-medium text-base">
-          {formatValue(maxValue)}
-        </Text>
-      </View>
 
       {/* Dual-thumb Range Slider */}
       <View className="items-center">
@@ -74,7 +65,7 @@ export function RangeSlider({
           max={max}
           step={step}
           onValuesChange={handleValuesChange}
-          sliderLength={280}
+          sliderLength={sliderWidth}
           selectedStyle={{ backgroundColor: PRIMARY_COLOR }}
           unselectedStyle={{ backgroundColor: TRACK_COLOR }}
           trackStyle={{
@@ -108,15 +99,16 @@ export function RangeSlider({
         />
       </View>
 
-      {/* Range labels */}
+      {/* Dynamic value labels - centered under thumb circles */}
       <View
         className={`flex-row justify-between mt-1 ${isRTL ? 'flex-row-reverse' : ''}`}
+        style={{ paddingHorizontal: THUMB_SIZE / 2 }}
       >
-        <Text className="text-typography-400 text-xs">
-          {formatValue(min)}
+        <Text className="text-typography-400 text-sm">
+          {formatValue(minValue)}
         </Text>
-        <Text className="text-typography-400 text-xs">
-          {formatValue(max)}
+        <Text className="text-typography-400 text-sm">
+          {formatValue(maxValue)}
         </Text>
       </View>
     </View>

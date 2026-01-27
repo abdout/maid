@@ -10,9 +10,8 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { NATIONALITIES } from '@/constants';
-import { XIcon, DirhamIcon } from './icons';
+import { XIcon, RotateCcwIcon } from './icons';
 import { RangeSlider } from './range-slider';
-import { CountryFlag } from './country-flag';
 import { LanguageToggle } from './language-toggle';
 import type { MaidFilters, AgeRangePreset } from '@maid/shared';
 
@@ -143,20 +142,7 @@ export function FilterModal({
   return (
     <Modal visible={visible} animationType="slide">
       <View className="flex-1 bg-background-0">
-          {/* Header */}
-          <View className={`flex-row items-center justify-between p-6 border-b border-background-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <Text className="text-xl font-bold text-typography-900">
-              {t('search.filters')}
-            </Text>
-            <Pressable
-              onPress={onClose}
-              className="w-8 h-8 rounded-full bg-background-100 items-center justify-center"
-            >
-              <XIcon size={18} color="#717171" />
-            </Pressable>
-          </View>
-
-          <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
+          <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
             {/* Nationality - Multi-select with max 3 */}
             <View className="mb-6">
               <View className={`flex-row items-center justify-between mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
@@ -193,13 +179,12 @@ export function FilterModal({
                     <Pressable
                       key={nat.id}
                       onPress={() => toggleNationality(nat.id)}
-                      className={`flex-row items-center gap-2 px-4 py-2 rounded-full border ${
+                      className={`px-4 py-2 rounded-full border ${
                         isSelected
                           ? 'bg-primary-500 border-primary-500'
                           : 'bg-background-0 border-background-200'
                       }`}
                     >
-                      <CountryFlag code={nat.code} width={20} />
                       <Text
                         className={isSelected ? 'text-white font-medium' : 'text-typography-700'}
                       >
@@ -349,9 +334,9 @@ export function FilterModal({
             <View className="h-32" />
           </ScrollView>
 
-          {/* Actions - Sticky footer */}
+          {/* Actions - Compact icon row footer */}
           <View
-            className={`flex-row items-center gap-3 p-6 bg-background-0 ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex-row items-center gap-2 px-4 py-3 bg-background-0 ${isRTL ? 'flex-row-reverse' : ''}`}
             style={{
               shadowColor: '#000',
               shadowOffset: { width: 0, height: -2 },
@@ -360,18 +345,31 @@ export function FilterModal({
               elevation: 4,
             }}
           >
+            {/* Close - Icon button */}
+            <Pressable
+              onPress={onClose}
+              className="w-9 h-9 rounded-full bg-background-100 items-center justify-center"
+            >
+              <XIcon size={18} color="#717171" />
+            </Pressable>
+
+            {/* Language Toggle - Already icon style */}
+            <LanguageToggle variant="icon" />
+
+            {/* Reset - Icon button */}
             <Pressable
               onPress={handleReset}
-              className="flex-1 py-4 bg-background-50 rounded-lg items-center"
+              className="w-9 h-9 rounded-full bg-background-100 items-center justify-center"
             >
-              <Text className="text-typography-700 font-medium">{t('filters.reset')}</Text>
+              <RotateCcwIcon size={18} color="#717171" />
             </Pressable>
-            <LanguageToggle variant="icon" />
+
+            {/* Apply - Smaller button */}
             <Pressable
               onPress={handleApply}
-              className="flex-1 py-4 bg-primary-500 rounded-lg items-center"
+              className={`flex-1 py-2.5 bg-primary-500 rounded-lg items-center ${isRTL ? 'mr-2' : 'ml-2'}`}
             >
-              <Text className="text-white font-semibold">{t('filters.apply')}</Text>
+              <Text className="text-white font-semibold text-sm">{t('filters.apply')}</Text>
             </Pressable>
           </View>
       </View>

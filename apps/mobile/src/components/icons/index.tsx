@@ -50,6 +50,7 @@ import WalletIcon from './wallet';
 import GalleryIcon from './gallery';
 import CalendarIcon from './calendar';
 import WhatsAppIcon from './whatsapp';
+import RotateCcwIcon from './rotate-ccw';
 
 // Icon map for easy access
 const icons = {
@@ -101,6 +102,7 @@ const icons = {
   gallery: GalleryIcon,
   calendar: CalendarIcon,
   whatsapp: WhatsAppIcon,
+  'rotate-ccw': RotateCcwIcon,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -195,6 +197,7 @@ export {
   GalleryIcon,
   CalendarIcon,
   WhatsAppIcon,
+  RotateCcwIcon,
 };
 
 export default Icon;
