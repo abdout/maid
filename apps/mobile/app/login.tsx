@@ -72,7 +72,23 @@ export default function LoginScreen() {
             createdAt: new Date(),
           },
         });
-        router.replace('/');
+
+        // Check for existing office admin with officeId - route directly to office dashboard
+        if (result.data.user.role === 'office_admin' && result.data.user.officeId) {
+          // Clear any pending redirects
+          await storage.deleteItem('post_login_redirect');
+          router.replace('/(office)/maids');
+          return;
+        }
+
+        // Handle other cases (customer flow, new office registration)
+        const postLoginRedirect = await storage.getItem('post_login_redirect');
+        if (postLoginRedirect) {
+          await storage.deleteItem('post_login_redirect');
+          router.replace(postLoginRedirect as any);
+        } else {
+          router.replace('/');
+        }
       } else {
         Alert.alert(isRTL ? 'خطأ' : 'Error', isRTL ? 'فشل تسجيل الدخول' : 'Login failed');
       }
@@ -176,8 +192,8 @@ export default function LoginScreen() {
                   {/* Test credentials hint */}
                   <Text className="text-white/40 text-xs mb-4">
                     {userIntent === 'office'
-                      ? (isRTL ? 'للاختبار: office@hotmail.com / Test123456' : 'For testing: office@hotmail.com / Test123456')
-                      : (isRTL ? 'للاختبار: customer@hotmail.com / Test123456' : 'For testing: customer@hotmail.com / Test123456')}
+                      ? (isRTL ? 'للاختبار: company@tadbeer.com / 1234' : 'For testing: company@tadbeer.com / 1234')
+                      : (isRTL ? 'للاختبار: customer@hotmail.com / 1234' : 'For testing: customer@hotmail.com / 1234')}
                   </Text>
 
                   {/* Login Button */}
