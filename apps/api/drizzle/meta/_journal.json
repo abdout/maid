@@ -85,6 +85,34 @@
       "when": 1736697600000,
       "tag": "0012_client_feedback_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1769720977122,
+      "tag": "0012_majestic_epoch",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1769753559360,
+      "tag": "0013_bright_true_believers",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1769855633528,
+      "tag": "0014_soft_korg",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1769962282335,
+      "tag": "0015_lying_living_lightning",
+      "breakpoints": true
     }
   ]
 }

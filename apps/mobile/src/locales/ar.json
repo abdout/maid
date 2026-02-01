@@ -52,7 +52,52 @@
     "terms": "بالمتابعة، أنت توافق على الشروط والأحكام",
     "registerOffice": "التسجيل كمكتب",
     "haveAccount": "لديك حساب بالفعل؟",
-    "noAccount": "ليس لديك حساب؟"
+    "noAccount": "ليس لديك حساب؟",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "signupLink": "إنشاء حساب"
+  },
+  "signup": {
+    "title": "إنشاء حساب",
+    "subtitle": "سجل للبدء",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "passwordPlaceholder": "كلمة المرور",
+    "confirmPasswordPlaceholder": "تأكيد كلمة المرور",
+    "namePlaceholder": "الاسم الكامل (اختياري)",
+    "button": "إنشاء حساب",
+    "loading": "جاري إنشاء الحساب...",
+    "haveAccount": "لديك حساب؟",
+    "loginLink": "تسجيل الدخول",
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "passwordStrength": {
+      "weak": "ضعيفة",
+      "fair": "مقبولة",
+      "good": "جيدة",
+      "strong": "قوية"
+    }
+  },
+  "forgotPassword": {
+    "title": "نسيت كلمة المرور",
+    "subtitle": "أدخل بريدك لإعادة تعيين كلمة المرور",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "button": "إرسال رابط إعادة التعيين",
+    "loading": "جاري الإرسال...",
+    "success": "تم إرسال الرابط!",
+    "successSubtitle": "تحقق من بريدك للحصول على رابط إعادة التعيين",
+    "backToLogin": "العودة لتسجيل الدخول",
+    "devModeToken": "رمز وضع التطوير"
+  },
+  "resetPassword": {
+    "title": "إعادة تعيين كلمة المرور",
+    "subtitle": "أدخل كلمة المرور الجديدة",
+    "passwordPlaceholder": "كلمة المرور الجديدة",
+    "confirmPlaceholder": "تأكيد كلمة المرور",
+    "button": "إعادة تعيين",
+    "loading": "جاري إعادة التعيين...",
+    "success": "تم إعادة تعيين كلمة المرور!",
+    "successSubtitle": "تم إعادة تعيين كلمة المرور بنجاح",
+    "loginNow": "تسجيل الدخول الآن",
+    "invalidToken": "رابط إعادة التعيين غير صالح أو منتهي",
+    "passwordMismatch": "كلمات المرور غير متطابقة"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -164,6 +209,18 @@
     "experience": "الأكثر خبرة"
   },
   "filters": {
+    "location": "الإمارة",
+    "hiringType": "نوع التعاقد",
+    "contractPeriod": "مدة العقد",
+    "visaType": "نوع الإقامة",
+    "yearly": "سنوي",
+    "monthly": "شهري",
+    "daily": "يومي",
+    "hourly": "بالساعة",
+    "customerVisa": "على كفالتي",
+    "officeVisa": "على كفالة المكتب",
+    "monthlyYearly": "شهري/سنوي",
+    "hourlyDaily": "بالساعة/يومي",
     "serviceType": "نوع الخدمة",
     "nationality": "الجنسية",
     "age": "العمر",
@@ -184,7 +241,10 @@
     "maxSalary": "الحد الأقصى للراتب",
     "anyNationality": "أي جنسية",
     "anyReligion": "أي ديانة",
-    "anyStatus": "أي حالة"
+    "anyStatus": "أي حالة",
+    "maxNationalitiesAlert": "يمكنك اختيار {{count}} جنسيات كحد أقصى",
+    "selectedCount": "{{selected}}/{{max}} مختارة",
+    "minYearsLabel": "الحد الأدنى"
   },
   "maritalStatus": {
     "single": "عزباء",
@@ -540,5 +600,111 @@
     "restartMessage": "أعد تشغيل التطبيق لتطبيق تغييرات التخطيط.",
     "restartNow": "إعادة التشغيل",
     "later": "لاحقاً"
+  },
+  "services": {
+    "title": "ما الذي تبحث عنه؟",
+    "maids": {
+      "title": "عاملات منزليات",
+      "description": "استقدام أو تعاقد"
+    },
+    "typing_office": {
+      "title": "مكتب طباعة",
+      "description": "معاملات حكومية"
+    },
+    "visa_transfer": {
+      "title": "نقل إقامة",
+      "description": "نقل كفالة عاملة"
+    },
+    "office_registration": {
+      "title": "تسجيل مكتب",
+      "description": "أدرج عاملاتك"
+    }
+  },
+  "business": {
+    "typingOffices": "مكاتب الطباعة",
+    "visaTransfer": "خدمات نقل الإقامة",
+    "typingOffice": "مكتب طباعة",
+    "visaTransferService": "خدمة نقل إقامة",
+    "allServices": "جميع الخدمات",
+    "searchPlaceholder": "البحث بالاسم...",
+    "noResults": "لم يتم العثور على نتائج",
+    "verified": "موثق",
+    "viewOnMap": "عرض على الخريطة",
+    "location": "الموقع",
+    "workingHours": "ساعات العمل",
+    "priceRange": "نطاق الأسعار",
+    "services": "الخدمات",
+    "about": "نبذة",
+    "contactInfo": "معلومات الاتصال"
+  },
+  "contact": {
+    "whatsapp": "واتساب",
+    "call": "اتصال",
+    "whatsappAccessibility": "التواصل عبر واتساب",
+    "callAccessibility": "إجراء مكالمة هاتفية"
+  },
+  "toast": {
+    "success": "نجاح",
+    "error": "خطأ",
+    "warning": "تحذير",
+    "info": "معلومات",
+    "dismiss": "إغلاق"
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "invalidEmail": "يرجى إدخال بريد إلكتروني صحيح",
+    "invalidPhone": "يرجى إدخال رقم هاتف صحيح",
+    "minLength": "يجب أن يكون على الأقل {{min}} أحرف",
+    "maxLength": "يجب ألا يتجاوز {{max}} أحرف",
+    "positiveNumber": "يرجى إدخال رقم موجب",
+    "selectNationality": "يرجى اختيار الجنسية",
+    "photoRequired": "يرجى إضافة صورة",
+    "validSalary": "يرجى إدخال راتب صحيح",
+    "contactRequired": "يرجى إدخال أرقام الاتصال",
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة"
+  },
+  "officeOnboarding": {
+    "title": "سجّل مكتبك",
+    "getStarted": "ابدأ الآن",
+    "basicInfo": "المعلومات الأساسية",
+    "location": "الموقع",
+    "license": "الترخيص",
+    "review": "المراجعة",
+    "officeName": "اسم المكتب",
+    "officeNameEn": "اسم المكتب (إنجليزي)",
+    "officeNameAr": "اسم المكتب (عربي)",
+    "phone": "رقم الهاتف",
+    "email": "البريد الإلكتروني",
+    "emirate": "الإمارة",
+    "address": "العنوان",
+    "addressEn": "العنوان (إنجليزي)",
+    "addressAr": "العنوان (عربي)",
+    "googleMapsUrl": "رابط خرائط جوجل",
+    "googleMapsHint": "يساعد العملاء في الوصول إليك بسهولة",
+    "licenseNumber": "رقم الرخصة التجارية",
+    "licenseExpiry": "تاريخ انتهاء الرخصة",
+    "licenseImage": "صورة الرخصة التجارية",
+    "uploadLicense": "اضغط لرفع صورة الرخصة",
+    "website": "الموقع الإلكتروني",
+    "managerPhone1": "رقم المدير 1",
+    "managerPhone2": "رقم المدير 2",
+    "logo": "شعار المكتب",
+    "addLogo": "أضف شعار",
+    "summary": "ملخص المعلومات",
+    "readyToRegister": "جاهز للتسجيل",
+    "fillRequiredFields": "يرجى ملء الحقول المطلوبة",
+    "register": "تسجيل",
+    "registrationSuccess": "تم تسجيل المكتب بنجاح!",
+    "registrationFailed": "فشل التسجيل",
+    "step1Title": "أخبرنا عن مكتبك",
+    "step1Desc": "شارك التفاصيل الأساسية مثل اسم المكتب ورقم الهاتف والبريد الإلكتروني.",
+    "step2Title": "أضف تفاصيل الموقع",
+    "step2Desc": "قدم عنوان مكتبك والإمارة وموقع خرائط جوجل.",
+    "step3Title": "ارفع الترخيص والشعار",
+    "step3Desc": "أضف معلومات الرخصة التجارية وشعار المكتب لإكمال التسجيل.",
+    "scopes": "أنواع الخدمات",
+    "scopesDescription": "اختر جميع الخدمات التي يقدمها مكتبك (يمكنك اختيار أكثر من نوع)",
+    "scopesRequired": "اختر نوع خدمة واحد على الأقل"
   }
 }

@@ -27,6 +27,18 @@ export type Sex = 'male' | 'female';
 export type EducationLevel = 'college' | 'high_school' | 'primary' | 'none';
 export type JobType = 'domestic_worker' | 'nurse_caregiver' | 'driver';
 
+// Hiring type for domestic workers (legacy - kept for backward compatibility)
+export type HiringType = 'customer_visa' | 'monthly_yearly' | 'hourly_daily';
+
+// Office scope (service types offered by recruitment offices)
+export type OfficeScope = 'recruitment' | 'leasing' | 'typing';
+
+// Contract period (split from hiring type)
+export type ContractPeriod = 'yearly' | 'monthly' | 'daily' | 'hourly';
+
+// Visa type (split from hiring type)
+export type VisaType = 'customer_visa' | 'office_visa';
+
 // Common API response
 export interface ApiResponse<T> {
   success: boolean;
@@ -63,6 +75,11 @@ export interface MaidFilters {
   languages?: string[];
   status?: MaidStatus;
   serviceType?: ServiceType;
+  serviceTypes?: ServiceType[]; // Multi-select service types (max 4)
+  hiringType?: HiringType; // Legacy - kept for backward compatibility
+  contractPeriod?: ContractPeriod; // NEW: period filter (yearly, monthly, daily, hourly)
+  visaType?: VisaType; // NEW: visa filter (customer_visa, office_visa)
+  emirate?: string; // Filter by office's emirate
 }
 
 // User base
@@ -124,6 +141,7 @@ export interface Maid {
   babySitter: boolean;
   officeFees: number | null;
   availability: AvailabilityType;
+  hiringType: HiringType;
   whatsappNumber: string | null;
   contactNumber: string | null;
   cvReference: string | null;
@@ -141,6 +159,7 @@ export interface Office {
   address: string | null;
   logoUrl: string | null;
   isVerified: boolean;
+  scopes: OfficeScope[];
   // New fields from client feedback
   licenseNumber: string | null;
   licenseExpiry: Date | null;

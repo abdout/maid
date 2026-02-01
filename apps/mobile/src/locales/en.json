@@ -52,7 +52,52 @@
     "terms": "By continuing, you agree to the Terms & Conditions",
     "registerOffice": "Register as Office",
     "haveAccount": "Already have an account?",
-    "noAccount": "Don't have an account?"
+    "noAccount": "Don't have an account?",
+    "forgotPassword": "Forgot Password?",
+    "signupLink": "Sign Up"
+  },
+  "signup": {
+    "title": "Create Account",
+    "subtitle": "Sign up to get started",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "confirmPasswordPlaceholder": "Confirm Password",
+    "namePlaceholder": "Full Name (optional)",
+    "button": "Sign Up",
+    "loading": "Creating account...",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Login",
+    "passwordMismatch": "Passwords do not match",
+    "passwordStrength": {
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong"
+    }
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "subtitle": "Enter your email to reset password",
+    "emailPlaceholder": "Email",
+    "button": "Send Reset Link",
+    "loading": "Sending...",
+    "success": "Reset link sent!",
+    "successSubtitle": "Check your email for the reset link",
+    "backToLogin": "Back to Login",
+    "devModeToken": "Dev Mode Token"
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your new password",
+    "passwordPlaceholder": "New Password",
+    "confirmPlaceholder": "Confirm Password",
+    "button": "Reset Password",
+    "loading": "Resetting...",
+    "success": "Password reset!",
+    "successSubtitle": "Your password has been reset successfully",
+    "loginNow": "Login Now",
+    "invalidToken": "Invalid or expired reset link",
+    "passwordMismatch": "Passwords do not match"
   },
   "auth": {
     "login": "Login",
@@ -164,6 +209,18 @@
     "experience": "Most Experienced"
   },
   "filters": {
+    "location": "Emirate",
+    "hiringType": "Hiring Type",
+    "contractPeriod": "Contract Period",
+    "visaType": "Visa Type",
+    "yearly": "Yearly",
+    "monthly": "Monthly",
+    "daily": "Daily",
+    "hourly": "Hourly",
+    "customerVisa": "On My Own Visa",
+    "officeVisa": "On Office Visa",
+    "monthlyYearly": "Monthly/Yearly",
+    "hourlyDaily": "Hourly/Daily",
     "serviceType": "Service Type",
     "nationality": "Nationality",
     "age": "Age",
@@ -184,7 +241,10 @@
     "maxSalary": "Max Salary",
     "anyNationality": "Any Nationality",
     "anyReligion": "Any Religion",
-    "anyStatus": "Any Status"
+    "anyStatus": "Any Status",
+    "maxNationalitiesAlert": "You can select up to {{count}} nationalities",
+    "selectedCount": "{{selected}}/{{max}} selected",
+    "minYearsLabel": "min years"
   },
   "maritalStatus": {
     "single": "Single",
@@ -540,5 +600,111 @@
     "restartMessage": "Restart the app to apply layout changes.",
     "restartNow": "Restart Now",
     "later": "Later"
+  },
+  "services": {
+    "title": "What are you looking for?",
+    "maids": {
+      "title": "Domestic Workers",
+      "description": "Hire or contract"
+    },
+    "typing_office": {
+      "title": "Typing Office",
+      "description": "Government services"
+    },
+    "visa_transfer": {
+      "title": "Visa Transfer",
+      "description": "Transfer sponsorship"
+    },
+    "office_registration": {
+      "title": "Register Office",
+      "description": "List your workers"
+    }
+  },
+  "business": {
+    "typingOffices": "Typing Offices",
+    "visaTransfer": "Visa Transfer Services",
+    "typingOffice": "Typing Office",
+    "visaTransferService": "Visa Transfer Service",
+    "allServices": "All Services",
+    "searchPlaceholder": "Search by name...",
+    "noResults": "No businesses found",
+    "verified": "Verified",
+    "viewOnMap": "View on Map",
+    "location": "Location",
+    "workingHours": "Working Hours",
+    "priceRange": "Price Range",
+    "services": "Services",
+    "about": "About",
+    "contactInfo": "Contact Information"
+  },
+  "contact": {
+    "whatsapp": "WhatsApp",
+    "call": "Call",
+    "whatsappAccessibility": "Contact via WhatsApp",
+    "callAccessibility": "Make a phone call"
+  },
+  "toast": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info",
+    "dismiss": "Dismiss"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "invalidPhone": "Please enter a valid phone number",
+    "minLength": "Must be at least {{min}} characters",
+    "maxLength": "Must be at most {{max}} characters",
+    "positiveNumber": "Please enter a positive number",
+    "selectNationality": "Please select a nationality",
+    "photoRequired": "Please add a photo",
+    "validSalary": "Please enter a valid salary",
+    "contactRequired": "Please enter contact numbers",
+    "passwordMismatch": "Passwords do not match",
+    "fillRequiredFields": "Please fill in all required fields"
+  },
+  "officeOnboarding": {
+    "title": "Register Your Office",
+    "getStarted": "Get Started",
+    "basicInfo": "Basic Info",
+    "location": "Location",
+    "license": "License",
+    "review": "Review",
+    "officeName": "Office Name",
+    "officeNameEn": "Office Name (English)",
+    "officeNameAr": "Office Name (Arabic)",
+    "phone": "Phone Number",
+    "email": "Email Address",
+    "emirate": "Emirate",
+    "address": "Address",
+    "addressEn": "Address (English)",
+    "addressAr": "Address (Arabic)",
+    "googleMapsUrl": "Google Maps Link",
+    "googleMapsHint": "Helps customers find your location easily",
+    "licenseNumber": "Trade License Number",
+    "licenseExpiry": "License Expiry Date",
+    "licenseImage": "Trade License Image",
+    "uploadLicense": "Tap to upload license image",
+    "website": "Website",
+    "managerPhone1": "Manager Phone 1",
+    "managerPhone2": "Manager Phone 2",
+    "logo": "Office Logo",
+    "addLogo": "Add logo",
+    "summary": "Information Summary",
+    "readyToRegister": "Ready to register",
+    "fillRequiredFields": "Please fill required fields",
+    "register": "Register",
+    "registrationSuccess": "Office registered successfully!",
+    "registrationFailed": "Registration failed",
+    "step1Title": "Tell us about your office",
+    "step1Desc": "Share basic details like office name, phone number, and email address.",
+    "step2Title": "Add location details",
+    "step2Desc": "Provide your office address, emirate, and Google Maps location.",
+    "step3Title": "Upload license & logo",
+    "step3Desc": "Add your trade license information and office logo to complete registration.",
+    "scopes": "Service Types",
+    "scopesDescription": "Select all services your office provides (you can choose multiple)",
+    "scopesRequired": "Select at least one service type"
   }
 }

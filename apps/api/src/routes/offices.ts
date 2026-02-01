@@ -19,6 +19,18 @@ officesRoute.post(
     email: z.string().email().optional(),
     address: z.string().max(500).optional(),
     addressAr: z.string().max(500).optional(),
+    logoUrl: z.string().url().optional(),
+    scopes: z.array(z.enum(['recruitment', 'leasing', 'typing']))
+      .min(1, 'At least one scope required')
+      .default(['recruitment']),
+    licenseNumber: z.string().max(100).optional(),
+    licenseExpiry: z.string().optional().transform(val => val ? new Date(val) : undefined),
+    licenseImageUrl: z.string().url().optional(),
+    managerPhone1: z.string().max(20).optional(),
+    managerPhone2: z.string().max(20).optional(),
+    googleMapsUrl: z.string().url().optional(),
+    emirate: z.string().max(50).optional(),
+    website: z.string().max(255).optional(),
   })),
   async (c) => {
     const data = c.req.valid('json');

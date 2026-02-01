@@ -9,6 +9,16 @@ interface CreateOfficeInput {
   email?: string;
   address?: string;
   addressAr?: string;
+  logoUrl?: string;
+  scopes?: ('recruitment' | 'leasing' | 'typing')[];
+  licenseNumber?: string;
+  licenseExpiry?: Date;
+  licenseImageUrl?: string;
+  managerPhone1?: string;
+  managerPhone2?: string;
+  googleMapsUrl?: string;
+  emirate?: string;
+  website?: string;
 }
 
 interface UpdateOfficeInput {

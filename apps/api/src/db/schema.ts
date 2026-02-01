@@ -29,6 +29,19 @@ export const sexEnum = pgEnum('sex', ['male', 'female']);
 export const educationLevelEnum = pgEnum('education_level', ['college', 'high_school', 'primary', 'none']);
 export const jobTypeEnum = pgEnum('job_type', ['domestic_worker', 'nurse_caregiver', 'driver']);
 
+// Business type enum for typing offices, visa services, etc.
+export const businessTypeEnum = pgEnum('business_type', ['typing_office', 'visa_transfer']);
+
+// Office scope enum for categorizing office services
+export const officeScopeEnum = pgEnum('office_scope', ['recruitment', 'leasing', 'typing']);
+
+// Hiring type enum for domestic workers
+export const hiringTypeEnum = pgEnum('hiring_type', [
+  'customer_visa',  // Worker transfers to customer's sponsorship (على كفالتي)
+  'monthly_yearly', // Traditional monthly/yearly contract (شهري/سنوي)
+  'hourly_daily',   // Part-time hourly or daily work (بالساعة/يومي)
+]);
+
 // Offices (Recruitment Agencies)
 export const offices = pgTable('offices', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -40,6 +53,8 @@ export const offices = pgTable('offices', {
   addressAr: text('address_ar'),
   logoUrl: text('logo_url'),
   isVerified: boolean('is_verified').default(false).notNull(),
+  // Service scopes (multi-select)
+  scopes: officeScopeEnum('scopes').array().default(['recruitment']).notNull(),
   // License info
   licenseNumber: varchar('license_number', { length: 100 }),
   licenseExpiry: timestamp('license_expiry'),
@@ -57,11 +72,46 @@ export const offices = pgTable('offices', {
   emirateIdx: index('offices_emirate_idx').on(t.emirate),
 }));
 
+// Business Listings (typing offices, visa transfer services)
+export const businesses = pgTable('businesses', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  type: businessTypeEnum('type').notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  nameAr: varchar('name_ar', { length: 255 }),
+  phone: varchar('phone', { length: 20 }).notNull(),
+  whatsapp: varchar('whatsapp', { length: 20 }),
+  email: varchar('email', { length: 255 }),
+  address: text('address'),
+  addressAr: text('address_ar'),
+  logoUrl: text('logo_url'),
+  coverPhotoUrl: text('cover_photo_url'),
+  description: text('description'),
+  descriptionAr: text('description_ar'),
+  // Location
+  emirate: varchar('emirate', { length: 50 }),
+  googleMapsUrl: text('google_maps_url'),
+  // Business info
+  services: text('services'), // JSON array of services offered
+  servicesAr: text('services_ar'),
+  priceRange: varchar('price_range', { length: 50 }), // e.g., "50-200 AED"
+  workingHours: varchar('working_hours', { length: 100 }),
+  // Status
+  isVerified: boolean('is_verified').default(false).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (t) => ({
+  typeIdx: index('businesses_type_idx').on(t.type),
+  emirateIdx: index('businesses_emirate_idx').on(t.emirate),
+  activeIdx: index('businesses_active_idx').on(t.isActive),
+}));
+
 // Users
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   phone: varchar('phone', { length: 20 }).unique(),
-  email: varchar('email', { length: 255 }),
+  email: varchar('email', { length: 255 }).unique(),
   emailVerified: boolean('email_verified').default(false).notNull(),
   password: varchar('password', { length: 255 }),
   name: varchar('name', { length: 255 }),
@@ -165,6 +215,7 @@ export const maids = pgTable('maids', {
   whatsappNumber: varchar('whatsapp_number', { length: 20 }),
   contactNumber: varchar('contact_number', { length: 20 }),
   cvReference: varchar('cv_reference', { length: 50 }),
+  hiringType: hiringTypeEnum('hiring_type').default('monthly_yearly'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
@@ -176,6 +227,7 @@ export const maids = pgTable('maids', {
   packageTypeIdx: index('maids_package_type_idx').on(t.packageType),
   availabilityIdx: index('maids_availability_idx').on(t.availability),
   cvReferenceIdx: index('maids_cv_reference_idx').on(t.cvReference),
+  hiringTypeIdx: index('maids_hiring_type_idx').on(t.hiringType),
 }));
 
 // Maid Languages (many-to-many)
@@ -226,6 +278,8 @@ export const quotations = pgTable('quotations', {
   customerIdx: index('quotations_customer_idx').on(t.customerId),
   officeIdx: index('quotations_office_idx').on(t.officeId),
   maidIdx: index('quotations_maid_idx').on(t.maidId),
+  // Composite index for office-maid queries (M3)
+  officeMaidIdx: index('quotations_office_maid_idx').on(t.officeId, t.maidId),
 }));
 
 // Favorites (customer saved maids)
@@ -329,6 +383,8 @@ export const officeSubscriptions = pgTable('office_subscriptions', {
 }, (t) => ({
   officeIdx: index('office_subscriptions_office_idx').on(t.officeId),
   statusIdx: index('office_subscriptions_status_idx').on(t.status),
+  // Composite index for expiring subscription queries (M3)
+  statusPeriodEndIdx: index('office_subscriptions_status_period_end_idx').on(t.status, t.currentPeriodEnd),
 }));
 
 // ==========================================
