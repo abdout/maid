@@ -69,7 +69,7 @@ export function OfficeStepFooter({
         {[1, 2, 3].map((phase) => (
           <View key={phase} className="flex-1 h-1 bg-background-200 rounded-full overflow-hidden">
             <View
-              className="h-full bg-typography-900 rounded-full"
+              className={`h-full bg-typography-900 rounded-full ${isRTL ? 'self-end' : ''}`}
               style={{ width: `${getProgress(phase)}%` }}
             />
           </View>

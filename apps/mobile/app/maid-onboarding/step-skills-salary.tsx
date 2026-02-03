@@ -1,187 +1,110 @@
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import {
-  useMaidForm,
-  type CookingSkill,
-  type Availability,
-  COOKING_SKILL_OPTIONS,
-  AVAILABILITY_OPTIONS,
-} from '@/store/maid-form';
-import { DirhamIcon } from '@/components/icons';
+import { useMaidForm } from '@/store/maid-form';
 
-const MAX_DETAILS_LENGTH = 70;
+// Skill levels for each service type
+const SKILL_LEVELS = [
+  { id: 'no', labelEn: 'No', labelAr: 'لا' },
+  { id: 'good', labelEn: 'Good', labelAr: 'جيد' },
+  { id: 'expert', labelEn: 'Expert', labelAr: 'خبير' },
+  { id: 'willing', labelEn: 'Willing', labelAr: 'مستعد' },
+] as const;
+
+// Service types with their skill field names
+const SERVICE_SKILLS = [
+  { id: 'cleaning', labelEn: 'Cleaning', labelAr: 'تنظيف', field: 'cleaningSkill' },
+  { id: 'cooking', labelEn: 'Cooking', labelAr: 'طبخ', field: 'cookingSkills' },
+  { id: 'babysitter', labelEn: 'Babysitter', labelAr: 'رعاية أطفال', field: 'babysitterSkill' },
+  { id: 'elderly', labelEn: 'Elderly Care', labelAr: 'رعاية مسنين', field: 'elderlySkill' },
+] as const;
+
+type SkillLevel = 'no' | 'good' | 'expert' | 'willing';
 
 export default function StepSkillsSalary() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  const { formData, updateFormData, errors } = useMaidForm();
+  const { formData, updateFormData } = useMaidForm();
+
+  // Get skill value for a service type
+  const getSkillValue = (field: string): SkillLevel => {
+    if (field === 'cookingSkills') {
+      // Map existing cookingSkills values to new format
+      const val = formData.cookingSkills;
+      if (val === 'none') return 'no';
+      if (val === 'good') return 'good';
+      if (val === 'average') return 'good';
+      if (val === 'willing_to_learn') return 'willing';
+      return 'no';
+    }
+    // For new fields, check custom storage
+    const customSkills = (formData as any).serviceSkills || {};
+    return customSkills[field] || 'no';
+  };
+
+  // Set skill value for a service type
+  const setSkillValue = (field: string, level: SkillLevel) => {
+    if (field === 'cookingSkills') {
+      // Map to existing cookingSkills format
+      let mappedValue: 'none' | 'good' | 'average' | 'willing_to_learn' = 'none';
+      if (level === 'good') mappedValue = 'good';
+      if (level === 'expert') mappedValue = 'good';
+      if (level === 'willing') mappedValue = 'willing_to_learn';
+      updateFormData({ cookingSkills: mappedValue });
+    } else {
+      // Store in custom field
+      const customSkills = (formData as any).serviceSkills || {};
+      updateFormData({
+        serviceSkills: { ...customSkills, [field]: level },
+      } as any);
+    }
+  };
 
   return (
     <View>
-      {/* Cooking Skills */}
-      <View className="mb-5">
-        <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? 'مهارات الطبخ' : 'Cooking Skills'}
-        </Text>
-        <View className="flex-row flex-wrap gap-2">
-          {COOKING_SKILL_OPTIONS.map((option) => (
-            <Pressable
-              key={option.id}
-              onPress={() => updateFormData({ cookingSkills: option.id as CookingSkill })}
-              className={`px-4 py-2.5 rounded-full border ${
-                formData.cookingSkills === option.id
-                  ? 'bg-primary-500 border-primary-500'
-                  : 'bg-background-0 border-background-200'
-              }`}
-            >
-              <Text
-                className={
-                  formData.cookingSkills === option.id
-                    ? 'text-white font-medium'
-                    : 'text-typography-700'
-                }
-              >
-                {isRTL ? option.labelAr : option.labelEn}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
+      <Text className={`text-typography-500 mb-4 ${isRTL ? 'text-right' : ''}`}>
+        {isRTL ? 'حدد مستوى المهارة لكل نوع خدمة' : 'Select skill level for each service type'}
+      </Text>
 
-      {/* Baby Sitter */}
-      <View className="mb-5">
-        <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? 'رعاية الأطفال' : 'Baby Sitter'}
-        </Text>
-        <View className="flex-row gap-2">
-          <Pressable
-            onPress={() => updateFormData({ babySitter: true })}
-            className={`flex-1 px-4 py-3 rounded-xl border ${
-              formData.babySitter === true
-                ? 'bg-primary-500 border-primary-500'
-                : 'bg-background-0 border-background-200'
-            }`}
-          >
-            <Text
-              className={`text-center ${
-                formData.babySitter === true
-                  ? 'text-white font-medium'
-                  : 'text-typography-700'
-              }`}
-            >
-              {t('common.yes')}
+      {/* Skill Matrix - Each service type with levels */}
+      {SERVICE_SKILLS.map((service) => {
+        const currentLevel = getSkillValue(service.field);
+
+        return (
+          <View key={service.id} className="mb-5">
+            {/* Service Type Label */}
+            <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+              {isRTL ? service.labelAr : service.labelEn}
             </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => updateFormData({ babySitter: false })}
-            className={`flex-1 px-4 py-3 rounded-xl border ${
-              formData.babySitter === false
-                ? 'bg-primary-500 border-primary-500'
-                : 'bg-background-0 border-background-200'
-            }`}
-          >
-            <Text
-              className={`text-center ${
-                formData.babySitter === false
-                  ? 'text-white font-medium'
-                  : 'text-typography-700'
-              }`}
-            >
-              {t('common.no')}
-            </Text>
-          </Pressable>
-        </View>
-      </View>
 
-      {/* Salary */}
-      <View className="mb-5">
-        <View className={`flex-row items-center mb-2 gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <Text className="text-typography-700 font-medium">
-            {t('filters.salary')}
-          </Text>
-          <Text className="text-typography-700">(</Text>
-          <DirhamIcon size={14} color="#374151" />
-          <Text className="text-typography-700">/{t('form.month')}) *</Text>
-        </View>
-        <View className={`flex-row items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <DirhamIcon size={16} color="#6B7280" />
-          <TextInput
-            value={formData.salary}
-            onChangeText={(v) => updateFormData({ salary: v })}
-            keyboardType="decimal-pad"
-            placeholder="2000"
-            placeholderTextColor="#9CA3AF"
-            textAlign={isRTL ? 'right' : 'left'}
-            className={`flex-1 bg-background-50 rounded-xl px-4 py-3.5 text-base text-typography-900 ${
-              errors.salary ? 'border border-error-500' : ''
-            }`}
-          />
-        </View>
-        {errors.salary && (
-          <Text className={`text-error-500 text-sm mt-1 ${isRTL ? 'text-right' : ''}`}>{errors.salary}</Text>
-        )}
-        <Text className={`text-typography-400 text-sm mt-1 ${isRTL ? 'text-right' : ''}`}>
-          {t('form.salaryRange')}
-        </Text>
-      </View>
-
-      {/* Office Fees */}
-      <View className="mb-5">
-        <View className={`flex-row items-center mb-2 gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <Text className="text-typography-700 font-medium">
-            {isRTL ? 'رسوم المكتب' : 'Office Fees'}
-          </Text>
-          <Text className="text-typography-700">(</Text>
-          <DirhamIcon size={14} color="#374151" />
-          <Text className="text-typography-700">)</Text>
-        </View>
-        <View className={`flex-row items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <DirhamIcon size={16} color="#6B7280" />
-          <TextInput
-            value={formData.officeFees}
-            onChangeText={(v) => updateFormData({ officeFees: v })}
-            keyboardType="decimal-pad"
-            placeholder="5000"
-            placeholderTextColor="#9CA3AF"
-            textAlign={isRTL ? 'right' : 'left'}
-            className="flex-1 bg-background-50 rounded-xl px-4 py-3.5 text-base text-typography-900"
-          />
-        </View>
-        <Text className={`text-typography-400 text-sm mt-1 ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? 'شامل ضريبة القيمة المضافة' : 'Inclusive of VAT'}
-        </Text>
-      </View>
-
-      {/* Availability */}
-      <View>
-        <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? 'التواجد' : 'Availability'}
-        </Text>
-        <View className="flex-row gap-2">
-          {AVAILABILITY_OPTIONS.map((option) => (
-            <Pressable
-              key={option.id}
-              onPress={() => updateFormData({ availability: option.id as Availability })}
-              className={`flex-1 px-4 py-3 rounded-xl border ${
-                formData.availability === option.id
-                  ? 'bg-primary-500 border-primary-500'
-                  : 'bg-background-0 border-background-200'
-              }`}
-            >
-              <Text
-                className={`text-center ${
-                  formData.availability === option.id
-                    ? 'text-white font-medium'
-                    : 'text-typography-700'
-                }`}
-              >
-                {isRTL ? option.labelAr : option.labelEn}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
+            {/* Skill Level Pills */}
+            <View className={`flex-row gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              {SKILL_LEVELS.map((level) => {
+                const isSelected = currentLevel === level.id;
+                return (
+                  <Pressable
+                    key={level.id}
+                    onPress={() => setSkillValue(service.field, level.id as SkillLevel)}
+                    className={`flex-1 py-3 rounded-xl border ${
+                      isSelected
+                        ? 'bg-primary-500 border-primary-500'
+                        : 'bg-background-0 border-background-200'
+                    }`}
+                  >
+                    <Text
+                      className={`text-center text-sm ${
+                        isSelected ? 'text-white font-medium' : 'text-typography-700'
+                      }`}
+                    >
+                      {isRTL ? level.labelAr : level.labelEn}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        );
+      })}
     </View>
   );
 }

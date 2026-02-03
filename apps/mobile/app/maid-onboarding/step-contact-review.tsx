@@ -1,6 +1,7 @@
 import { View, Text, TextInput, Image, Switch } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useMaidForm, type MaidStatus } from '@/store/maid-form';
+import { PhoneIcon, WhatsAppIcon } from '@/components/icons';
 
 const MAX_BIO_LENGTH = 500;
 
@@ -30,79 +31,78 @@ export default function StepContactReview() {
 
   return (
     <View>
-      {/* Profile Preview */}
+      {/* Photo Preview - At top, bigger, aligned based on language */}
       {formData.photoUrl && (
-        <View className="items-center mb-4">
+        <View className={`mb-6 ${isRTL ? 'items-end' : 'items-start'}`}>
           <Image
             source={{ uri: formData.photoUrl }}
-            className="w-20 h-20 rounded-full"
+            className="w-28 h-28 rounded-full"
           />
-          <Text className="text-typography-900 text-lg font-semibold mt-2">
+          <Text className={`text-typography-900 text-lg font-semibold mt-3 ${isRTL ? 'text-right' : 'text-left'}`}>
             {formData.name || formData.nameAr}
           </Text>
         </View>
       )}
 
-      {/* WhatsApp Number */}
-      <View className="mb-5">
-        <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? 'رقم الواتساب' : 'WhatsApp Number'} *
-        </Text>
-        <TextInput
-          value={formData.whatsappNumber}
-          onChangeText={(v) => updateFormData({ whatsappNumber: v })}
-          placeholder={isRTL ? '971XXXXXXXXX' : '971XXXXXXXXX'}
-          placeholderTextColor="#9CA3AF"
-          keyboardType="phone-pad"
-          textAlign={isRTL ? 'right' : 'left'}
-          className={`bg-background-50 rounded-xl px-4 py-3.5 text-base text-typography-900 ${
-            errors.whatsappNumber ? 'border border-error-500' : ''
-          }`}
-        />
+      {/* WhatsApp Number - with icon prefix */}
+      <View className="mb-4">
+        <View className={`flex-row items-center bg-background-50 rounded-xl overflow-hidden border ${errors.whatsappNumber ? 'border-error-500' : 'border-background-200'}`}>
+          <View className="w-14 h-full items-center justify-center border-r border-background-200 py-3.5">
+            <WhatsAppIcon size={20} color="#25D366" />
+          </View>
+          <TextInput
+            value={formData.whatsappNumber}
+            onChangeText={(v) => updateFormData({ whatsappNumber: v })}
+            placeholder={isRTL ? 'رقم الواتساب' : 'WhatsApp Number'}
+            placeholderTextColor="#9CA3AF"
+            keyboardType="phone-pad"
+            textAlign={isRTL ? 'right' : 'left'}
+            className="flex-1 px-4 py-3.5 text-base text-typography-900"
+          />
+        </View>
         {errors.whatsappNumber && (
           <Text className="text-error-500 text-sm mt-1">{errors.whatsappNumber}</Text>
         )}
       </View>
 
-      {/* Contact Number */}
-      <View className="mb-5">
-        <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? 'رقم الاتصال' : 'Contact Number'} *
-        </Text>
-        <TextInput
-          value={formData.contactNumber}
-          onChangeText={(v) => updateFormData({ contactNumber: v })}
-          placeholder={isRTL ? '971XXXXXXXXX' : '971XXXXXXXXX'}
-          placeholderTextColor="#9CA3AF"
-          keyboardType="phone-pad"
-          textAlign={isRTL ? 'right' : 'left'}
-          className={`bg-background-50 rounded-xl px-4 py-3.5 text-base text-typography-900 ${
-            errors.contactNumber ? 'border border-error-500' : ''
-          }`}
-        />
+      {/* Contact Number - with icon prefix */}
+      <View className="mb-4">
+        <View className={`flex-row items-center bg-background-50 rounded-xl overflow-hidden border ${errors.contactNumber ? 'border-error-500' : 'border-background-200'}`}>
+          <View className="w-14 h-full items-center justify-center border-r border-background-200 py-3.5">
+            <PhoneIcon size={20} color="#6B7280" />
+          </View>
+          <TextInput
+            value={formData.contactNumber}
+            onChangeText={(v) => updateFormData({ contactNumber: v })}
+            placeholder={isRTL ? 'رقم الاتصال' : 'Contact Number'}
+            placeholderTextColor="#9CA3AF"
+            keyboardType="phone-pad"
+            textAlign={isRTL ? 'right' : 'left'}
+            className="flex-1 px-4 py-3.5 text-base text-typography-900"
+          />
+        </View>
         {errors.contactNumber && (
           <Text className="text-error-500 text-sm mt-1">{errors.contactNumber}</Text>
         )}
       </View>
 
-      {/* CV Reference */}
-      <View className="mb-5">
-        <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? 'مرجع السيرة الذاتية' : 'CV Reference'}
-        </Text>
-        <TextInput
-          value={formData.cvReference}
-          onChangeText={(v) => updateFormData({ cvReference: v.toUpperCase() })}
-          placeholder={isRTL ? 'ABC123' : 'ABC123'}
-          placeholderTextColor="#9CA3AF"
-          autoCapitalize="characters"
-          maxLength={20}
-          textAlign={isRTL ? 'right' : 'left'}
-          className="bg-background-50 rounded-xl px-4 py-3.5 text-base text-typography-900"
-        />
-        <Text className={`text-typography-400 text-xs mt-1 ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? 'حروف وأرقام فقط - اختياري' : 'Letters and numbers only - optional'}
-        </Text>
+      {/* CV Reference - with "Ref" text prefix */}
+      <View className="mb-4">
+        <View className="flex-row items-center bg-background-50 rounded-xl overflow-hidden border border-background-200">
+          <View className="w-14 h-full items-center justify-center border-r border-background-200 py-3.5">
+            <Text className="text-typography-500 font-medium text-sm">Ref</Text>
+          </View>
+          <TextInput
+            value={formData.cvReference}
+            onChangeText={(v) => updateFormData({ cvReference: v.toUpperCase() })}
+            placeholder={isRTL ? 'مرجع السيرة الذاتية' : 'CV Reference'}
+            placeholderTextColor="#9CA3AF"
+            autoCapitalize="characters"
+            maxLength={20}
+            textAlign={isRTL ? 'right' : 'left'}
+            className="flex-1 px-4 py-3.5 text-base text-typography-900"
+          />
+        </View>
       </View>
 
       {/* Bio - Single field based on language */}

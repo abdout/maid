@@ -70,7 +70,7 @@ export function StepFooter({
         {[1, 2, 3].map((section) => (
           <View key={section} className="flex-1 h-1 bg-background-200 rounded-full overflow-hidden">
             <View
-              className="h-full bg-typography-900 rounded-full"
+              className={`h-full bg-typography-900 rounded-full ${isRTL ? 'self-end' : ''}`}
               style={{ width: `${getProgress(section)}%` }}
             />
           </View>

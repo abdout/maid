@@ -13,11 +13,8 @@ export default function StepPhoto() {
 
   return (
     <View className="flex-1 items-center">
-      {/* Profile Photo */}
-      <Text className="text-typography-700 mb-2 font-medium text-center">
-        {t('form.profilePhoto')} *
-      </Text>
-      <Text className="text-typography-400 text-sm mb-4 text-center max-w-xs px-4">
+      {/* Description below step title */}
+      <Text className="text-typography-400 text-sm mb-6 text-center max-w-xs px-4">
         {t('form.profilePhotoDescription')}
       </Text>
 

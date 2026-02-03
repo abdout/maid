@@ -1,15 +1,17 @@
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useMaidForm } from '@/store/maid-form';
-import { useLanguages } from '@/hooks';
+import { LANGUAGES, getCommonLanguages, getOtherLanguages } from '@/constants';
 
 export default function StepLanguages() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
   const { formData, updateFormData, errors } = useMaidForm();
-  const { data: languagesData } = useLanguages();
-  const languages = languagesData?.data || [];
+
+  // Use hardcoded languages - instant load
+  const commonLanguages = getCommonLanguages();
+  const otherLanguages = getOtherLanguages();
 
   const toggleLanguage = (langId: string) => {
     const currentLanguages = formData.languageIds || [];
@@ -18,14 +20,6 @@ export default function StepLanguages() {
       : [...currentLanguages, langId];
     updateFormData({ languageIds: updatedLanguages });
   };
-
-  // Common languages to highlight
-  const commonLanguageIds = languages
-    .filter((l) => ['ar', 'en'].includes(l.code))
-    .map((l) => l.id);
-
-  const commonLanguages = languages.filter((l) => commonLanguageIds.includes(l.id));
-  const otherLanguages = languages.filter((l) => !commonLanguageIds.includes(l.id));
 
   return (
     <View>
@@ -65,7 +59,7 @@ export default function StepLanguages() {
         </View>
       </View>
 
-      {/* All Languages */}
+      {/* Other Languages */}
       <View className="mb-5">
         <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
           {t('form.otherLanguages')}
