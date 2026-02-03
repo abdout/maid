@@ -110,6 +110,45 @@ export class AuthService {
     return user || null;
   }
 
+  /**
+   * Create a new user with email and password
+   * Returns the created user for immediate login
+   */
+  async createUser(
+    email: string,
+    password: string,
+    name?: string
+  ): Promise<typeof users.$inferSelect> {
+    const hashedPassword = await this.hashPassword(password);
+
+    const [newUser] = await this.db
+      .insert(users)
+      .values({
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        name: name || null,
+        role: 'customer',
+      })
+      .returning();
+
+    return newUser;
+  }
+
+  /**
+   * Reset demo office account for fresh onboarding experience
+   * Clears officeId and resets role to customer
+   */
+  async resetDemoOfficeAccount(userId: string): Promise<void> {
+    await this.db
+      .update(users)
+      .set({
+        officeId: null,
+        role: 'customer',
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+  }
+
   // ==========================================
   // PASSWORD HANDLING
   // ==========================================

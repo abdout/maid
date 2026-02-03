@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { authApi } from '@/lib/api';
 import { useAuth } from '@/store/auth';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,8 +10,10 @@ import { useRegisterOffice, useToast } from '@/hooks';
 import { XIcon } from '@/components/icons';
 import { OfficeStepsOverview, OfficeStepFooter } from '@/components/office-onboarding';
 
-import StepBasic from './step-basic';
-import StepDetails from './step-details';
+import StepInfo from './step-info';
+import StepServices from './step-services';
+import StepLocation from './step-location';
+import StepLicense from './step-license';
 import StepReview from './step-review';
 
 export default function OfficeOnboardingScreen() {
@@ -45,28 +47,34 @@ export default function OfficeOnboardingScreen() {
   };
 
   const handleSubmit = async () => {
-    // Final validation
+    // Final validation - check all required steps
     const step1Errors = validateStep(1, formData, isRTL);
     if (Object.keys(step1Errors).length > 0) {
-      setErrors(step1Errors);
       setStep(1);
+      setTimeout(() => setErrors(step1Errors), 50);
+      toast.error(t('validation.fillRequiredFields'));
+      return;
+    }
+
+    const step2Errors = validateStep(2, formData, isRTL);
+    if (Object.keys(step2Errors).length > 0) {
+      setStep(2);
+      setTimeout(() => setErrors(step2Errors), 50);
       toast.error(t('validation.fillRequiredFields'));
       return;
     }
 
     try {
-      // Build data object
+      // Build data object - single name field, API auto-translates
       const data: Record<string, unknown> = {
         name: formData.name,
         phone: formData.phone,
         scopes: formData.scopes,
       };
 
-      // Optional fields
-      if (formData.nameAr) data.nameAr = formData.nameAr;
+      // Optional fields (nameAr/addressAr not needed - API auto-translates)
       if (formData.email) data.email = formData.email;
       if (formData.address) data.address = formData.address;
-      if (formData.addressAr) data.addressAr = formData.addressAr;
       if (formData.emirate) data.emirate = formData.emirate;
       if (formData.googleMapsUrl) data.googleMapsUrl = formData.googleMapsUrl;
       if (formData.licenseNumber) data.licenseNumber = formData.licenseNumber;
@@ -176,14 +184,21 @@ export default function OfficeOnboardingScreen() {
     );
   }
 
-  // Render steps (3 total)
+  // Render steps (5 total in 3 phases)
   const renderStep = () => {
     switch (currentStep) {
+      // Phase 1: Basic Info
       case 1:
-        return <StepBasic />;
+        return <StepInfo />;
       case 2:
-        return <StepDetails />;
+        return <StepServices />;
+      // Phase 2: Location
       case 3:
+        return <StepLocation />;
+      case 4:
+        return <StepLicense />;
+      // Phase 3: Review
+      case 5:
         return <StepReview />;
       default:
         return null;
@@ -217,16 +232,21 @@ export default function OfficeOnboardingScreen() {
       </View>
 
       {/* Step Content */}
-      <ScrollView
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 20 }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
       >
-        <View className="px-6">
-          {renderStep()}
-        </View>
-      </ScrollView>
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom: 20 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="px-6">
+            {renderStep()}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Footer */}
       <OfficeStepFooter

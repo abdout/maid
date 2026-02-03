@@ -6,10 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | Resource | URL |
 |----------|-----|
-| Production App | https://maid-xi.vercel.app |
+| **Mobile Web App** | https://maid-app.databayt.org |
 | API | https://maid-api.osmanabdout.workers.dev |
-| Vercel Dashboard | https://vercel.com/osman-abdouts-projects/maid |
+| Web Dashboard | https://maid-web.databayt.org |
+| Vercel Dashboard | https://vercel.com/osman-abdouts-projects/dist |
 | GitHub | https://github.com/abdout/maid |
+
+## Quick Keywords
+
+| Keyword | Action |
+|---------|--------|
+| `deploy mobile` | Build Expo web + deploy to maid-app.databayt.org |
+| `test mobile` | Run Playwright tests on production |
+| `deploy api` | Deploy Hono API to Cloudflare Workers |
 
 ## Commands
 
@@ -38,11 +47,39 @@ pnpm --filter api db:seed   # Seed database
 ```
 
 ### Deployment
+
+#### API (Cloudflare Workers)
 ```bash
 pnpm deploy                             # Deploy API to production
 pnpm --filter api deploy:staging        # Deploy API to staging
+```
+
+#### Mobile Native (EAS)
+```bash
 cd apps/mobile && eas build --platform ios --profile development  # Dev build
 cd apps/mobile && eas build --platform all --profile production   # Prod build
+```
+
+#### Mobile Web (Vercel) → maid-app.databayt.org
+**IMPORTANT**: The mobile app deploys as Expo Web to Vercel.
+
+```bash
+# Easy one-liner (RECOMMENDED)
+pnpm --filter mobile deploy
+
+# Or manually:
+cd apps/mobile
+pnpm deploy               # Production deploy
+pnpm deploy:preview       # Preview deploy
+```
+
+**Vercel Project**: `dist` (osman-abdouts-projects/dist)
+**Domain**: https://maid-app.databayt.org
+
+#### Test Credentials
+```
+Office Admin: office1@test.com / password123
+Customer: Uses phone OTP
 ```
 
 ## Architecture

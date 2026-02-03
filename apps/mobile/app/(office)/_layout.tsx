@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { Tabs, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { DashboardIcon, UsersIcon, FileTextIcon, UserIcon } from '@/components/icons';
 import { useAuth } from '@/store/auth';
 import { authConfig } from '@/config';
+import { useOfficeProfile } from '@/hooks/use-offices';
 
 type TabName = 'dashboard' | 'maids' | 'quotations' | 'profile';
 
@@ -41,6 +43,27 @@ function TabIcon({ name, focused }: { name: TabName; focused: boolean }) {
   );
 }
 
+// Pending verification banner component
+function PendingVerificationBanner() {
+  const { t } = useTranslation();
+  const { data: officeData } = useOfficeProfile();
+
+  // Only show banner if office exists and is not verified
+  if (!officeData?.data || officeData.data.isVerified) {
+    return null;
+  }
+
+  return (
+    <SafeAreaView edges={['top']} className="bg-amber-100">
+      <View className="px-4 py-3">
+        <Text className="text-amber-800 text-center text-sm">
+          {t('office.pendingVerification')}
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
+}
+
 export default function OfficeLayout() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -65,7 +88,9 @@ export default function OfficeLayout() {
   }
 
   return (
-    <Tabs
+    <View className="flex-1">
+      <PendingVerificationBanner />
+      <Tabs
       screenOptions={{
         headerShown: false,
         freezeOnBlur: true,
@@ -114,9 +139,10 @@ export default function OfficeLayout() {
           tabBarIcon: ({ focused }) => <TabIcon name="profile" focused={focused} />,
         }}
       />
-      {/* Hidden screens - not shown in tab bar */}
-      <Tabs.Screen name="maid-form" options={{ href: null }} />
-      <Tabs.Screen name="subscription" options={{ href: null }} />
-    </Tabs>
+        {/* Hidden screens - not shown in tab bar */}
+        <Tabs.Screen name="maid-form" options={{ href: null }} />
+        <Tabs.Screen name="subscription" options={{ href: null }} />
+      </Tabs>
+    </View>
   );
 }

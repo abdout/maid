@@ -3,13 +3,21 @@
   <head>
     <meta charset="utf-8" />
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="google-site-verification" content="5R0nMTlBV9R6vAe4Y3mImjCVbfd0oTZvDarpGtPg7_Q" />
     <title>Domestic Workers</title>
+    <!-- Mapbox GL JS CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet" />
     <style id="expo-reset">
       html, body { height: 100%; }
       body { overflow: hidden; }
       #root { display: flex; height: 100%; flex: 1; }
+    </style>
+    <!-- Prevent iOS Safari zoom on input focus (requires minimum 16px font-size) -->
+    <style id="ios-zoom-fix">
+      input, textarea, select {
+        font-size: 16px !important;
+      }
     </style>
   </head>
   <body>

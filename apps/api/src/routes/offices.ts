@@ -5,6 +5,7 @@ import type { Bindings, Variables } from '../types';
 import { createDb } from '../db';
 import { OfficeService } from '../services/office.service';
 import { authMiddleware, requireRole, officeMiddleware } from '../middleware';
+import { autoTranslateNames, autoTranslateAddresses } from '../lib/translate';
 
 const officesRoute = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
@@ -13,7 +14,7 @@ officesRoute.post(
   '/register',
   authMiddleware,
   zValidator('json', z.object({
-    name: z.string().min(2).max(255),
+    name: z.string().max(255).optional(),
     nameAr: z.string().max(255).optional(),
     phone: z.string().min(9).max(20),
     email: z.string().email().optional(),
@@ -31,7 +32,10 @@ officesRoute.post(
     googleMapsUrl: z.string().url().optional(),
     emirate: z.string().max(50).optional(),
     website: z.string().max(255).optional(),
-  })),
+  }).refine(
+    data => (data.name && data.name.length >= 2) || (data.nameAr && data.nameAr.length >= 2),
+    { message: 'Either name or nameAr must have at least 2 characters', path: ['name'] }
+  )),
   async (c) => {
     const data = c.req.valid('json');
     const user = c.get('user');
@@ -51,7 +55,21 @@ officesRoute.post(
         return c.json({ success: false, error: 'Phone already registered' }, 400);
       }
 
-      const office = await officeService.create(data, user.sub);
+      // Auto-translate missing name/nameAr and address/addressAr
+      const [names, addresses] = await Promise.all([
+        autoTranslateNames({ name: data.name, nameAr: data.nameAr }),
+        autoTranslateAddresses({ address: data.address, addressAr: data.addressAr }),
+      ]);
+
+      const officeData = {
+        ...data,
+        name: names.name,
+        nameAr: names.nameAr,
+        address: addresses.address,
+        addressAr: addresses.addressAr,
+      };
+
+      const office = await officeService.create(officeData, user.sub);
 
       return c.json({ success: true, data: office }, 201);
     } catch (error) {

@@ -25,24 +25,27 @@ export function StepFooter({
   const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  // Calculate progress for 3 sections
-  // Steps 1-2 = Section 1, Step 3 = Section 2, Steps 4-5 = Section 3
-  const getProgress = (section: number) => {
-    if (section === 1) {
-      if (currentStep === 1) return 50;
-      if (currentStep >= 2) return 100;
-      return 0;
+  // Calculate progress for 3 phases with 10 total steps
+  // Phase 1 (Personal Info): Steps 1-3
+  // Phase 2 (Work Info): Steps 4-7
+  // Phase 3 (Documents): Steps 8-10
+  const getProgress = (phase: number) => {
+    if (phase === 1) {
+      // Steps 1-3
+      if (currentStep >= 3) return 100;
+      return Math.round((currentStep / 3) * 100);
     }
-    if (section === 2) {
-      if (currentStep < 3) return 0;
-      if (currentStep === 3) return 100;
-      return 100;
-    }
-    if (section === 3) {
+    if (phase === 2) {
+      // Steps 4-7
       if (currentStep < 4) return 0;
-      if (currentStep === 4) return 50;
-      if (currentStep >= 5) return 100;
-      return 0;
+      if (currentStep >= 7) return 100;
+      return Math.round(((currentStep - 3) / 4) * 100);
+    }
+    if (phase === 3) {
+      // Steps 8-10
+      if (currentStep < 8) return 0;
+      if (currentStep >= 10) return 100;
+      return Math.round(((currentStep - 7) / 3) * 100);
     }
     return 0;
   };

@@ -61,6 +61,15 @@ const resetPasswordSchema = z.object({
     .max(72, 'Password must be at most 72 characters'),
 });
 
+const registerSchema = z.object({
+  email: z.string().email('Invalid email format').toLowerCase(),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(72, 'Password must be at most 72 characters'),
+  name: z.string().optional(),
+});
+
 // ==========================================
 // HELPER FUNCTIONS
 // ==========================================
@@ -270,6 +279,15 @@ auth.post('/login', zValidator('json', loginSchema), async (c) => {
     // Clear failed attempts on successful login
     await authService.recordLoginAttempt(email, true);
 
+    // Reset demo office account for fresh onboarding experience
+    const DEMO_OFFICE_EMAIL = 'company@tadbeer.com';
+    if (user.isDemo && user.email === DEMO_OFFICE_EMAIL && user.officeId) {
+      await authService.resetDemoOfficeAccount(user.id);
+      // Update local user object to reflect reset state
+      user.officeId = null;
+      user.role = 'customer';
+    }
+
     // Generate token pair
     const tokens = await authService.generateTokenPair(user);
 
@@ -294,6 +312,64 @@ auth.post('/login', zValidator('json', loginSchema), async (c) => {
   } catch (error) {
     console.error('Login error:', error instanceof Error ? error.message : 'Unknown');
     return c.json({ success: false, error: 'Authentication failed' }, 500);
+  }
+});
+
+/**
+ * POST /auth/register
+ * Create a new account with email/password
+ */
+auth.post('/register', authRateLimit, zValidator('json', registerSchema), async (c) => {
+  const { email, password, name } = c.req.valid('json');
+  const clientIp = getClientIp(c);
+
+  try {
+    const db = createDb(c.env.DATABASE_URL);
+    const authService = new AuthService(db, c.env);
+
+    // Check if user already exists
+    const existingUser = await authService.findUserByEmail(email);
+
+    if (existingUser) {
+      await authService.logAuthEvent('register_failure', null, {
+        email,
+        reason: 'email_exists',
+      }, clientIp);
+
+      return c.json({
+        success: false,
+        error: 'An account with this email already exists',
+      }, 409);
+    }
+
+    // Create the user
+    const user = await authService.createUser(email, password, name);
+
+    // Generate token pair for auto-login
+    const tokens = await authService.generateTokenPair(user);
+
+    // Log successful registration
+    await authService.logAuthEvent('register_success', user.id, { email }, clientIp);
+
+    return c.json({
+      success: true,
+      message: 'Account created successfully',
+      data: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresIn: tokens.expiresIn,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          officeId: user.officeId,
+        },
+      },
+    }, 201);
+  } catch (error) {
+    console.error('Registration error:', error instanceof Error ? error.message : 'Unknown');
+    return c.json({ success: false, error: 'Registration failed' }, 500);
   }
 });
 

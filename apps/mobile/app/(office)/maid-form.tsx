@@ -8,13 +8,15 @@ import {
   ActivityIndicator,
   Image,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { DirhamIcon } from '@/components/icons';
-import { useNationalities, useLanguages, useMaid, useCreateMaid, useUpdateMaid } from '@/hooks';
+import { useNationalities, useLanguages, useMaid, useCreateMaid, useUpdateMaid, useDeleteMaid } from '@/hooks';
 import { uploadsApi } from '@/lib/api';
 
 export default function MaidFormScreen() {
@@ -29,6 +31,7 @@ export default function MaidFormScreen() {
   const { data: maidData, isLoading: loadingMaid } = useMaid(id || '');
   const createMaid = useCreateMaid();
   const updateMaid = useUpdateMaid();
+  const deleteMaid = useDeleteMaid();
 
   const nationalities = nationalitiesData?.data || [];
   const languages = languagesData?.data || [];
@@ -120,6 +123,35 @@ export default function MaidFormScreen() {
     }
   };
 
+  const handleDelete = () => {
+    Alert.alert(
+      isRTL ? 'حذف العاملة' : 'Delete Maid',
+      isRTL ? 'هل أنت متأكد من حذف هذه العاملة؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to delete this maid? This action cannot be undone.',
+      [
+        {
+          text: isRTL ? 'إلغاء' : 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: isRTL ? 'حذف' : 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteMaid.mutateAsync(id!);
+              router.back();
+            } catch (error) {
+              console.error('Delete maid error:', error);
+              Alert.alert(
+                isRTL ? 'خطأ' : 'Error',
+                isRTL ? 'فشل في حذف العاملة' : 'Failed to delete maid'
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const toggleLanguage = (langId: string) => {
     setForm((prev) => ({
       ...prev,
@@ -129,7 +161,7 @@ export default function MaidFormScreen() {
     }));
   };
 
-  const isSubmitting = createMaid.isPending || updateMaid.isPending || isUploading;
+  const isSubmitting = createMaid.isPending || updateMaid.isPending || deleteMaid.isPending || isUploading;
 
   if (isEditing && loadingMaid) {
     return (
@@ -153,7 +185,11 @@ export default function MaidFormScreen() {
         }}
       />
 
-      <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+      >
+        <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
         {/* Photo */}
         <View className="items-center py-6">
           <Pressable onPress={handlePickImage} disabled={isUploading}>
@@ -187,7 +223,9 @@ export default function MaidFormScreen() {
             value={form.name}
             onChangeText={(v) => setForm((f) => ({ ...f, name: v }))}
             placeholder="Full name"
-            className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
+            placeholderTextColor="#9CA3AF"
+            textAlign={isRTL ? 'right' : 'left'}
+            className="bg-background-50 rounded-xl px-4 py-3 text-base text-typography-900"
           />
         </View>
 
@@ -199,7 +237,9 @@ export default function MaidFormScreen() {
             value={form.nameAr}
             onChangeText={(v) => setForm((f) => ({ ...f, nameAr: v }))}
             placeholder="الاسم الكامل"
-            className="bg-background-50 rounded-xl px-4 py-3 text-typography-900 text-right"
+            placeholderTextColor="#9CA3AF"
+            textAlign="right"
+            className="bg-background-50 rounded-xl px-4 py-3 text-base text-typography-900"
           />
         </View>
 
@@ -238,7 +278,9 @@ export default function MaidFormScreen() {
             value={form.dateOfBirth}
             onChangeText={(v) => setForm((f) => ({ ...f, dateOfBirth: v }))}
             placeholder="YYYY-MM-DD"
-            className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
+            placeholderTextColor="#9CA3AF"
+            textAlign={isRTL ? 'right' : 'left'}
+            className="bg-background-50 rounded-xl px-4 py-3 text-base text-typography-900"
           />
         </View>
 
@@ -300,7 +342,9 @@ export default function MaidFormScreen() {
             onChangeText={(v) => setForm((f) => ({ ...f, experienceYears: parseInt(v) || 0 }))}
             keyboardType="number-pad"
             placeholder="0"
-            className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
+            placeholderTextColor="#9CA3AF"
+            textAlign={isRTL ? 'right' : 'left'}
+            className="bg-background-50 rounded-xl px-4 py-3 text-base text-typography-900"
           />
         </View>
 
@@ -319,7 +363,9 @@ export default function MaidFormScreen() {
             onChangeText={(v) => setForm((f) => ({ ...f, salary: v }))}
             keyboardType="decimal-pad"
             placeholder="2000"
-            className="bg-background-50 rounded-xl px-4 py-3 text-typography-900"
+            placeholderTextColor="#9CA3AF"
+            textAlign={isRTL ? 'right' : 'left'}
+            className="bg-background-50 rounded-xl px-4 py-3 text-base text-typography-900"
           />
         </View>
 
@@ -356,9 +402,11 @@ export default function MaidFormScreen() {
             value={form.bio}
             onChangeText={(v) => setForm((f) => ({ ...f, bio: v }))}
             placeholder="Brief description..."
+            placeholderTextColor="#9CA3AF"
             multiline
             numberOfLines={4}
-            className="bg-background-50 rounded-xl px-4 py-3 text-typography-900 min-h-[100px]"
+            textAlign={isRTL ? 'right' : 'left'}
+            className="bg-background-50 rounded-xl px-4 py-3 text-base text-typography-900 min-h-[100px]"
             textAlignVertical="top"
           />
         </View>
@@ -371,9 +419,11 @@ export default function MaidFormScreen() {
             value={form.bioAr}
             onChangeText={(v) => setForm((f) => ({ ...f, bioAr: v }))}
             placeholder="وصف مختصر..."
+            placeholderTextColor="#9CA3AF"
             multiline
             numberOfLines={4}
-            className="bg-background-50 rounded-xl px-4 py-3 text-typography-900 min-h-[100px] text-right"
+            textAlign="right"
+            className="bg-background-50 rounded-xl px-4 py-3 text-base text-typography-900 min-h-[100px]"
             textAlignVertical="top"
           />
         </View>
@@ -382,7 +432,7 @@ export default function MaidFormScreen() {
         <Pressable
           onPress={handleSubmit}
           disabled={isSubmitting || !form.name || !form.nationalityId || !form.salary}
-          className={`py-4 rounded-xl items-center mb-10 ${
+          className={`py-4 rounded-xl items-center mb-4 ${
             isSubmitting || !form.name || !form.nationalityId || !form.salary
               ? 'bg-primary-200'
               : 'bg-primary-500'
@@ -392,7 +442,23 @@ export default function MaidFormScreen() {
             {isSubmitting ? t('common.loading') : isEditing ? t('common.save') : t('office.addMaid')}
           </Text>
         </Pressable>
-      </ScrollView>
+
+        {/* Delete Button - Only show when editing */}
+        {isEditing && (
+          <Pressable
+            onPress={handleDelete}
+            disabled={isSubmitting}
+            className={`py-4 rounded-xl items-center mb-10 border border-error-500 ${
+              isSubmitting ? 'opacity-50' : ''
+            }`}
+          >
+            <Text className="text-error-500 font-semibold text-lg">
+              {isRTL ? 'حذف العاملة' : 'Delete Maid'}
+            </Text>
+          </Pressable>
+        )}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

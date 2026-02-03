@@ -7,31 +7,40 @@ export type MaidStatus = 'available' | 'inactive';
 // New types from client requirements
 export type PackageType = 'traditional' | 'flexible' | 'hourly';
 export type CookingSkill = 'good' | 'average' | 'willing_to_learn' | 'none';
+// Legacy availability type (keeping for backward compatibility)
 export type Availability = 'inside_uae' | 'outside_uae';
 export type Education = 'college' | 'high_school' | 'primary';
+// Service type replaces jobType - matches filter modal categories
+export type ServiceType = 'cleaning' | 'cooking' | 'babysitter' | 'elderly';
+// Legacy jobType kept for backward compatibility
 export type JobType = 'domestic_worker' | 'nurse_caregiver' | 'driver';
 export type Sex = 'male' | 'female';
 
 export interface MaidFormData {
-  // Step 1: Basic Info
+  // Phase 1: Personal Info
+  // Step 1: Name & Nationality
   name: string;
   nameAr: string;
   nationalityId: string;
-  dateOfBirth: string; // YYYY-MM-DD format
+  // Step 2: Personal Details
   sex: Sex;
+  dateOfBirth: string; // YYYY-MM-DD format
   maritalStatus: MaritalStatus;
-  religion: Religion;
   hasChildren: boolean;
+  // Step 3: Background
   education: Education;
+  religion: Religion;
 
-  // Step 2: Job & Package
-  jobType: JobType;
+  // Phase 2: Work Info
+  // Step 4: Service Type (replaces jobType)
+  serviceType: ServiceType;
+  // Step 5: Package
   packageType: PackageType;
-
-  // Step 3: Experience & Skills
-  experienceYears: number;
+  // Step 6: Experience
   hasExperience: boolean;
+  experienceYears: number;
   experienceDetails: string; // 70 chars max
+  // Step 7: Skills & Salary
   skillsDetails: string; // 70 chars max
   cookingSkills: CookingSkill;
   babySitter: boolean;
@@ -39,46 +48,49 @@ export interface MaidFormData {
   officeFees: string;
   availability: Availability;
 
-  // Step 4: Languages
+  // Phase 3: Documents
+  // Step 8: Languages
   languageIds: string[];
-
-  // Step 5: Photo
+  // Step 9: Photo
   photoUrl: string;
-
-  // Step 6: Bio & Contact
-  bio: string;
-  bioAr: string;
+  // Step 10: Contact & Review
   whatsappNumber: string;
   contactNumber: string;
   cvReference: string;
-
-  // Step 7: Review & Publish
+  bio: string;
+  bioAr: string;
   status: MaidStatus;
 
-  // Legacy field (kept for backward compatibility)
+  // Legacy fields (kept for backward compatibility)
+  jobType: JobType;
   skills: string[];
 }
 
 export const INITIAL_FORM_DATA: MaidFormData = {
-  // Step 1: Basic Info
+  // Phase 1: Personal Info
+  // Step 1: Name & Nationality
   name: '',
   nameAr: '',
   nationalityId: '',
-  dateOfBirth: '',
+  // Step 2: Personal Details
   sex: 'female',
+  dateOfBirth: '',
   maritalStatus: 'single',
-  religion: 'muslim',
   hasChildren: false,
+  // Step 3: Background
   education: 'primary',
+  religion: 'muslim',
 
-  // Step 2: Job & Package
-  jobType: 'domestic_worker',
+  // Phase 2: Work Info
+  // Step 4: Service Type
+  serviceType: 'cleaning',
+  // Step 5: Package
   packageType: 'traditional',
-
-  // Step 3: Experience & Skills
-  experienceYears: 0,
+  // Step 6: Experience
   hasExperience: false,
+  experienceYears: 0,
   experienceDetails: '',
+  // Step 7: Skills & Salary
   skillsDetails: '',
   cookingSkills: 'none',
   babySitter: false,
@@ -86,36 +98,100 @@ export const INITIAL_FORM_DATA: MaidFormData = {
   officeFees: '',
   availability: 'inside_uae',
 
-  // Step 4: Languages
+  // Phase 3: Documents
+  // Step 8: Languages
   languageIds: [],
-
-  // Step 5: Photo
+  // Step 9: Photo
   photoUrl: '',
-
-  // Step 6: Bio & Contact
-  bio: '',
-  bioAr: '',
+  // Step 10: Contact & Review
   whatsappNumber: '',
   contactNumber: '',
   cvReference: '',
-
-  // Step 7: Review
+  bio: '',
+  bioAr: '',
   status: 'available',
 
-  // Legacy
+  // Legacy fields
+  jobType: 'domestic_worker',
   skills: [],
 };
 
-export const TOTAL_STEPS = 7;
+export const TOTAL_STEPS = 10;
 
 export const STEP_TITLES = {
-  1: { en: 'Basic Info', ar: 'المعلومات الأساسية' },
-  2: { en: 'Job & Package', ar: 'الوظيفة والباقة' },
-  3: { en: 'Experience & Skills', ar: 'الخبرة والمهارات' },
-  4: { en: 'Languages', ar: 'اللغات' },
-  5: { en: 'Photo', ar: 'الصورة' },
-  6: { en: 'Contact', ar: 'التواصل' },
-  7: { en: 'Review', ar: 'المراجعة' },
+  // Phase 1: Personal Info (Steps 1-3)
+  1: { en: 'Name & Nationality', ar: 'الاسم والجنسية' },
+  2: { en: 'Personal Details', ar: 'البيانات الشخصية' },
+  3: { en: 'Background', ar: 'الخلفية' },
+  // Phase 2: Work Info (Steps 4-7)
+  4: { en: 'Service Type', ar: 'نوع الخدمة' },
+  5: { en: 'Package', ar: 'الباقة' },
+  6: { en: 'Experience', ar: 'الخبرة' },
+  7: { en: 'Skills & Salary', ar: 'المهارات والراتب' },
+  // Phase 3: Documents (Steps 8-10)
+  8: { en: 'Languages', ar: 'اللغات' },
+  9: { en: 'Photo', ar: 'الصورة' },
+  10: { en: 'Contact & Review', ar: 'التواصل والمراجعة' },
+};
+
+// Per-step validation for 10-step flow
+export const validateStep = (step: number, data: MaidFormData, isRTL: boolean): Record<string, string> => {
+  const errors: Record<string, string> = {};
+
+  // Phase 1: Personal Info
+  if (step === 1) {
+    // Name & Nationality - required fields
+    if (!data.name.trim() && !data.nameAr.trim()) {
+      errors.name = isRTL ? 'الاسم مطلوب' : 'Name is required';
+    }
+    if (!data.nationalityId) {
+      errors.nationalityId = isRTL ? 'الجنسية مطلوبة' : 'Nationality is required';
+    }
+  }
+
+  // Steps 2-3: No required fields (personal details and background are optional)
+
+  // Phase 2: Work Info
+  if (step === 4) {
+    // Service Type - required
+    if (!data.serviceType) {
+      errors.serviceType = isRTL ? 'نوع الخدمة مطلوب' : 'Service type is required';
+    }
+  }
+
+  if (step === 5) {
+    // Package - required
+    if (!data.packageType) {
+      errors.packageType = isRTL ? 'نوع الباقة مطلوب' : 'Package type is required';
+    }
+  }
+
+  if (step === 7) {
+    // Skills & Salary - salary is required
+    if (!data.salary || parseFloat(data.salary) <= 0) {
+      errors.salary = isRTL ? 'الراتب مطلوب' : 'Salary is required';
+    }
+  }
+
+  // Phase 3: Documents
+  if (step === 9) {
+    // Photo - required
+    if (!data.photoUrl) {
+      errors.photoUrl = isRTL ? 'الصورة مطلوبة' : 'Photo is required';
+    }
+  }
+
+  if (step === 10) {
+    // Contact - required
+    if (!data.whatsappNumber) {
+      errors.whatsappNumber = isRTL ? 'رقم الواتساب مطلوب' : 'WhatsApp number is required';
+    }
+    if (!data.contactNumber) {
+      errors.contactNumber = isRTL ? 'رقم التواصل مطلوب' : 'Contact number is required';
+    }
+  }
+
+  return errors;
 };
 
 interface MaidFormState {
@@ -133,6 +209,7 @@ interface MaidFormState {
   updateFormData: (data: Partial<MaidFormData>) => void;
   setErrors: (errors: Record<string, string>) => void;
   clearErrors: () => void;
+  clearFieldError: (field: string) => void;
   reset: () => void;
   initializeForEdit: (maidId: string, data: Partial<MaidFormData>) => void;
   getStepProgress: () => number;
@@ -168,8 +245,15 @@ export const useMaidForm = create<MaidFormState>((set, get) => ({
   },
 
   updateFormData: (data: Partial<MaidFormData>) => {
+    const { errors } = get();
+    // Clear errors for updated fields
+    const updatedErrors = { ...errors };
+    Object.keys(data).forEach(key => {
+      delete updatedErrors[key];
+    });
     set((state) => ({
       formData: { ...state.formData, ...data },
+      errors: updatedErrors,
     }));
   },
 
@@ -179,6 +263,14 @@ export const useMaidForm = create<MaidFormState>((set, get) => ({
 
   clearErrors: () => {
     set({ errors: {} });
+  },
+
+  clearFieldError: (field: string) => {
+    set((state) => {
+      const newErrors = { ...state.errors };
+      delete newErrors[field];
+      return { errors: newErrors };
+    });
   },
 
   reset: () => {
@@ -261,4 +353,12 @@ export const SKILL_OPTIONS = [
   { id: 'cooking', labelEn: 'Cooking', labelAr: 'الطبخ' },
   { id: 'babysitting', labelEn: 'Babysitting', labelAr: 'رعاية الأطفال' },
   { id: 'elderly', labelEn: 'Elderly Care', labelAr: 'رعاية المسنين' },
+] as const;
+
+// Service type options with icon images (matching filter modal)
+export const SERVICE_TYPE_OPTIONS = [
+  { id: 'cleaning' as const, labelEn: 'Cleaning', labelAr: 'تنظيف', image: 'wipe' },
+  { id: 'cooking' as const, labelEn: 'Cooking', labelAr: 'طبخ', image: 'chef-hat' },
+  { id: 'babysitter' as const, labelEn: 'Babysitter', labelAr: 'مربية', image: 'baby-stroller' },
+  { id: 'elderly' as const, labelEn: 'Elderly', labelAr: 'مسنين', image: 'old-people' },
 ] as const;

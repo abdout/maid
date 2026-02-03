@@ -7,18 +7,21 @@ import {
   Pressable,
   RefreshControl,
   ActivityIndicator,
-  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { walletApi } from '@/lib/api';
+import { useToast } from '@/hooks';
 import { Icon } from '@/components/icons';
 
 export default function WalletScreen() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const [topUpAmount, setTopUpAmount] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -49,16 +52,10 @@ export default function WalletScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wallet'] });
       setTopUpAmount('');
-      Alert.alert(
-        isRTL ? 'نجاح' : 'Success',
-        isRTL ? 'تم شحن المحفظة بنجاح' : 'Wallet topped up successfully'
-      );
+      toast.success(isRTL ? 'تم شحن المحفظة بنجاح' : 'Wallet topped up successfully');
     },
     onError: (error: Error) => {
-      Alert.alert(
-        isRTL ? 'خطأ' : 'Error',
-        error.message || (isRTL ? 'فشل في شحن المحفظة' : 'Failed to top up wallet')
-      );
+      toast.error(error.message || (isRTL ? 'فشل في شحن المحفظة' : 'Failed to top up wallet'));
     },
   });
 
@@ -71,8 +68,7 @@ export default function WalletScreen() {
   const handleTopUp = () => {
     const amount = parseFloat(topUpAmount);
     if (isNaN(amount) || amount < 10 || amount > 10000) {
-      Alert.alert(
-        isRTL ? 'خطأ' : 'Error',
+      toast.error(
         isRTL
           ? 'الرجاء إدخال مبلغ بين 10 و 10,000 درهم'
           : 'Please enter an amount between 10 and 10,000 AED'
@@ -131,13 +127,18 @@ export default function WalletScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
-      <ScrollView
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 100 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
       >
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          keyboardShouldPersistTaps="handled"
+        >
         {/* Header */}
         <View className="px-5 pt-4 pb-2">
           <Text className={`text-2xl font-bold text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
@@ -273,7 +274,8 @@ export default function WalletScreen() {
             {t('wallet.cvUnlockPrice')}
           </Text>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

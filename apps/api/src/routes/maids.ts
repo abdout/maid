@@ -11,6 +11,7 @@ import {
   updateMaidSchema,
   maidFiltersSchema,
 } from '../validators/maid.schema';
+import { autoTranslateNames, autoTranslateBios } from '../lib/translate';
 
 const maidsRoute = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
@@ -109,7 +110,21 @@ maidsRoute.post(
       const db = createDb(c.env.DATABASE_URL);
       const maidService = new MaidService(db);
 
-      const maid = await maidService.create(officeId, data);
+      // Auto-translate missing name/nameAr and bio/bioAr
+      const [names, bios] = await Promise.all([
+        autoTranslateNames({ name: data.name, nameAr: data.nameAr }),
+        autoTranslateBios({ bio: data.bio, bioAr: data.bioAr }),
+      ]);
+
+      const maidData = {
+        ...data,
+        name: names.name,
+        nameAr: names.nameAr,
+        bio: bios.bio,
+        bioAr: bios.bioAr,
+      };
+
+      const maid = await maidService.create(officeId, maidData);
 
       return c.json({ success: true, data: maid }, 201);
     } catch (error) {
@@ -135,7 +150,24 @@ maidsRoute.put(
       const db = createDb(c.env.DATABASE_URL);
       const maidService = new MaidService(db);
 
-      const maid = await maidService.update(id, officeId, data);
+      // Auto-translate missing name/nameAr and bio/bioAr if provided
+      const translations: Promise<{ name?: string; nameAr?: string } | { bio?: string; bioAr?: string }>[] = [];
+
+      if (data.name !== undefined || data.nameAr !== undefined) {
+        translations.push(autoTranslateNames({ name: data.name, nameAr: data.nameAr }));
+      }
+      if (data.bio !== undefined || data.bioAr !== undefined) {
+        translations.push(autoTranslateBios({ bio: data.bio, bioAr: data.bioAr }));
+      }
+
+      const results = await Promise.all(translations);
+
+      let maidData = { ...data };
+      for (const result of results) {
+        maidData = { ...maidData, ...result };
+      }
+
+      const maid = await maidService.update(id, officeId, maidData);
 
       if (!maid) {
         return c.json({ success: false, error: 'Maid not found' }, 404);

@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+.expo/
+.turbo/
+
+# Generated files
+*.lock
+pnpm-lock.yaml
+*.tsbuildinfo
+drizzle/
+
+# Caches
+.cache/
+.wrangler/
+
+# Coverage
+coverage/
+
+# IDE
+.idea/
+.vscode/

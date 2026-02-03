@@ -13,7 +13,7 @@ AWS_REGION = "ap-south-1"
 S3_BUCKET_NAME = "ae-win"
 # CloudFront CDN
 CLOUDFRONT_URL = "https://d25neuja5so22n.cloudfront.net"
-CLOUDFRONT_KEY_PAIR_ID = "KA45U2Z6QWRTA"
+# CLOUDFRONT_KEY_PAIR_ID - moved to secrets (.dev.vars / wrangler secrets)
 
 # KV namespace for rate limiting
 # Create via: wrangler kv:namespace create "RATE_LIMIT_KV"

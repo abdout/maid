@@ -1,8 +1,8 @@
 {
   "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "npx expo export --platform web",
+  "buildCommand": "pnpm exec expo export --platform web",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/:path*", "destination": "/index.html" }
   ]
 }

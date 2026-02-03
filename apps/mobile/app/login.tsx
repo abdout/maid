@@ -6,7 +6,6 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ImageBackground,
   ScrollView,
 } from 'react-native';
@@ -15,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '@/lib/api';
 import { useAuth } from '@/store/auth';
+import { useToast } from '@/hooks';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'react-native';
 import { storage } from '@/lib/storage';
@@ -23,6 +23,7 @@ export default function LoginScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { login } = useAuth();
+  const toast = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,10 +40,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert(
-        isRTL ? 'خطأ' : 'Error',
-        isRTL ? 'الرجاء إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter email and password'
-      );
+      toast.error(isRTL ? 'الرجاء إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter email and password');
       return;
     }
 
@@ -53,7 +51,7 @@ export default function LoginScreen() {
         // Validate tokens exist before storing
         if (!result.data.accessToken || !result.data.user) {
           console.error('Login response missing required data:', result.data);
-          Alert.alert(isRTL ? 'خطأ' : 'Error', isRTL ? 'استجابة غير صالحة من الخادم' : 'Invalid response from server');
+          toast.error(isRTL ? 'استجابة غير صالحة من الخادم' : 'Invalid response from server');
           return;
         }
         await login({
@@ -90,20 +88,19 @@ export default function LoginScreen() {
           router.replace('/');
         }
       } else {
-        Alert.alert(isRTL ? 'خطأ' : 'Error', isRTL ? 'فشل تسجيل الدخول' : 'Login failed');
+        toast.error(isRTL ? 'فشل تسجيل الدخول' : 'Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);
       const message = error instanceof Error ? error.message : 'Login failed';
-      Alert.alert(isRTL ? 'خطأ' : 'Error', message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSocialLogin = (provider: 'google' | 'apple') => {
-    Alert.alert(
-      isRTL ? 'قريباً' : 'Coming Soon',
+    toast.info(
       isRTL
         ? `تسجيل الدخول عبر ${provider === 'google' ? 'جوجل' : 'أبل'} سيكون متاحاً قريباً`
         : `${provider === 'google' ? 'Google' : 'Apple'} sign-in coming soon`
@@ -134,7 +131,7 @@ export default function LoginScreen() {
               className="flex-1"
             >
               {/* Language Toggle */}
-              <View className="flex-row justify-end px-6 pt-2">
+              <View className={`flex-row px-6 pt-2 ${isRTL ? 'justify-start' : 'justify-end'}`}>
                 <Pressable
                   onPress={toggleLanguage}
                   className="px-4 py-2 bg-white/10 rounded-full flex-row items-center"
@@ -154,7 +151,7 @@ export default function LoginScreen() {
                 contentContainerStyle={{ paddingBottom: 32 }}
                 keyboardShouldPersistTaps="handled"
               >
-                <View className="px-6 mx-4">
+                <View className="px-4">
                   {/* Welcome Text */}
                   <Text className="text-3xl font-bold text-white mb-2">
                     {isRTL ? 'مرحباً بك' : 'Welcome'}
@@ -185,16 +182,19 @@ export default function LoginScreen() {
                     secureTextEntry
                     autoCapitalize="none"
                     autoComplete="password"
-                    className={`bg-white/10 border border-t-0 border-white/30 rounded-b-xl px-4 py-4 text-white text-base mb-4 ${isRTL ? 'text-right' : 'text-left'}`}
+                    className={`bg-white/10 border border-t-0 border-white/30 rounded-b-xl px-4 py-4 text-white text-base ${isRTL ? 'text-right' : 'text-left'}`}
                     placeholderTextColor="rgba(255,255,255,0.5)"
                   />
 
-                  {/* Test credentials hint */}
-                  <Text className="text-white/40 text-xs mb-4">
-                    {userIntent === 'office'
-                      ? (isRTL ? 'للاختبار: company@tadbeer.com / 1234' : 'For testing: company@tadbeer.com / 1234')
-                      : (isRTL ? 'للاختبار: customer@hotmail.com / 1234' : 'For testing: customer@hotmail.com / 1234')}
-                  </Text>
+                  {/* Forgot Password Link */}
+                  <Pressable
+                    onPress={() => router.push('/forgot-password')}
+                    className={`mt-2 mb-4 ${isRTL ? 'items-start' : 'items-end'}`}
+                  >
+                    <Text className="text-[#FF385C] text-sm font-medium">
+                      {isRTL ? 'نسيت كلمة المرور؟' : 'Forgot Password?'}
+                    </Text>
+                  </Pressable>
 
                   {/* Login Button */}
                   <Pressable
@@ -231,7 +231,7 @@ export default function LoginScreen() {
                     >
                       <Image
                         source={{ uri: 'https://developers.google.com/identity/images/g-logo.png' }}
-                        style={{ width: 20, height: 20, marginRight: 8 }}
+                        style={{ width: 20, height: 20, [isRTL ? 'marginLeft' : 'marginRight']: 8 }}
                         resizeMode="contain"
                       />
                       <Text className="text-gray-900 font-medium text-base">
@@ -246,7 +246,7 @@ export default function LoginScreen() {
                     >
                       <Image
                         source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/160px-Apple_logo_black.svg.png' }}
-                        style={{ width: 18, height: 22, marginRight: 8 }}
+                        style={{ width: 18, height: 22, [isRTL ? 'marginLeft' : 'marginRight']: 8 }}
                         resizeMode="contain"
                       />
                       <Text className="text-gray-900 font-medium text-base">
@@ -255,12 +255,17 @@ export default function LoginScreen() {
                     </Pressable>
                   </View>
 
-                  {/* Terms */}
-                  <Text className="text-center text-white/50 text-xs mt-6 leading-relaxed">
-                    {isRTL
-                      ? 'بالمتابعة، أنت توافق على شروط الخدمة وسياسة الخصوصية'
-                      : 'By continuing, you agree to our Terms of Service and Privacy Policy'}
-                  </Text>
+                  {/* Sign Up Link */}
+                  <View className={`flex-row items-center justify-center mt-6 ${isRTL ? 'gap-2' : ''}`}>
+                    <Text className="text-white/60 text-sm">
+                      {isRTL ? 'ليس لديك حساب؟' : "Don't have an account?"}
+                    </Text>
+                    <Pressable onPress={() => router.push('/signup')}>
+                      <Text className="text-[#FF385C] font-semibold text-sm">
+                        {isRTL ? 'إنشاء حساب' : ' Sign Up'}
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
               </ScrollView>
             </KeyboardAvoidingView>

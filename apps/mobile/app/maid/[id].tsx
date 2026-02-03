@@ -373,17 +373,17 @@ export default function MaidDetailScreen() {
           )}
 
           {/* Salary - Prominent Display */}
-          <View className="pb-6 border-b border-background-200 mb-6">
+          <View className={`pb-6 border-b border-background-200 mb-6 ${isRTL ? 'items-end' : ''}`}>
             <Text className={`text-lg font-semibold text-typography-900 mb-3 ${isRTL ? 'text-right' : ''}`}>
               {t('filters.salary')}
             </Text>
-            <View className={`flex-row items-center gap-1 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
+            <View className={`flex-row items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <DirhamIcon size={24} color="#717171" />
               <Text className="text-3xl font-bold text-typography-900">
                 {parseInt(maid.salary).toLocaleString()}
               </Text>
               <Text className="text-typography-400 text-base">
-                / {t('common.month')}
+                /{t('common.month')}
               </Text>
             </View>
           </View>
@@ -428,14 +428,14 @@ export default function MaidDetailScreen() {
           }}
         >
           <View className={`flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <View>
+            <View className={isRTL ? 'items-end' : ''}>
               <View className={`flex-row items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <DirhamIcon size={18} color="#717171" />
                 <Text className="text-xl font-bold text-typography-900">
                   {parseInt(maid.salary).toLocaleString()}
                 </Text>
               </View>
-              <Text className="text-typography-400 text-sm">
+              <Text className={`text-typography-400 text-sm ${isRTL ? 'text-right' : ''}`}>
                 {t('common.perMonth')}
               </Text>
             </View>

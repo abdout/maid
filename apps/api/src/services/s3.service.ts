@@ -83,9 +83,10 @@ export class S3Service {
       throw new Error(`S3 upload failed: ${response.status} - ${errorText}`);
     }
 
-    const publicUrl = this.isPrivateFolder(key)
-      ? await this.generateSignedUrl(key, 24 * 60 * 60)
-      : `${this.cloudfrontUrl}/${key}`;
+    // Always generate signed URLs since S3 bucket has block public access enabled
+    // Signed URLs expire in 7 days for maids/logos, 1 day for documents
+    const expiresIn = this.isPrivateFolder(key) ? 24 * 60 * 60 : 7 * 24 * 60 * 60;
+    const publicUrl = await this.generateSignedUrl(key, expiresIn);
 
     return { key, publicUrl };
   }
@@ -199,10 +200,9 @@ export class S3Service {
   }
 
   async getPublicUrl(key: string): Promise<string> {
-    if (this.isPrivateFolder(key)) {
-      return this.generateSignedUrl(key, 24 * 60 * 60);
-    }
-    return `${this.cloudfrontUrl}/${key}`;
+    // Always return signed URLs since S3 bucket has block public access enabled
+    const expiresIn = this.isPrivateFolder(key) ? 24 * 60 * 60 : 7 * 24 * 60 * 60;
+    return this.generateSignedUrl(key, expiresIn);
   }
 
   async exists(key: string): Promise<boolean> {

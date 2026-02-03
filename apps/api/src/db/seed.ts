@@ -24,6 +24,7 @@ async function seed() {
   await db.delete(schema.customerSubscriptions);
   await db.delete(schema.officeSubscriptions);
   await db.delete(schema.auditLogs);
+  await db.delete(schema.businesses);
   // Original tables
   await db.delete(schema.favorites);
   await db.delete(schema.quotations);
@@ -43,18 +44,23 @@ async function seed() {
   await db.delete(schema.subscriptionPlans);
   await db.delete(schema.platformSettings);
 
-  // Seed Nationalities
+  // Seed Nationalities (matching filter modal options)
+  // Using fixed UUIDs that match mobile app constants in apps/mobile/src/constants/nationalities.ts
+  // These UUIDs are deterministic to ensure consistency between mobile app and database
   console.log('🌍 Seeding nationalities...');
   const nationalitiesData = [
-    { code: 'PH', nameEn: 'Philippines', nameAr: 'الفلبين' },
-    { code: 'ID', nameEn: 'Indonesia', nameAr: 'إندونيسيا' },
-    { code: 'ET', nameEn: 'Ethiopia', nameAr: 'إثيوبيا' },
-    { code: 'IN', nameEn: 'India', nameAr: 'الهند' },
-    { code: 'LK', nameEn: 'Sri Lanka', nameAr: 'سريلانكا' },
-    { code: 'NP', nameEn: 'Nepal', nameAr: 'نيبال' },
-    { code: 'BD', nameEn: 'Bangladesh', nameAr: 'بنغلاديش' },
-    { code: 'KE', nameEn: 'Kenya', nameAr: 'كينيا' },
-    { code: 'UG', nameEn: 'Uganda', nameAr: 'أوغندا' },
+    { id: '00000000-0000-0000-0000-000000000001', code: 'ID', nameEn: 'Indonesia', nameAr: 'إندونيسيا' },
+    { id: '00000000-0000-0000-0000-000000000002', code: 'PH', nameEn: 'Philippines', nameAr: 'الفلبين' },
+    { id: '00000000-0000-0000-0000-000000000003', code: 'LK', nameEn: 'Sri Lanka', nameAr: 'سريلانكا' },
+    { id: '00000000-0000-0000-0000-000000000004', code: 'IN', nameEn: 'India', nameAr: 'الهند' },
+    { id: '00000000-0000-0000-0000-000000000005', code: 'ET', nameEn: 'Ethiopia', nameAr: 'إثيوبيا' },
+    { id: '00000000-0000-0000-0000-000000000006', code: 'MM', nameEn: 'Myanmar', nameAr: 'ميانمار' },
+    { id: '00000000-0000-0000-0000-000000000007', code: 'NP', nameEn: 'Nepal', nameAr: 'نيبال' },
+    { id: '00000000-0000-0000-0000-000000000008', code: 'UG', nameEn: 'Uganda', nameAr: 'أوغندا' },
+    { id: '00000000-0000-0000-0000-000000000009', code: 'KE', nameEn: 'Kenya', nameAr: 'كينيا' },
+    { id: '00000000-0000-0000-0000-000000000010', code: 'TZ', nameEn: 'Tanzania', nameAr: 'تنزانيا' },
+    { id: '00000000-0000-0000-0000-000000000011', code: 'GH', nameEn: 'Ghana', nameAr: 'غانا' },
+    { id: '00000000-0000-0000-0000-000000000012', code: 'SL', nameEn: 'Sierra Leone', nameAr: 'سيراليون' },
   ];
   const nationalities = await db.insert(schema.nationalities).values(nationalitiesData).returning();
   console.log(`   ✓ ${nationalities.length} nationalities`);
@@ -67,10 +73,14 @@ async function seed() {
     { code: 'tl', nameEn: 'Filipino', nameAr: 'الفلبينية' },
     { code: 'id', nameEn: 'Indonesian', nameAr: 'الإندونيسية' },
     { code: 'hi', nameEn: 'Hindi', nameAr: 'الهندية' },
-    { code: 'ur', nameEn: 'Urdu', nameAr: 'الأردية' },
-    { code: 'sw', nameEn: 'Swahili', nameAr: 'السواحلية' },
+    { code: 'si', nameEn: 'Sinhala', nameAr: 'السنهالية' },
+    { code: 'ta', nameEn: 'Tamil', nameAr: 'التاميلية' },
+    { code: 'am', nameEn: 'Amharic', nameAr: 'الأمهرية' },
+    { code: 'my', nameEn: 'Burmese', nameAr: 'البورمية' },
     { code: 'ne', nameEn: 'Nepali', nameAr: 'النيبالية' },
-    { code: 'bn', nameEn: 'Bengali', nameAr: 'البنغالية' },
+    { code: 'sw', nameEn: 'Swahili', nameAr: 'السواحلية' },
+    { code: 'ak', nameEn: 'Akan', nameAr: 'الأكانية' },
+    { code: 'kr', nameEn: 'Krio', nameAr: 'الكريولية' },
   ];
   const languages = await db.insert(schema.languages).values(languagesData).returning();
   console.log(`   ✓ ${languages.length} languages`);
@@ -89,6 +99,7 @@ async function seed() {
       email: 'info@tadbeer.ae',
       address: 'Al Barsha, Dubai, UAE',
       addressAr: 'البرشاء، دبي، الإمارات',
+      emirate: 'dubai',
       isVerified: true,
     },
     {
@@ -98,6 +109,7 @@ async function seed() {
       email: 'contact@mubarak.ae',
       address: 'Deira, Dubai, UAE',
       addressAr: 'ديرة، دبي، الإمارات',
+      emirate: 'dubai',
       isVerified: true,
     },
     {
@@ -107,6 +119,7 @@ async function seed() {
       email: 'hr@emiratesmanpower.ae',
       address: 'Abu Dhabi, UAE',
       addressAr: 'أبوظبي، الإمارات',
+      emirate: 'abu_dhabi',
       isVerified: true,
     },
     {
@@ -116,6 +129,7 @@ async function seed() {
       email: 'info@gulfworkers.ae',
       address: 'Sharjah, UAE',
       addressAr: 'الشارقة، الإمارات',
+      emirate: 'sharjah',
       isVerified: false,
     },
   ];
@@ -150,7 +164,7 @@ async function seed() {
 
   // Super Admin with email/password
   await db.insert(schema.users).values({
-    email: 'admin@hotmail.com',
+    email: 'admin@tadbeer.com',
     password: hashedPassword,
     name: 'Super Admin',
     nameAr: 'المشرف العام',
@@ -168,9 +182,9 @@ async function seed() {
     isDemo: true,
   });
 
-  // Office Admin with email/password
+  // Office Admin with email/password (already registered office - skip onboarding)
   await db.insert(schema.users).values({
-    email: 'office@hotmail.com',
+    email: 'office@tadbeer.com',
     password: hashedPassword,
     name: 'Demo Office Admin',
     nameAr: 'مدير مكتب تجريبي',
@@ -178,7 +192,17 @@ async function seed() {
     officeId: offices[0].id,
     isDemo: true,
   });
-  console.log(`   ✓ 3 email/password demo users`);
+
+  // Company user for office registration testing (no office yet)
+  await db.insert(schema.users).values({
+    email: 'company@tadbeer.com',
+    password: hashedPassword,
+    name: 'Company Admin',
+    nameAr: 'مدير الشركة',
+    role: 'customer', // Customer role - will become office_admin after registration
+    isDemo: true,
+  });
+  console.log(`   ✓ 4 email/password demo users`);
 
   // Female photo URLs from Unsplash
   const femalePhotos = [
@@ -228,19 +252,29 @@ async function seed() {
   console.log('👩 Seeding 40 domestic workers...');
 
   const serviceTypes = ['cleaning', 'cooking', 'babysitter', 'elderly'] as const;
-  const natCodes = ['PH', 'ID', 'ET', 'IN', 'LK', 'NP', 'BD', 'KE', 'UG'];
+  const hiringTypes = ['customer_visa', 'monthly_yearly', 'hourly_daily'] as const;
+  const natCodes = ['ID', 'PH', 'LK', 'IN', 'ET', 'MM', 'NP', 'UG', 'KE', 'TZ', 'GH', 'SL'];
   const maritalStatuses = ['single', 'married', 'divorced', 'widowed'] as const;
   const religions = ['muslim', 'non_muslim'] as const;
 
+  // Age brackets: 20-30, 31-40, 40+ (birth years for 2026)
+  const ageBrackets = [
+    { minYear: 1996, maxYear: 2006 }, // 20-30
+    { minYear: 1986, maxYear: 1995 }, // 31-40
+    { minYear: 1966, maxYear: 1985 }, // 40+
+  ];
+
+  // Experience levels to cover all filter options: 0, 1, 2, 3, 5+
+  const experienceLevels = [0, 1, 2, 3, 5, 6, 7, 8, 10, 12];
+
+  // Salary ranges to cover full 0-10000 AED spectrum
+  const salaryRanges = [
+    1200, 1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500, 4000,
+    4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000,
+  ];
+
   // Names grouped by nationality
   const namesByNationality: Record<string, { en: string; ar: string }[]> = {
-    PH: [
-      { en: 'Maria Santos', ar: 'ماريا سانتوس' },
-      { en: 'Ana Reyes', ar: 'آنا رييس' },
-      { en: 'Rosa Mendoza', ar: 'روزا ميندوزا' },
-      { en: 'Carmen Cruz', ar: 'كارمن كروز' },
-      { en: 'Luz Garcia', ar: 'لوز غارسيا' },
-    ],
     ID: [
       { en: 'Siti Rahayu', ar: 'سيتي راهايو' },
       { en: 'Dewi Kusuma', ar: 'ديوي كوسوما' },
@@ -248,12 +282,19 @@ async function seed() {
       { en: 'Yuni Astuti', ar: 'يوني أستوتي' },
       { en: 'Mega Sari', ar: 'ميغا ساري' },
     ],
-    ET: [
-      { en: 'Tigist Bekele', ar: 'تيجيست بيكيلي' },
-      { en: 'Amina Hassan', ar: 'أمينة حسن' },
-      { en: 'Hana Desta', ar: 'هنا ديستا' },
-      { en: 'Sara Tesfaye', ar: 'سارة تسفاي' },
-      { en: 'Meron Abebe', ar: 'ميرون أبيبي' },
+    PH: [
+      { en: 'Maria Santos', ar: 'ماريا سانتوس' },
+      { en: 'Ana Reyes', ar: 'آنا رييس' },
+      { en: 'Rosa Mendoza', ar: 'روزا ميندوزا' },
+      { en: 'Carmen Cruz', ar: 'كارمن كروز' },
+      { en: 'Luz Garcia', ar: 'لوز غارسيا' },
+    ],
+    LK: [
+      { en: 'Lakshmi Perera', ar: 'لاكشمي بيريرا' },
+      { en: 'Chamari Silva', ar: 'شاماري سيلفا' },
+      { en: 'Nimali Fernando', ar: 'نيمالي فرناندو' },
+      { en: 'Kumari Jayawardena', ar: 'كوماري جايوردينا' },
+      { en: 'Dilani Rajapaksa', ar: 'ديلاني راجاباكسا' },
     ],
     IN: [
       { en: 'Priya Sharma', ar: 'بريا شارما' },
@@ -262,35 +303,61 @@ async function seed() {
       { en: 'Lakshmi Patel', ar: 'لاكشمي باتيل' },
       { en: 'Meena Gupta', ar: 'مينا غوبتا' },
     ],
-    LK: [
-      { en: 'Lakshmi Perera', ar: 'لاكشمي بيريرا' },
-      { en: 'Chamari Silva', ar: 'شاماري سيلفا' },
-      { en: 'Nimali Fernando', ar: 'نيمالي فرناندو' },
-      { en: 'Kumari Jayawardena', ar: 'كوماري جايوردينا' },
+    ET: [
+      { en: 'Tigist Bekele', ar: 'تيجيست بيكيلي' },
+      { en: 'Amina Hassan', ar: 'أمينة حسن' },
+      { en: 'Hana Desta', ar: 'هنا ديستا' },
+      { en: 'Sara Tesfaye', ar: 'سارة تسفاي' },
+      { en: 'Meron Abebe', ar: 'ميرون أبيبي' },
+    ],
+    MM: [
+      { en: 'Aye Myat', ar: 'آي ميات' },
+      { en: 'Thandar Win', ar: 'ثاندار وين' },
+      { en: 'Khin Lay', ar: 'خين لاي' },
+      { en: 'Su Su', ar: 'سو سو' },
+      { en: 'Mya Mya', ar: 'ميا ميا' },
     ],
     NP: [
       { en: 'Sunita Gurung', ar: 'سونيتا جورونج' },
       { en: 'Asha Tamang', ar: 'آشا تامانج' },
       { en: 'Maya Thapa', ar: 'مايا تابا' },
       { en: 'Sita Rai', ar: 'سيتا راي' },
-    ],
-    BD: [
-      { en: 'Fatima Rahman', ar: 'فاطمة رحمن' },
-      { en: 'Roksana Begum', ar: 'روكسانا بيجوم' },
-      { en: 'Nasreen Akter', ar: 'نسرين أختر' },
-      { en: 'Salma Khatun', ar: 'سلمى خاتون' },
-    ],
-    KE: [
-      { en: 'Grace Wanjiku', ar: 'غريس وانجيكو' },
-      { en: 'Joyce Adhiambo', ar: 'جويس أديامبو' },
-      { en: 'Mary Njeri', ar: 'ماري نجيري' },
-      { en: 'Faith Muthoni', ar: 'فيث موثوني' },
+      { en: 'Gita Sherpa', ar: 'جيتا شيربا' },
     ],
     UG: [
       { en: 'Sarah Nakato', ar: 'سارة ناكاتو' },
       { en: 'Peace Nambi', ar: 'بيس نامبي' },
       { en: 'Hope Achieng', ar: 'هوب أشينغ' },
       { en: 'Ruth Nalwanga', ar: 'روث نالوانغا' },
+      { en: 'Grace Nambooze', ar: 'غريس نامبوزي' },
+    ],
+    KE: [
+      { en: 'Grace Wanjiku', ar: 'غريس وانجيكو' },
+      { en: 'Joyce Adhiambo', ar: 'جويس أديامبو' },
+      { en: 'Mary Njeri', ar: 'ماري نجيري' },
+      { en: 'Faith Muthoni', ar: 'فيث موثوني' },
+      { en: 'Esther Wambui', ar: 'إستر وامبوي' },
+    ],
+    TZ: [
+      { en: 'Fatuma Ally', ar: 'فاطمة علي' },
+      { en: 'Zaina Mohamed', ar: 'زينة محمد' },
+      { en: 'Rehema Bakari', ar: 'رحيمة بكاري' },
+      { en: 'Amina Juma', ar: 'أمينة جمعة' },
+      { en: 'Halima Hassan', ar: 'حليمة حسن' },
+    ],
+    GH: [
+      { en: 'Abena Mensah', ar: 'أبينا منسا' },
+      { en: 'Akosua Owusu', ar: 'أكوسوا أووسو' },
+      { en: 'Ama Boateng', ar: 'أما بواتينغ' },
+      { en: 'Efua Asante', ar: 'إيفوا أسانتي' },
+      { en: 'Adwoa Osei', ar: 'أدوا أوسي' },
+    ],
+    SL: [
+      { en: 'Fatmata Kamara', ar: 'فاطمة كمارا' },
+      { en: 'Mariama Sesay', ar: 'مريمة سيساي' },
+      { en: 'Isata Koroma', ar: 'إيساتا كوروما' },
+      { en: 'Aminata Bangura', ar: 'أمينة بانغورا' },
+      { en: 'Hawa Conteh', ar: 'هوا كونتيه' },
     ],
   };
 
@@ -326,9 +393,10 @@ async function seed() {
   let photoIndex = 0;
   let nameIndexes: Record<string, number> = {};
 
-  // Generate 40 maids - 10 per category
-  for (let i = 0; i < 40; i++) {
-    const serviceType = serviceTypes[i % 4]; // Distribute evenly: 10 per category
+  // Generate 48 maids - 12 per service category, covering all filter combinations
+  const totalMaids = 48;
+  for (let i = 0; i < totalMaids; i++) {
+    const serviceType = serviceTypes[i % 4]; // Distribute evenly: 12 per category
     const natCode = natCodes[i % natCodes.length];
     const officeIndex = i % offices.length;
 
@@ -342,19 +410,32 @@ async function seed() {
     const bios = biosByServiceType[serviceType];
     const bioData = bios[i % bios.length];
 
-    // Random attributes
-    const birthYear = 1985 + (i % 15); // Ages 25-40
+    // Age distribution: cycle through age brackets
+    const ageBracket = ageBrackets[i % 3];
+    const yearRange = ageBracket.maxYear - ageBracket.minYear;
+    const birthYear = ageBracket.minYear + (i % (yearRange + 1));
     const birthMonth = (i % 12) + 1;
     const birthDay = (i % 28) + 1;
-    const experience = 2 + (i % 10); // 2-11 years
-    const baseSalary = 2000 + (experience * 100) + ((i % 5) * 50);
+
+    // Experience: cover all filter levels (0, 1, 2, 3, 5+)
+    const experience = experienceLevels[i % experienceLevels.length];
+
+    // Salary: wide range from 1200 to 9000 AED
+    const salary = salaryRanges[i % salaryRanges.length];
+
+    // Marital status: alternate between married and not_married variants
     const maritalStatus = maritalStatuses[i % maritalStatuses.length];
+
+    // Religion: alternate
     const religion = religions[i % religions.length];
 
     // Status: mostly available, some busy/reserved
     let status: 'available' | 'busy' | 'reserved' = 'available';
-    if (i === 5 || i === 15) status = 'busy';
-    if (i === 8 || i === 28) status = 'reserved';
+    if (i === 5 || i === 17 || i === 29) status = 'busy';
+    if (i === 11 || i === 23 || i === 35) status = 'reserved';
+
+    // Distribute hiring types evenly across maids
+    const hiringType = hiringTypes[i % 3];
 
     maidsData.push({
       officeId: offices[officeIndex].id,
@@ -365,9 +446,10 @@ async function seed() {
       maritalStatus,
       religion,
       experienceYears: experience,
-      salary: `${baseSalary}.00`,
+      salary: `${salary}.00`,
       status,
       serviceType,
+      hiringType,
       photoUrl: femalePhotos[photoIndex % femalePhotos.length],
       bio: bioData.en,
       bioAr: bioData.ar,
@@ -377,7 +459,7 @@ async function seed() {
   }
 
   const maids = await db.insert(schema.maids).values(maidsData).returning();
-  console.log(`   ✓ ${maids.length} maids (10 cleaning, 10 cooking, 10 babysitter, 10 elderly)`);
+  console.log(`   ✓ ${maids.length} maids (12 per category: cleaning, cooking, babysitter, elderly)`);
 
   // Seed Maid Languages
   console.log('🗣️  Seeding maid languages...');
@@ -392,20 +474,25 @@ async function seed() {
 
     // Add native language based on nationality
     const nativeLanguages: Record<string, string> = {
-      PH: 'tl',
       ID: 'id',
+      PH: 'tl',
+      LK: 'si',
       IN: 'hi',
+      ET: 'am',
+      MM: 'my',
       NP: 'ne',
-      BD: 'bn',
-      KE: 'sw',
       UG: 'sw',
+      KE: 'sw',
+      TZ: 'sw',
+      GH: 'ak',
+      SL: 'kr',
     };
 
-    if (nativeLanguages[natCode]) {
+    if (nativeLanguages[natCode] && langMap[nativeLanguages[natCode]]) {
       maidLanguagesData.push({ maidId: maid.id, languageId: langMap[nativeLanguages[natCode]] });
     }
 
-    // Some speak Arabic
+    // Some speak Arabic (common in Gulf domestic worker market)
     if (i % 3 === 0) {
       maidLanguagesData.push({ maidId: maid.id, languageId: langMap['ar'] });
     }
@@ -453,30 +540,207 @@ async function seed() {
   });
   console.log(`   ✓ 1 quotation`);
 
+  // Seed Businesses (Typing Offices & Visa Transfer Services)
+  console.log('🏪 Seeding businesses (typing offices & visa transfer)...');
+  const businessesData = [
+    // Typing Offices - Dubai
+    {
+      type: 'typing_office' as const,
+      name: 'Al Futtaim Typing Center',
+      nameAr: 'مركز الفطيم للطباعة',
+      phone: '+971501112233',
+      whatsapp: '+971501112233',
+      email: 'info@alfuttaimtyping.ae',
+      address: 'Al Karama, Dubai',
+      addressAr: 'الكرامة، دبي',
+      emirate: 'dubai',
+      description: 'Complete government services including visa processing, Emirates ID, and all typing services.',
+      descriptionAr: 'خدمات حكومية شاملة تشمل معالجة التأشيرات والهوية الإماراتية وجميع خدمات الطباعة.',
+      services: JSON.stringify(['Visa Processing', 'Emirates ID', 'Labor Card', 'Medical Typing', 'PRO Services']),
+      servicesAr: JSON.stringify(['معالجة التأشيرات', 'الهوية الإماراتية', 'بطاقة العمل', 'الطباعة الطبية', 'خدمات PRO']),
+      priceRange: '50-500 AED',
+      workingHours: 'Sun-Thu: 8AM-8PM, Fri-Sat: 9AM-5PM',
+      isVerified: true,
+      isActive: true,
+    },
+    {
+      type: 'typing_office' as const,
+      name: 'Emirates Document Services',
+      nameAr: 'خدمات الوثائق الإماراتية',
+      phone: '+971502223344',
+      whatsapp: '+971502223344',
+      email: 'contact@emiratesdocs.ae',
+      address: 'Deira, Dubai',
+      addressAr: 'ديرة، دبي',
+      emirate: 'dubai',
+      description: 'Fast and reliable typing services for all government documents and business setup.',
+      descriptionAr: 'خدمات طباعة سريعة وموثوقة لجميع المستندات الحكومية وتأسيس الأعمال.',
+      services: JSON.stringify(['Business Setup', 'Trade License', 'Visa Services', 'Attestation']),
+      servicesAr: JSON.stringify(['تأسيس الأعمال', 'الرخصة التجارية', 'خدمات التأشيرات', 'التصديق']),
+      priceRange: '100-1000 AED',
+      workingHours: 'Sun-Sat: 9AM-9PM',
+      isVerified: true,
+      isActive: true,
+    },
+    // Typing Offices - Abu Dhabi
+    {
+      type: 'typing_office' as const,
+      name: 'Capital Typing Center',
+      nameAr: 'مركز العاصمة للطباعة',
+      phone: '+971503334455',
+      whatsapp: '+971503334455',
+      email: 'info@capitaltyping.ae',
+      address: 'Khalifa City, Abu Dhabi',
+      addressAr: 'مدينة خليفة، أبوظبي',
+      emirate: 'abu_dhabi',
+      description: 'Premier typing center serving Abu Dhabi with comprehensive government services.',
+      descriptionAr: 'مركز طباعة رائد يخدم أبوظبي بخدمات حكومية شاملة.',
+      services: JSON.stringify(['Visa Processing', 'Emirates ID', 'Tawtheeq', 'ADDC Services']),
+      servicesAr: JSON.stringify(['معالجة التأشيرات', 'الهوية الإماراتية', 'توثيق', 'خدمات ADDC']),
+      priceRange: '50-400 AED',
+      workingHours: 'Sun-Thu: 8AM-6PM',
+      isVerified: true,
+      isActive: true,
+    },
+    // Typing Offices - Sharjah
+    {
+      type: 'typing_office' as const,
+      name: 'Sharjah Express Typing',
+      nameAr: 'الشارقة إكسبريس للطباعة',
+      phone: '+971504445566',
+      whatsapp: '+971504445566',
+      email: 'sharjahexpress@typing.ae',
+      address: 'Al Majaz, Sharjah',
+      addressAr: 'المجاز، الشارقة',
+      emirate: 'sharjah',
+      description: 'Quick and affordable typing services for Sharjah residents.',
+      descriptionAr: 'خدمات طباعة سريعة وبأسعار معقولة لسكان الشارقة.',
+      services: JSON.stringify(['All Typing Services', 'Translation', 'Notary Public']),
+      servicesAr: JSON.stringify(['جميع خدمات الطباعة', 'الترجمة', 'كاتب العدل']),
+      priceRange: '30-300 AED',
+      workingHours: 'Sun-Thu: 8AM-9PM, Fri: 4PM-9PM',
+      isVerified: false,
+      isActive: true,
+    },
+    // Visa Transfer Services - Dubai
+    {
+      type: 'visa_transfer' as const,
+      name: 'Golden Visa Transfer',
+      nameAr: 'جولدن لنقل الكفالة',
+      phone: '+971505556677',
+      whatsapp: '+971505556677',
+      email: 'info@goldenvisatransfer.ae',
+      address: 'Business Bay, Dubai',
+      addressAr: 'الخليج التجاري، دبي',
+      emirate: 'dubai',
+      description: 'Specialized in domestic worker visa transfers. Fast processing with MOHRE expertise.',
+      descriptionAr: 'متخصصون في نقل تأشيرات العمالة المنزلية. معالجة سريعة مع خبرة في وزارة الموارد البشرية.',
+      services: JSON.stringify(['Visa Transfer', 'MOHRE Services', 'Contract Renewal', 'Cancellation']),
+      servicesAr: JSON.stringify(['نقل التأشيرة', 'خدمات الوزارة', 'تجديد العقد', 'الإلغاء']),
+      priceRange: '500-2000 AED',
+      workingHours: 'Sun-Thu: 9AM-6PM',
+      isVerified: true,
+      isActive: true,
+    },
+    {
+      type: 'visa_transfer' as const,
+      name: 'Swift Sponsorship Services',
+      nameAr: 'سويفت لخدمات الكفالة',
+      phone: '+971506667788',
+      whatsapp: '+971506667788',
+      email: 'swift@sponsorship.ae',
+      address: 'Jumeirah, Dubai',
+      addressAr: 'جميرا، دبي',
+      emirate: 'dubai',
+      description: 'Complete sponsorship transfer solutions for domestic workers and employees.',
+      descriptionAr: 'حلول نقل الكفالة الشاملة للعمالة المنزلية والموظفين.',
+      services: JSON.stringify(['Sponsorship Transfer', 'Work Permit', 'Medical Check', 'Insurance']),
+      servicesAr: JSON.stringify(['نقل الكفالة', 'تصريح العمل', 'الفحص الطبي', 'التأمين']),
+      priceRange: '800-3000 AED',
+      workingHours: 'Sun-Sat: 8AM-8PM',
+      isVerified: true,
+      isActive: true,
+    },
+    // Visa Transfer Services - Abu Dhabi
+    {
+      type: 'visa_transfer' as const,
+      name: 'Abu Dhabi Visa Solutions',
+      nameAr: 'حلول تأشيرات أبوظبي',
+      phone: '+971507778899',
+      whatsapp: '+971507778899',
+      email: 'abudhabivisa@solutions.ae',
+      address: 'Musaffah, Abu Dhabi',
+      addressAr: 'مصفح، أبوظبي',
+      emirate: 'abu_dhabi',
+      description: 'Abu Dhabi based visa transfer specialists with government partnerships.',
+      descriptionAr: 'متخصصون في نقل التأشيرات في أبوظبي مع شراكات حكومية.',
+      services: JSON.stringify(['Visa Transfer', 'New Visa', 'Exit Permit', 'Status Change']),
+      servicesAr: JSON.stringify(['نقل التأشيرة', 'تأشيرة جديدة', 'تصريح الخروج', 'تغيير الوضع']),
+      priceRange: '600-2500 AED',
+      workingHours: 'Sun-Thu: 8AM-5PM',
+      isVerified: true,
+      isActive: true,
+    },
+    // Visa Transfer Services - Sharjah
+    {
+      type: 'visa_transfer' as const,
+      name: 'Sharjah Kafala Center',
+      nameAr: 'مركز الشارقة للكفالة',
+      phone: '+971508889900',
+      whatsapp: '+971508889900',
+      email: 'sharjahkafala@center.ae',
+      address: 'Al Nahda, Sharjah',
+      addressAr: 'النهضة، الشارقة',
+      emirate: 'sharjah',
+      description: 'Trusted visa transfer center serving Sharjah and Northern Emirates.',
+      descriptionAr: 'مركز موثوق لنقل التأشيرات يخدم الشارقة والإمارات الشمالية.',
+      services: JSON.stringify(['Visa Transfer', 'Domestic Worker Services', 'Document Clearing']),
+      servicesAr: JSON.stringify(['نقل التأشيرة', 'خدمات العمالة المنزلية', 'تخليص المستندات']),
+      priceRange: '400-1500 AED',
+      workingHours: 'Sun-Thu: 9AM-7PM',
+      isVerified: false,
+      isActive: true,
+    },
+  ];
+
+  const businessesResult = await db.insert(schema.businesses).values(businessesData).returning();
+  console.log(`   ✓ ${businessesResult.length} businesses (4 typing offices + 4 visa transfer services)`);
+
   console.log('\n✅ Seed completed successfully!');
   console.log('\n📊 Summary:');
   console.log(`   - ${nationalities.length} nationalities`);
   console.log(`   - ${languages.length} languages`);
   console.log(`   - ${offices.length} offices`);
+  console.log(`   - ${businessesResult.length} businesses (typing offices & visa transfer)`);
   console.log(`   - 1 super admin`);
   console.log(`   - ${officeAdmins.length} office admins`);
-  console.log(`   - ${maids.length} maids (10 per category)`);
+  console.log(`   - ${maids.length} maids (12 per category)`);
   console.log(`   - 1 customer`);
   console.log(`   - 3 email/password demo users`);
 
   console.log('\n📂 Service Types Distribution:');
-  console.log('   - 🧹 Cleaning: 10 maids');
-  console.log('   - 🍳 Cooking: 10 maids');
-  console.log('   - 👶 Babysitter: 10 maids');
-  console.log('   - 👴 Elderly: 10 maids');
+  console.log('   - 🧹 Cleaning: 12 maids');
+  console.log('   - 🍳 Cooking: 12 maids');
+  console.log('   - 👶 Babysitter: 12 maids');
+  console.log('   - 👴 Elderly: 12 maids');
+
+  console.log('\n🎯 Filter Coverage:');
+  console.log('   - 12 nationalities (ID, PH, LK, IN, ET, MM, NP, UG, KE, TZ, GH, SL)');
+  console.log('   - 3 age brackets (20-30, 31-40, 40+)');
+  console.log('   - 4 marital statuses (single, married, divorced, widowed)');
+  console.log('   - 2 religions (muslim, non_muslim)');
+  console.log('   - 10 experience levels (0-12 years)');
+  console.log('   - 20 salary points (1,200 - 9,000 AED)');
+  console.log('   - 3 hiring types (customer_visa, monthly_yearly, hourly_daily)');
 
   console.log('\n🔐 Email/Password Demo Login (Password: 1234):');
   console.log('   ┌─────────────────┬───────────────────────────┬──────────────────────────┐');
   console.log('   │ Role            │ Email                     │ Office                   │');
   console.log('   ├─────────────────┼───────────────────────────┼──────────────────────────┤');
-  console.log('   │ Super Admin     │ admin@hotmail.com         │ -                        │');
+  console.log('   │ Super Admin     │ admin@tadbeer.com         │ -                        │');
   console.log('   │ Customer        │ customer@hotmail.com      │ -                        │');
-  console.log('   │ Office Admin    │ office@hotmail.com        │ Al Tadbeer Services      │');
+  console.log('   │ Office Admin    │ office@tadbeer.com        │ Al Tadbeer Services      │');
+  console.log('   │ New Company     │ company@tadbeer.com       │ (for office registration)│');
   console.log('   └─────────────────┴───────────────────────────┴──────────────────────────┘');
 
   console.log('\n🔐 Phone/OTP Demo Login (OTP: 1234):');

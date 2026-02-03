@@ -69,6 +69,44 @@ export async function openPhoneDialer(phone: string): Promise<void> {
  * @param workerName Worker name (optional)
  * @param isArabic Whether to use Arabic message
  */
+/**
+ * Opens Google Maps or Apple Maps with the given URL or coordinates
+ * @param url Google Maps URL or coordinates
+ */
+export async function openMaps(url: string): Promise<void> {
+  try {
+    // If it's already a full URL, open it directly
+    if (url.startsWith('http')) {
+      await Linking.openURL(url);
+      return;
+    }
+
+    // Otherwise, assume it's an address or coordinates and open in Google Maps
+    const encodedAddress = encodeURIComponent(url);
+    const googleMapsUrl = Platform.select({
+      ios: `maps://app?daddr=${encodedAddress}`,
+      android: `geo:0,0?q=${encodedAddress}`,
+      default: `https://maps.google.com/maps?q=${encodedAddress}`,
+    });
+
+    const canOpen = await Linking.canOpenURL(googleMapsUrl);
+    if (canOpen) {
+      await Linking.openURL(googleMapsUrl);
+    } else {
+      // Fallback to web
+      await Linking.openURL(`https://maps.google.com/maps?q=${encodedAddress}`);
+    }
+  } catch {
+    Alert.alert('Error', 'Unable to open maps');
+  }
+}
+
+/**
+ * Generates a CV inquiry message for WhatsApp
+ * @param cvReference CV reference number
+ * @param workerName Worker name (optional)
+ * @param isArabic Whether to use Arabic message
+ */
 export function generateCVInquiryMessage(
   cvReference?: string,
   workerName?: string,

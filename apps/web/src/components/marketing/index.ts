@@ -1,0 +1,16 @@
+export { Navbar } from './navbar';
+export { Footer } from './footer';
+export { LanguageSwitcher, LanguageSwitcherSelect } from './language-switcher';
+export { HeroSection } from './hero-section';
+export { FeaturesSection } from './features-section';
+export { HowItWorksSection } from './how-it-works-section';
+export { StatsSection } from './stats-section';
+export { DownloadSection } from './download-section';
+export { ValuePropsSection } from './value-props-section';
+export { BigSearch } from './big-search';
+export { InspirationSection } from './inspiration-section';
+export { ServiceIcons } from './service-icons';
+export { PopularMaids } from './popular-maids';
+export { RecentMaids } from './recent-maids';
+export { HostingCta } from './hosting-cta';
+export { TestimonialsSection } from './testimonials-section';

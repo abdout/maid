@@ -347,7 +347,8 @@
     "customer": "Customer",
     "filterByStatus": "Filter by Status",
     "allStatuses": "All Statuses",
-    "searchMaids": "Search maids..."
+    "searchMaids": "Search maids...",
+    "pendingVerification": "Your office is pending verification. Your maids will be visible to customers once approved."
   },
   "quotation": {
     "title": "Request Quote",
@@ -414,6 +415,7 @@
     "languagesDescription": "Select all languages the maid can speak",
     "selectedLanguages": "Selected",
     "profilePhoto": "Profile Photo",
+    "profilePhotoDescription": "A clear face photo is required for publishing",
     "additionalPhotos": "Additional Photos",
     "additionalPhotosDescription": "Add up to 5 more photos (optional)",
     "passportCopy": "Passport Copy",
@@ -454,6 +456,12 @@
     "updated": "Updated successfully",
     "quotationSent": "Quotation sent successfully",
     "photoUploaded": "Photo uploaded successfully"
+  },
+  "upload": {
+    "failed": "Upload failed. Please try again.",
+    "invalidType": "Invalid file type. Use JPG, PNG, or WebP.",
+    "tooLarge": "File too large. Maximum 10MB.",
+    "networkError": "Network error. Check connection and retry."
   },
   "payment": {
     "contactLocked": "Contact details are locked",
@@ -706,5 +714,16 @@
     "scopes": "Service Types",
     "scopesDescription": "Select all services your office provides (you can choose multiple)",
     "scopesRequired": "Select at least one service type"
+  },
+  "locationPicker": {
+    "title": "Office Location",
+    "subtitle": "Help customers find your office easily",
+    "searchPlaceholder": "Search for your address...",
+    "detectingAddress": "Detecting address...",
+    "useCurrentLocation": "Use current location",
+    "helpText": "Search for your address or tap the map to place a pin. You can also drag the pin to adjust the location.",
+    "permissionDenied": "Location permission denied. You can still search for your address.",
+    "outsideUAE": "Please select a location within UAE",
+    "searchFailed": "Search failed. Please try again."
   }
 }

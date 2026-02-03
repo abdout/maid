@@ -10,16 +10,12 @@ import {
   Image,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { NATIONALITIES } from '@/constants';
+import { NATIONALITIES, EMIRATES } from '@/constants';
 import { XIcon, RotateCcwIcon } from './icons';
-import { RangeSlider } from './range-slider';
 import { LanguageToggle } from './language-toggle';
-import type { MaidFilters, AgeRangePreset, ServiceType } from '@maid/shared';
+import type { MaidFilters, AgeRangePreset, ServiceType, ContractPeriod, VisaType } from '@maid/shared';
 
 // Filter constants
-const SALARY_MIN = 0;
-const SALARY_MAX = 10000;
-const SALARY_STEP = 100;
 const MAX_NATIONALITIES = 3;
 
 // Age range presets per client requirement
@@ -47,6 +43,28 @@ const SERVICE_TYPES: ReadonlyArray<{
   { id: 'cooking', image: 'cooking', labelEn: 'Cooking', labelAr: 'طبخ' },
   { id: 'babysitter', image: 'babysitter', labelEn: 'Babysitter', labelAr: 'مربية' },
   { id: 'elderly', image: 'elderly', labelEn: 'Elderly', labelAr: 'مسنين' },
+];
+
+// Contract period options (split from Hiring Type)
+const CONTRACT_PERIODS: ReadonlyArray<{
+  id: ContractPeriod;
+  labelEn: string;
+  labelAr: string;
+}> = [
+  { id: 'yearly', labelEn: 'Yearly', labelAr: 'سنوي' },
+  { id: 'monthly', labelEn: 'Monthly', labelAr: 'شهري' },
+  { id: 'daily', labelEn: 'Daily', labelAr: 'يومي' },
+  { id: 'hourly', labelEn: 'Hourly', labelAr: 'بالساعة' },
+];
+
+// Visa type options (split from Hiring Type)
+const VISA_TYPES: ReadonlyArray<{
+  id: VisaType;
+  labelEn: string;
+  labelAr: string;
+}> = [
+  { id: 'customer_visa', labelEn: 'On My Own Visa', labelAr: 'على كفالتي' },
+  { id: 'office_visa', labelEn: 'On Office Visa', labelAr: 'على كفالة المكتب' },
 ];
 
 interface FilterModalProps {
@@ -113,9 +131,10 @@ export function FilterModal({
     } else {
       // Add if under limit
       if (currentIds.length >= MAX_NATIONALITIES) {
-        const message = isRTL
-          ? `يمكنك اختيار ${MAX_NATIONALITIES} جنسيات كحد أقصى`
-          : `You can select up to ${MAX_NATIONALITIES} nationalities`;
+        const message = t('filters.maxNationalitiesAlert', {
+          count: MAX_NATIONALITIES,
+          defaultValue: `You can select up to ${MAX_NATIONALITIES} nationalities`,
+        });
 
         if (Platform.OS === 'web') {
           window.alert(message);
@@ -129,14 +148,6 @@ export function FilterModal({
         nationalityIds: [...currentIds, nationalityId],
       }));
     }
-  };
-
-  // Select "All" nationalities (clear selection)
-  const selectAllNationalities = () => {
-    setFilters(prev => ({
-      ...prev,
-      nationalityIds: undefined,
-    }));
   };
 
   // Toggle age range preset
@@ -158,13 +169,108 @@ export function FilterModal({
   };
 
   const selectedNationalityIds = filters.nationalityIds || [];
-  const isAllSelected = selectedNationalityIds.length === 0;
 
   return (
     <Modal visible={visible} animationType="slide">
       <View className="flex-1 bg-background-0">
           <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
-            {/* Service Type - First section */}
+            {/* Location Section - First (at TOP) */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.location', 'Location')}
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={isRTL ? { paddingLeft: 16 } : { paddingRight: 16 }}
+              >
+                <View className={`flex-row gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  {/* Emirate Options */}
+                  {EMIRATES.map((emirate) => {
+                    const isSelected = filters.emirate === emirate.id;
+                    return (
+                      <Pressable
+                        key={emirate.id}
+                        onPress={() => setFilters(prev => ({ ...prev, emirate: emirate.id }))}
+                        className={`px-4 py-2 rounded-full border ${
+                          isSelected
+                            ? 'bg-primary-500 border-primary-500'
+                            : 'bg-background-0 border-background-200'
+                        }`}
+                      >
+                        <Text className={isSelected ? 'text-white font-medium' : 'text-typography-700'}>
+                          {isRTL ? emirate.nameAr : emirate.nameEn}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </View>
+
+            {/* Contract Period Section (was Hiring Type) */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.contractPeriod', 'Contract Period')}
+              </Text>
+              <View
+                className={`flex-row flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+              >
+                {CONTRACT_PERIODS.map((period) => {
+                  const isSelected = filters.contractPeriod === period.id;
+                  return (
+                    <Pressable
+                      key={period.id}
+                      onPress={() => updateFilter('contractPeriod', period.id)}
+                      className={`px-4 py-2 rounded-full border ${
+                        isSelected
+                          ? 'bg-primary-500 border-primary-500'
+                          : 'bg-background-0 border-background-200'
+                      }`}
+                    >
+                      <Text
+                        className={isSelected ? 'text-white font-medium' : 'text-typography-700'}
+                      >
+                        {isRTL ? period.labelAr : period.labelEn}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Visa Type Section - NEW */}
+            <View className="mb-6">
+              <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
+                {t('filters.visaType', 'Visa Type')}
+              </Text>
+              <View
+                className={`flex-row flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+              >
+                {VISA_TYPES.map((visa) => {
+                  const isSelected = filters.visaType === visa.id;
+                  return (
+                    <Pressable
+                      key={visa.id}
+                      onPress={() => updateFilter('visaType', visa.id)}
+                      className={`px-4 py-2 rounded-full border ${
+                        isSelected
+                          ? 'bg-primary-500 border-primary-500'
+                          : 'bg-background-0 border-background-200'
+                      }`}
+                    >
+                      <Text
+                        className={isSelected ? 'text-white font-medium' : 'text-typography-700'}
+                      >
+                        {isRTL ? visa.labelAr : visa.labelEn}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Service Type - Multi-select with icons */}
             <View className="mb-6">
               <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
                 {t('filters.serviceType')}
@@ -174,11 +280,30 @@ export function FilterModal({
                 style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}
               >
                 {SERVICE_TYPES.map((type) => {
-                  const isSelected = filters.serviceType === type.id;
+                  const selectedTypes = filters.serviceTypes || [];
+                  const isSelected = selectedTypes.includes(type.id);
                   return (
                     <Pressable
                       key={type.id}
-                      onPress={() => updateFilter('serviceType', type.id)}
+                      onPress={() => {
+                        const currentTypes = filters.serviceTypes || [];
+                        if (isSelected) {
+                          // Remove from selection
+                          const newTypes = currentTypes.filter(t => t !== type.id);
+                          setFilters(prev => ({
+                            ...prev,
+                            serviceTypes: newTypes.length > 0 ? newTypes : undefined,
+                            serviceType: undefined, // Clear legacy single selection
+                          }));
+                        } else {
+                          // Add to selection
+                          setFilters(prev => ({
+                            ...prev,
+                            serviceTypes: [...currentTypes, type.id],
+                            serviceType: undefined, // Clear legacy single selection
+                          }));
+                        }
+                      }}
                       className={`flex-1 items-center py-3 mx-1 rounded-xl ${
                         isSelected ? 'border-2 border-typography-900' : 'border border-transparent'
                       }`}
@@ -205,28 +330,14 @@ export function FilterModal({
                   {t('filters.nationality')}
                 </Text>
                 <Text className="text-typography-400 text-sm">
-                  {isRTL
-                    ? `${selectedNationalityIds.length}/${MAX_NATIONALITIES} مختارة`
-                    : `${selectedNationalityIds.length}/${MAX_NATIONALITIES} selected`}
+                  {t('filters.selectedCount', {
+                    selected: selectedNationalityIds.length,
+                    max: MAX_NATIONALITIES,
+                    defaultValue: `${selectedNationalityIds.length}/${MAX_NATIONALITIES} selected`,
+                  })}
                 </Text>
               </View>
               <View className={`flex-row flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                {/* All Option */}
-                <Pressable
-                  onPress={selectAllNationalities}
-                  className={`px-4 py-2 rounded-full border ${
-                    isAllSelected
-                      ? 'bg-primary-500 border-primary-500'
-                      : 'bg-background-0 border-background-200'
-                  }`}
-                >
-                  <Text
-                    className={isAllSelected ? 'text-white font-medium' : 'text-typography-700'}
-                  >
-                    {t('common.all')}
-                  </Text>
-                </Pressable>
-
                 {/* Nationality Options */}
                 {NATIONALITIES.map((nat) => {
                   const isSelected = selectedNationalityIds.includes(nat.id);
@@ -344,7 +455,7 @@ export function FilterModal({
             {/* Experience */}
             <View className="mb-6">
               <Text className={`text-typography-900 font-semibold mb-3 ${isRTL ? 'text-right' : ''}`}>
-                {t('filters.experience')} ({isRTL ? 'الحد الأدنى' : 'min years'})
+                {t('filters.experience')} ({t('filters.minYearsLabel', 'min years')})
               </Text>
               <View className={`flex-row gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 {[0, 1, 2, 3, 5].map((years) => (
@@ -369,21 +480,6 @@ export function FilterModal({
                   </Pressable>
                 ))}
               </View>
-            </View>
-
-            {/* Salary Range */}
-            <View className="mb-6">
-              <RangeSlider
-                label={`${t('filters.salary')} (AED)`}
-                min={SALARY_MIN}
-                max={SALARY_MAX}
-                step={SALARY_STEP}
-                minValue={filters.salaryMin ?? SALARY_MIN}
-                maxValue={filters.salaryMax ?? SALARY_MAX}
-                onMinChange={(v) => setFilters((prev) => ({ ...prev, salaryMin: v === SALARY_MIN ? undefined : v }))}
-                onMaxChange={(v) => setFilters((prev) => ({ ...prev, salaryMax: v === SALARY_MAX ? undefined : v }))}
-                formatValue={(v) => v.toLocaleString()}
-              />
             </View>
 
             <View className="h-32" />

@@ -1,8 +1,29 @@
 import { z } from 'zod';
 
+// Helper to coerce query params to array (handles string | string[] | undefined)
+const toArray = <T>(schema: z.ZodType<T>) =>
+  z.preprocess((val) => {
+    if (val === undefined || val === null || val === '') return undefined;
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') return [val];
+    return val;
+  }, schema);
+
+// Helper to coerce query string to boolean
+const toBoolean = z.preprocess((val) => {
+  if (val === undefined || val === null || val === '') return undefined;
+  if (typeof val === 'boolean') return val;
+  if (val === 'true' || val === '1') return true;
+  if (val === 'false' || val === '0') return false;
+  return val;
+}, z.boolean().optional());
+
 // Enums
 export const serviceTypeEnum = z.enum(['individual', 'business', 'cleaning', 'cooking', 'babysitter', 'elderly', 'driver']);
 export const packageTypeEnum = z.enum(['traditional', 'flexible', 'hourly']);
+export const hiringTypeEnum = z.enum(['customer_visa', 'monthly_yearly', 'hourly_daily']);
+export const contractPeriodEnum = z.enum(['yearly', 'monthly', 'daily', 'hourly']);
+export const visaTypeEnum = z.enum(['customer_visa', 'office_visa']);
 export const cookingSkillsEnum = z.enum(['good', 'average', 'willing_to_learn', 'none']);
 export const availabilityTypeEnum = z.enum(['inside_uae', 'outside_uae']);
 export const sexEnum = z.enum(['male', 'female']);
@@ -59,7 +80,7 @@ export const maidFiltersSchema = z.object({
   search: z.string().min(2).max(100).optional(),
   // Support both single nationalityId (legacy) and array (new)
   nationalityId: z.string().uuid().optional(),
-  nationalityIds: z.array(z.string().uuid()).max(3).optional(),
+  nationalityIds: toArray(z.array(z.string().uuid()).max(3)).optional(),
   // Age filters
   ageMin: z.coerce.number().int().min(18).max(65).optional(),
   ageMax: z.coerce.number().int().min(18).max(65).optional(),
@@ -72,12 +93,18 @@ export const maidFiltersSchema = z.object({
   salaryMax: z.coerce.number().positive().optional(),
   status: z.enum(['available', 'busy', 'reserved', 'inactive']).optional(),
   serviceType: serviceTypeEnum.optional(),
+  serviceTypes: toArray(z.array(serviceTypeEnum).max(4)).optional(), // Multi-select service types
+  hiringType: hiringTypeEnum.optional(), // Legacy - kept for backward compatibility
+  contractPeriod: contractPeriodEnum.optional(), // NEW: period filter
+  visaType: visaTypeEnum.optional(), // NEW: visa filter
   jobType: jobTypeEnum.optional(),
   packageType: packageTypeEnum.optional(),
   availability: availabilityTypeEnum.optional(),
   cookingSkills: cookingSkillsEnum.optional(),
-  babySitter: z.boolean().optional(),
+  babySitter: toBoolean,
   sex: sexEnum.optional(),
+  // Location filter
+  emirate: z.string().max(50).optional(), // Filter by office's emirate
   // Pagination
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().min(1).max(50).default(20),

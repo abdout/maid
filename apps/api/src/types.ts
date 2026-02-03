@@ -59,7 +59,9 @@ export type AuthEventType =
   | 'otp_verify_failure'
   | 'account_locked'
   | 'password_reset_request'
-  | 'password_reset_success';
+  | 'password_reset_success'
+  | 'register_success'
+  | 'register_failure';
 
 // Security configuration constants
 export const AUTH_CONFIG = {

@@ -13,6 +13,8 @@ export interface OfficeFormData {
   addressAr: string;
   emirate: string;
   googleMapsUrl: string;
+  latitude: number | null;
+  longitude: number | null;
   licenseNumber: string;
   licenseExpiry: string;
   website: string;
@@ -37,6 +39,8 @@ export const INITIAL_FORM_DATA: OfficeFormData = {
   addressAr: '',
   emirate: '',
   googleMapsUrl: '',
+  latitude: null,
+  longitude: null,
   licenseNumber: '',
   licenseExpiry: '',
   website: '',
@@ -48,12 +52,17 @@ export const INITIAL_FORM_DATA: OfficeFormData = {
   logoUrl: '',
 };
 
-export const TOTAL_STEPS = 3;
+export const TOTAL_STEPS = 5;
 
 export const STEP_TITLES = {
-  1: { en: 'Basic Info', ar: 'المعلومات الأساسية' },
-  2: { en: 'Details', ar: 'التفاصيل' },
-  3: { en: 'Review', ar: 'المراجعة' },
+  // Phase 1: Basic Info (Steps 1-2)
+  1: { en: 'Office Info', ar: 'معلومات المكتب' },
+  2: { en: 'Services', ar: 'الخدمات' },
+  // Phase 2: Location (Steps 3-4)
+  3: { en: 'Location', ar: 'الموقع' },
+  4: { en: 'License & Contact', ar: 'الترخيص والتواصل' },
+  // Phase 3: Review (Step 5)
+  5: { en: 'Review', ar: 'المراجعة' },
 };
 
 // UAE Emirates options
@@ -74,11 +83,18 @@ export const OFFICE_SCOPE_OPTIONS = [
   { id: 'typing' as const, labelEn: 'Typing Office', labelAr: 'طباعة', descEn: 'Document processing & visa paperwork', descAr: 'معاملات وطباعة' },
 ] as const;
 
-// Validation rules
+// URL validation helper
+const isValidUrl = (url: string): boolean => {
+  return /^(https?:\/\/)?([\w\-]+(\.[\w\-]+)+|localhost)(:\d+)?(\/[^\s]*)?$/i.test(url);
+};
+
+// Validation rules for 5-step flow
 export const validateStep = (step: number, data: OfficeFormData, isRTL: boolean): Record<string, string> => {
   const errors: Record<string, string> = {};
 
+  // Phase 1: Basic Info
   if (step === 1) {
+    // Office Info - name and phone required
     if (!data.name.trim()) {
       errors.name = isRTL ? 'اسم المكتب مطلوب' : 'Office name is required';
     }
@@ -90,12 +106,25 @@ export const validateStep = (step: number, data: OfficeFormData, isRTL: boolean)
     if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
       errors.email = isRTL ? 'بريد إلكتروني غير صالح' : 'Invalid email address';
     }
+  }
+
+  if (step === 2) {
+    // Services - at least one scope required
     if (!data.scopes || data.scopes.length === 0) {
       errors.scopes = isRTL ? 'اختر نوع خدمة واحد على الأقل' : 'Select at least one service type';
     }
   }
 
-  if (step === 2) {
+  // Phase 2: Location
+  if (step === 3) {
+    // Location - optional fields, validate format if provided
+    if (data.googleMapsUrl && !isValidUrl(data.googleMapsUrl)) {
+      errors.googleMapsUrl = isRTL ? 'رابط الموقع غير صالح' : 'Invalid location URL';
+    }
+  }
+
+  if (step === 4) {
+    // License & Contact - optional fields, validate format if provided
     if (data.licenseExpiry && !/^\d{4}-\d{2}-\d{2}$/.test(data.licenseExpiry)) {
       errors.licenseExpiry = isRTL ? 'صيغة التاريخ غير صحيحة (YYYY-MM-DD)' : 'Invalid date format (YYYY-MM-DD)';
     }
@@ -103,6 +132,8 @@ export const validateStep = (step: number, data: OfficeFormData, isRTL: boolean)
       errors.website = isRTL ? 'رابط غير صالح' : 'Invalid website URL';
     }
   }
+
+  // Phase 3: Review (step 5) - no validation needed
 
   return errors;
 };

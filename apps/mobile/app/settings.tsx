@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Switch, Linking, Alert, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, Switch, Linking, Alert, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import Constants from 'expo-constants';
 import { storage, STORAGE_KEYS } from '@/lib/storage';
 import { useAuth } from '@/store/auth';
 import { usersApi } from '@/lib/api';
+import { useToast } from '@/hooks';
 import {
   GlobeIcon,
   BellIcon,
@@ -41,6 +42,7 @@ export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { logout } = useAuth();
+  const toast = useToast();
   const isRTL = i18n.language === 'ar';
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -65,11 +67,12 @@ export default function SettingsScreen() {
     } catch {
       // Revert on failure
       setNotificationsEnabled(!value);
-      Alert.alert(t('common.error'), t('errors.somethingWrong'));
+      toast.error(t('errors.somethingWrong'));
     }
   };
 
   const handleClearCache = async () => {
+    // Keep Alert for destructive confirmation - user needs explicit choice
     Alert.alert(
       t('settings.clearCache'),
       t('settings.deleteAccountWarning'),
@@ -81,7 +84,7 @@ export default function SettingsScreen() {
           onPress: async () => {
             await storage.deleteItem(STORAGE_KEYS.AUTH_TOKEN);
             await storage.deleteItem(STORAGE_KEYS.AUTH_USER);
-            Alert.alert(t('common.success'), t('settings.cacheCleared'));
+            toast.success(t('settings.cacheCleared'));
           },
         },
       ]
@@ -90,7 +93,7 @@ export default function SettingsScreen() {
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmation !== 'DELETE') {
-      Alert.alert(t('common.error'), t('settings.deleteAccountConfirm'));
+      toast.error(t('settings.deleteAccountConfirm'));
       return;
     }
 
@@ -99,20 +102,14 @@ export default function SettingsScreen() {
       const response = await usersApi.deleteAccount('DELETE');
       if (response.success) {
         setShowDeleteModal(false);
-        Alert.alert(t('common.success'), t('settings.accountDeleted'), [
-          {
-            text: t('common.ok'),
-            onPress: async () => {
-              await logout();
-              router.replace('/onboarding');
-            },
-          },
-        ]);
+        toast.success(t('settings.accountDeleted'));
+        await logout();
+        router.replace('/onboarding');
       } else {
-        Alert.alert(t('common.error'), t('errors.somethingWrong'));
+        toast.error(t('errors.somethingWrong'));
       }
     } catch {
-      Alert.alert(t('common.error'), t('errors.somethingWrong'));
+      toast.error(t('errors.somethingWrong'));
     } finally {
       setIsDeleting(false);
     }
@@ -136,7 +133,7 @@ export default function SettingsScreen() {
 
   const handleRateApp = () => {
     // TODO: Add actual store links
-    Alert.alert(t('settings.rateApp'), 'Thank you for your feedback!');
+    toast.success(isRTL ? 'شكراً على تقييمك!' : 'Thank you for your feedback!');
   };
 
   const ChevronIcon = isRTL ? ChevronLeftIcon : ChevronRightIcon;
@@ -319,14 +316,18 @@ export default function SettingsScreen() {
         transparent
         onRequestClose={() => setShowDeleteModal(false)}
       >
-        <Pressable
-          className="flex-1 bg-black/50 items-center justify-center p-6"
-          onPress={() => setShowDeleteModal(false)}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
         >
           <Pressable
-            className="bg-background-0 rounded-2xl w-full max-w-sm p-6"
-            onPress={(e) => e.stopPropagation()}
+            className="flex-1 bg-black/50 items-center justify-center p-6"
+            onPress={() => setShowDeleteModal(false)}
           >
+            <Pressable
+              className="bg-background-0 rounded-2xl w-full max-w-sm p-6"
+              onPress={(e) => e.stopPropagation()}
+            >
             {/* Header */}
             <View className={`flex-row items-center justify-between mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <Text className="text-lg font-bold text-error-500">
@@ -382,8 +383,9 @@ export default function SettingsScreen() {
                 </Text>
               </Pressable>
             </View>
+            </Pressable>
           </Pressable>
-        </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );

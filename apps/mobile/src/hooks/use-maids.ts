@@ -34,6 +34,7 @@ function clearOptimisticToggle(maidId: string) {
 interface MaidQueryParams extends Partial<MaidFilters> {
   page?: number;
   pageSize?: number;
+  search?: string;
 }
 
 export function useMaids(params?: MaidQueryParams) {

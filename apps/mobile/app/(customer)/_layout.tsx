@@ -115,6 +115,12 @@ export default function CustomerLayout() {
           href: null, // Hide from tab bar, accessible from profile
         }}
       />
+      <Tabs.Screen
+        name="businesses"
+        options={{
+          href: null, // Hide from tab bar, accessible from onboarding
+        }}
+      />
     </Tabs>
   );
 }

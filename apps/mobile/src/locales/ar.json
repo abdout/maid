@@ -347,7 +347,8 @@
     "customer": "العميل",
     "filterByStatus": "تصفية حسب الحالة",
     "allStatuses": "جميع الحالات",
-    "searchMaids": "البحث عن عاملات..."
+    "searchMaids": "البحث عن عاملات...",
+    "pendingVerification": "مكتبك قيد التحقق. ستظهر العاملات للعملاء بعد الموافقة."
   },
   "quotation": {
     "title": "طلب عرض سعر",
@@ -414,6 +415,7 @@
     "languagesDescription": "اختر جميع اللغات التي تتحدثها العاملة",
     "selectedLanguages": "المختارة",
     "profilePhoto": "صورة الملف الشخصي",
+    "profilePhotoDescription": "صورة واضحة للوجه مطلوبة للنشر",
     "additionalPhotos": "صور إضافية",
     "additionalPhotosDescription": "أضف حتى 5 صور إضافية (اختياري)",
     "passportCopy": "صورة جواز السفر",
@@ -454,6 +456,12 @@
     "updated": "تم التحديث بنجاح",
     "quotationSent": "تم إرسال عرض السعر بنجاح",
     "photoUploaded": "تم رفع الصورة بنجاح"
+  },
+  "upload": {
+    "failed": "فشل الرفع. يرجى المحاولة مرة أخرى.",
+    "invalidType": "نوع الملف غير صالح. استخدم JPG أو PNG أو WebP.",
+    "tooLarge": "الملف كبير جداً. الحد الأقصى 10 ميجابايت.",
+    "networkError": "خطأ في الشبكة. تحقق من الاتصال وأعد المحاولة."
   },
   "payment": {
     "contactLocked": "تفاصيل الاتصال مقفلة",
@@ -706,5 +714,16 @@
     "scopes": "أنواع الخدمات",
     "scopesDescription": "اختر جميع الخدمات التي يقدمها مكتبك (يمكنك اختيار أكثر من نوع)",
     "scopesRequired": "اختر نوع خدمة واحد على الأقل"
+  },
+  "locationPicker": {
+    "title": "موقع المكتب",
+    "subtitle": "ساعد العملاء على إيجاد مكتبك بسهولة",
+    "searchPlaceholder": "ابحث عن عنوانك...",
+    "detectingAddress": "جاري تحديد العنوان...",
+    "useCurrentLocation": "استخدم موقعي الحالي",
+    "helpText": "ابحث عن عنوانك أو اضغط على الخريطة لوضع علامة. يمكنك أيضاً سحب العلامة لضبط الموقع.",
+    "permissionDenied": "تم رفض إذن الموقع. لا يزال بإمكانك البحث عن عنوانك.",
+    "outsideUAE": "يرجى اختيار موقع داخل الإمارات",
+    "searchFailed": "فشل البحث. يرجى المحاولة مرة أخرى."
   }
 }

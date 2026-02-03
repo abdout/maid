@@ -6,10 +6,12 @@ import { storage } from '@/lib/storage';
 import { authConfig } from '@/config';
 import { ServiceCard } from '@/components';
 import { ONBOARDING_SERVICES, type OnboardingServiceType, type ServiceFlow } from '@/constants';
+import { useAuth } from '@/store/auth';
 
 export default function OnboardingScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
   const handleServiceSelect = async (id: OnboardingServiceType, flow: ServiceFlow) => {
     await Promise.all([
@@ -18,7 +20,34 @@ export default function OnboardingScreen() {
     ]);
 
     const requireAuth = flow === 'customer' ? authConfig.requireCustomerAuth : authConfig.requireOfficeAuth;
-    router.replace(requireAuth ? '/login' : flow === 'customer' ? '/(customer)?initFilter=true' : '/(office)');
+
+    // Determine destination based on service type
+    let destination: string;
+    if (id === 'office_registration') {
+      // If already authenticated, go directly to office-onboarding
+      if (isAuthenticated) {
+        router.replace('/office-onboarding');
+      } else {
+        // Store intent to go to office-onboarding after login
+        await storage.setItem('post_login_redirect', '/office-onboarding');
+        router.replace('/login');
+      }
+      return;
+    } else if (flow === 'office') {
+      // Office dashboard (for already registered offices)
+      destination = '/(office)';
+    } else if (id === 'typing_office') {
+      // Typing office listings
+      destination = '/(customer)/businesses?type=typing_office&initFilter=true';
+    } else if (id === 'visa_transfer') {
+      // Visa transfer services
+      destination = '/(customer)/businesses?type=visa_transfer&initFilter=true';
+    } else {
+      // Default: maid listings
+      destination = '/(customer)?initFilter=true';
+    }
+
+    router.replace(requireAuth ? '/login' : (destination as any));
   };
 
   const row1 = ONBOARDING_SERVICES.slice(0, 2);

@@ -113,6 +113,27 @@
       "when": 1769962282335,
       "tag": "0015_lying_living_lightning",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1770027309611,
+      "tag": "0016_wild_the_stranger",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1770060873740,
+      "tag": "0017_fair_carnage",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1770134400000,
+      "tag": "0018_add_office_suspension",
+      "breakpoints": true
     }
   ]
 }

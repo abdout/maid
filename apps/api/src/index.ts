@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import type { Bindings, Variables } from './types';
+import { validateRequiredEnv, formatEnvErrors } from './lib/env-validation';
 
 // Import routes
 import auth from './routes/auth';
@@ -19,6 +20,7 @@ import admin from './routes/admin';
 import notifications from './routes/notifications';
 import users from './routes/users';
 import wallet from './routes/wallet';
+import businesses from './routes/businesses';
 
 // Import middleware
 import {
@@ -32,23 +34,54 @@ import { standardRateLimit } from './middleware/rate-limit';
 // Create Hono app with typed bindings and variables
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
+// Environment validation middleware - runs once per request, caches result
+let envValidated = false;
+app.use('*', async (c, next) => {
+  if (!envValidated) {
+    const missing = validateRequiredEnv(c.env);
+    if (missing.length > 0) {
+      console.error(formatEnvErrors(missing));
+      // Allow health check to pass for deployment debugging
+      if (c.req.path === '/health') {
+        return next();
+      }
+      return c.json(
+        {
+          success: false,
+          error: 'Server configuration error. Please contact support.',
+          ...(c.env.ENVIRONMENT !== 'production' && { missing }),
+        },
+        500
+      );
+    }
+    envValidated = true;
+  }
+  return next();
+});
+
 // Global middleware - applied to all routes
 app.use('*', errorLogger);
 app.use('*', requestLogger);
 app.use('*', serverTiming);
-app.use(
-  '*',
-  corsMiddleware([
-    'http://localhost:8081',
-    'http://localhost:19006',
-    'https://maid.ae',
-    'https://*.maid.ae',
-    'https://*.vercel.app',
-    'https://*.trycloudflare.com',
-    'https://dw.futuretech-innovations.com',
-    'https://*.databayt.org',
-  ])
-);
+// Production CORS whitelist - no wildcards for security
+const CORS_ORIGINS = [
+  // Development
+  'http://localhost:3000',
+  'http://localhost:8081',
+  'http://localhost:19006',
+  // Production domains
+  'https://maid.ae',
+  'https://www.maid.ae',
+  'https://app.maid.ae',
+  'https://maid-xi.vercel.app',
+  'https://dw.futuretech-innovations.com',
+  'https://databayt.org',
+  'https://www.databayt.org',
+  'https://maid-app.databayt.org',
+  'https://maid-web.databayt.org',
+];
+
+app.use('*', corsMiddleware(CORS_ORIGINS));
 
 // Apply standard rate limiting to API routes (not health check or webhooks)
 app.use('/auth/*', standardRateLimit);
@@ -66,6 +99,7 @@ app.use('/admin/*', standardRateLimit);
 app.use('/notifications/*', standardRateLimit);
 app.use('/users/*', standardRateLimit);
 app.use('/wallet/*', standardRateLimit);
+app.use('/businesses/*', standardRateLimit);
 
 // API Routes
 app.route('/health', health);
@@ -85,6 +119,7 @@ app.route('/admin', admin);
 app.route('/notifications', notifications);
 app.route('/users', users);
 app.route('/wallet', wallet);
+app.route('/businesses', businesses);
 
 // Root route
 app.get('/', (c) => {
@@ -109,6 +144,7 @@ app.get('/', (c) => {
       admin: '/admin',
       users: '/users',
       wallet: '/wallet',
+      businesses: '/businesses',
     },
   });
 });

@@ -15,9 +15,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     resizeMode: 'contain',
     backgroundColor: '#1e40af',
   },
+  updates: {
+    url: 'https://u.expo.dev/f0a7f098-5bff-46de-95b3-65fa4d52a587',
+  },
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'ae.maid.app',
+    runtimeVersion: '1.0.0',
   },
   android: {
     adaptiveIcon: {
@@ -25,6 +29,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#1e40af',
     },
     package: 'ae.maid.app',
+    runtimeVersion: {
+      policy: 'appVersion',
+    },
   },
   web: {
     bundler: 'metro',
@@ -41,7 +48,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     'expo-localization',
     'expo-secure-store',
+    'expo-location',
     '@react-native-community/datetimepicker',
+    [
+      '@rnmapbox/maps',
+      {
+        RNMapboxMapsDownloadToken: process.env.MAPBOX_DOWNLOAD_TOKEN || 'sk.placeholder',
+      },
+    ],
     [
       'expo-notifications',
       {
@@ -61,6 +75,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_URL || 'https://maid-api.osmanabdout.workers.dev',
     stripePublishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    mapboxAccessToken: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN,
     // Guest mode: when false, customers can browse without login (free trial period)
     requireCustomerAuth: process.env.EXPO_PUBLIC_REQUIRE_CUSTOMER_AUTH === 'true',
     eas: {

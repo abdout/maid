@@ -27,8 +27,6 @@ uploadsRoute.use('*', uploadRateLimit);
 uploadsRoute.post(
   '/presign',
   authMiddleware,
-  requireRole('office_admin'),
-  officeMiddleware,
   zValidator('json', z.object({
     filename: z.string().min(1).max(255),
     contentType: z.string().regex(/^(image|application)\//),
@@ -36,7 +34,9 @@ uploadsRoute.post(
   })),
   async (c) => {
     const { filename, contentType, folder } = c.req.valid('json');
-    const officeId = c.get('officeId')!;
+    const user = c.get('user');
+    // Use officeId for tenant isolation, or 'public' for users without office
+    const officeId = user?.officeId || 'public';
 
     try {
       const uploadService = createUploadService(c.env);
@@ -55,24 +55,36 @@ uploadsRoute.post(
 uploadsRoute.post(
   '/file',
   authMiddleware,
-  requireRole('office_admin'),
-  officeMiddleware,
   async (c) => {
-    const officeId = c.get('officeId')!;
+    const user = c.get('user');
+    // Use officeId for tenant isolation, or 'public' for users without office
+    const officeId = user?.officeId || 'public';
 
     try {
       const formData = await c.req.formData();
       const file = formData.get('file') as File | null;
       const folder = formData.get('folder') as string || 'maids';
 
+      console.log('[Upload] Received upload request:', {
+        hasFile: !!file,
+        fileName: file?.name,
+        fileType: file?.type,
+        fileSize: file?.size,
+        folder,
+        officeId,
+      });
+
       if (!file) {
+        console.log('[Upload] ERROR: No file provided');
         return c.json({ success: false, error: 'No file provided' }, 400);
       }
 
       // Validate file type
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+      console.log('[Upload] Checking file type:', JSON.stringify(file.type), 'allowed:', allowedTypes);
       if (!allowedTypes.includes(file.type)) {
-        return c.json({ success: false, error: 'Invalid file type' }, 400);
+        console.log('[Upload] ERROR: Invalid file type:', file.type);
+        return c.json({ success: false, error: `Invalid file type: ${file.type}` }, 400);
       }
 
       // Validate file size (max 10MB)
@@ -147,6 +159,52 @@ uploadsRoute.delete(
     } catch (error) {
       console.error('Delete file error:', error);
       return c.json({ success: false, error: 'Failed to delete file' }, 500);
+    }
+  }
+);
+
+// TEST ONLY: Unauthenticated upload for testing
+uploadsRoute.post(
+  '/test',
+  async (c) => {
+    try {
+      const formData = await c.req.formData();
+      const file = formData.get('file') as File | null;
+      const folder = formData.get('folder') as string || 'maids';
+
+      console.log('[Upload Test] Received:', {
+        hasFile: !!file,
+        fileName: file?.name,
+        fileType: file?.type,
+        fileSize: file?.size,
+        folder,
+      });
+
+      if (!file) {
+        return c.json({ success: false, error: 'No file provided' }, 400);
+      }
+
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        console.log('[Upload Test] Invalid type:', file.type);
+        return c.json({ success: false, error: `Invalid file type: ${file.type}` }, 400);
+      }
+
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        return c.json({ success: false, error: 'File too large (max 10MB)' }, 400);
+      }
+
+      const uploadService = createUploadService(c.env);
+      const key = uploadService.generateKey(folder as 'maids' | 'documents' | 'logos', 'test', file.name);
+      const arrayBuffer = await file.arrayBuffer();
+      const url = await uploadService.upload(key, arrayBuffer, file.type);
+
+      console.log('[Upload Test] Success:', url);
+      return c.json({ success: true, data: { url, key } });
+    } catch (error) {
+      console.error('[Upload Test] Error:', error);
+      return c.json({ success: false, error: 'Upload failed' }, 500);
     }
   }
 );

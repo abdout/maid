@@ -7,6 +7,8 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -31,6 +33,7 @@ export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
   const [showFilters, setShowFilters] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const [filters, setFilters] = useState<Partial<MaidFilters>>(
     nationalityId ? { nationalityIds: [nationalityId] } : {}
   );
@@ -75,46 +78,50 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background-0" edges={['top']}>
-      {/* Search Header */}
-      <View className="px-6 pt-4 pb-4">
-        <View className={`flex-row items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <View
-            className={`flex-1 flex-row items-center bg-background-0 rounded-full px-4 py-3 gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}
-            style={{
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.08,
-              shadowRadius: 4,
-              elevation: 2,
-            }}
-          >
-            <SearchIcon size={20} color="#717171" />
-            <TextInput
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholder={t('home.searchPlaceholder')}
-              placeholderTextColor="#717171"
-              className={`flex-1 text-typography-900 ${isRTL ? 'text-right' : 'text-left'}`}
-              style={{ writingDirection: isRTL ? 'rtl' : 'ltr' }}
-            />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+      >
+        {/* Search Header - Unified search + filter container */}
+        <View className="px-6 pt-4 pb-4">
+        <View
+          className={`flex-row items-center bg-background-0 rounded-full border ${
+            isFocused ? 'border-primary-500' : 'border-background-200'
+          } ${isRTL ? 'flex-row-reverse' : ''}`}
+          style={{
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: isFocused ? 2 : 1 },
+            shadowOpacity: isFocused ? 0.12 : 0.08,
+            shadowRadius: isFocused ? 8 : 4,
+            elevation: isFocused ? 4 : 2,
+          }}
+        >
+          {/* Search Icon */}
+          <View className={isRTL ? 'pr-4 pl-2' : 'pl-4 pr-2'}>
+            <SearchIcon size={20} color={isFocused ? '#FF385C' : '#717171'} />
           </View>
+
+          {/* Search Input */}
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder={t('home.searchPlaceholder')}
+            placeholderTextColor="#717171"
+            className={`flex-1 h-12 text-typography-900 ${isRTL ? 'text-right' : 'text-left'}`}
+            style={{ writingDirection: isRTL ? 'rtl' : 'ltr' }}
+          />
+
+          {/* Separator */}
+          <View className="w-px h-6 bg-background-200" />
+
+          {/* Filter Button */}
           <Pressable
             onPress={() => setShowFilters(true)}
-            className="bg-background-0 p-3 rounded-xl relative"
-            style={{
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.08,
-              shadowRadius: 4,
-              elevation: 2,
-            }}
+            className={`flex-row items-center h-12 ${isRTL ? 'pl-4 pr-3' : 'pr-4 pl-3'}`}
           >
             <FilterIcon size={20} color="#222222" />
-            {activeFilterCount > 0 && (
-              <View className="absolute -top-1 -right-1 w-5 h-5 bg-primary-500 rounded-full items-center justify-center">
-                <Text className="text-white text-xs font-bold">{activeFilterCount}</Text>
-              </View>
-            )}
           </Pressable>
         </View>
       </View>
@@ -188,6 +195,7 @@ export default function SearchScreen() {
         onApply={handleApplyFilters}
         initialFilters={filters}
       />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

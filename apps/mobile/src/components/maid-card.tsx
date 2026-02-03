@@ -109,6 +109,9 @@ export function MaidCard({
             backgroundColor: isFavorite ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.4)',
             zIndex: 10,
           }}
+          accessibilityRole="button"
+          accessibilityLabel={isFavorite ? t('maid.removeFromFavorites') : t('maid.addToFavorites')}
+          accessibilityState={{ selected: isFavorite }}
         >
           <HeartIcon
             size={16}
@@ -167,6 +170,8 @@ export function MaidCard({
               activeOpacity={0.7}
               className="flex-1 flex-row items-center justify-center gap-2 bg-[#25D366] py-2.5 rounded-lg"
               style={isRTL ? { flexDirection: 'row-reverse' } : undefined}
+              accessibilityRole="button"
+              accessibilityLabel={t('contact.whatsappAccessibility', 'Contact via WhatsApp')}
             >
               <WhatsAppIcon size={18} color="#FFFFFF" />
               <Text className="text-white font-medium text-sm">
@@ -178,6 +183,8 @@ export function MaidCard({
               activeOpacity={0.7}
               className="flex-1 flex-row items-center justify-center gap-2 bg-primary-500 py-2.5 rounded-lg"
               style={isRTL ? { flexDirection: 'row-reverse' } : undefined}
+              accessibilityRole="button"
+              accessibilityLabel={t('contact.callAccessibility', 'Make a phone call')}
             >
               <PhoneIcon size={18} color="#FFFFFF" />
               <Text className="text-white font-medium text-sm">

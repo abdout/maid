@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, Alert, ActivityIndicator, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +20,7 @@ export default function OfficeProfileScreen() {
     queryFn: () => officesApi.getMe(),
   });
 
-  const office = (officeData as { data?: { name?: string; nameAr?: string; phone?: string; email?: string; address?: string } })?.data;
+  const office = (officeData as { data?: { name?: string; nameAr?: string; phone?: string; email?: string; address?: string; logoUrl?: string } })?.data;
 
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
@@ -101,9 +101,17 @@ export default function OfficeProfileScreen() {
         {/* Office Info */}
         <View className="mx-6 mb-6 p-6 bg-primary-500 rounded-2xl">
           <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center">
-              <BuildingIcon size={32} color="#FFFFFF" />
-            </View>
+            {office?.logoUrl ? (
+              <Image
+                source={{ uri: office.logoUrl }}
+                className="w-16 h-16 rounded-full"
+                resizeMode="cover"
+              />
+            ) : (
+              <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center">
+                <BuildingIcon size={32} color="#FFFFFF" />
+              </View>
+            )}
             <View className={`flex-1 ${isRTL ? 'mr-4 items-end' : 'ml-4'}`}>
               <Text className="text-white font-semibold text-lg">
                 {office?.name || 'Office Name'}
@@ -128,6 +136,7 @@ export default function OfficeProfileScreen() {
               value={form.name}
               onChangeText={(v) => setForm((f) => ({ ...f, name: v }))}
               placeholder="Office name"
+              textAlign={isRTL ? 'right' : 'left'}
               className="bg-background-0 rounded-lg px-4 py-3 mb-4 text-typography-900"
             />
 
@@ -136,7 +145,8 @@ export default function OfficeProfileScreen() {
               value={form.nameAr}
               onChangeText={(v) => setForm((f) => ({ ...f, nameAr: v }))}
               placeholder="اسم المكتب"
-              className="bg-background-0 rounded-lg px-4 py-3 mb-4 text-typography-900 text-right"
+              textAlign="right"
+              className="bg-background-0 rounded-lg px-4 py-3 mb-4 text-typography-900"
             />
 
             <Text className="text-typography-700 font-medium mb-2">Email</Text>
@@ -145,6 +155,7 @@ export default function OfficeProfileScreen() {
               onChangeText={(v) => setForm((f) => ({ ...f, email: v }))}
               placeholder="office@example.com"
               keyboardType="email-address"
+              textAlign={isRTL ? 'right' : 'left'}
               className="bg-background-0 rounded-lg px-4 py-3 mb-4 text-typography-900"
             />
 
@@ -154,6 +165,7 @@ export default function OfficeProfileScreen() {
               onChangeText={(v) => setForm((f) => ({ ...f, address: v }))}
               placeholder="Office address"
               multiline
+              textAlign={isRTL ? 'right' : 'left'}
               className="bg-background-0 rounded-lg px-4 py-3 mb-4 text-typography-900 min-h-[80px]"
               textAlignVertical="top"
             />

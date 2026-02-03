@@ -18,8 +18,50 @@ interface TokenPairResponse {
 
 interface ApiErrorResponse {
   success: boolean;
-  error: string;
+  error: string | { issues?: Array<{ message: string; path?: string[] }> };
+  issues?: Array<{ message: string; path?: string[] }>;
   code?: string;
+}
+
+/**
+ * Extract a readable error message from various error response formats
+ * Handles Zod validation errors, simple string errors, and nested error objects
+ */
+function extractErrorMessage(errorData: unknown): string {
+  if (!errorData || typeof errorData !== 'object') {
+    return 'Request failed';
+  }
+
+  const err = errorData as Record<string, unknown>;
+
+  // Case 1: Simple string error
+  if (typeof err.error === 'string') {
+    return err.error;
+  }
+
+  // Case 2: Zod validation error with issues array inside error object
+  if (err.error && typeof err.error === 'object') {
+    const zodError = err.error as { issues?: Array<{ message: string; path?: string[] }> };
+    if (Array.isArray(zodError.issues) && zodError.issues.length > 0) {
+      const issue = zodError.issues[0];
+      const path = issue.path?.join('.') || '';
+      return path ? `${path}: ${issue.message}` : issue.message;
+    }
+  }
+
+  // Case 3: Direct issues array (some Zod setups)
+  if (Array.isArray(err.issues) && err.issues.length > 0) {
+    const issue = (err.issues as Array<{ message: string; path?: string[] }>)[0];
+    const path = issue.path?.join('.') || '';
+    return path ? `${path}: ${issue.message}` : issue.message;
+  }
+
+  // Case 4: Message field
+  if (typeof err.message === 'string') {
+    return err.message;
+  }
+
+  return 'Request failed';
 }
 
 /**
@@ -126,7 +168,7 @@ async function apiFetch<T>(
     const errorData = data as ApiErrorResponse;
 
     // Check if token expired (can be refreshed)
-    if (errorData.code === 'TOKEN_EXPIRED' || errorData.error?.includes('expired')) {
+    if (errorData.code === 'TOKEN_EXPIRED' || (typeof errorData.error === 'string' && errorData.error.includes('expired'))) {
       const refreshed = await refreshAccessToken();
 
       if (refreshed) {
@@ -138,12 +180,11 @@ async function apiFetch<T>(
     // Force logout on auth failure that can't be recovered
     const { logout } = useAuth.getState();
     await logout();
-    throw new Error(errorData.error || 'Session expired. Please log in again.');
+    throw new Error(extractErrorMessage(errorData) || 'Session expired. Please log in again.');
   }
 
   if (!response.ok) {
-    const errorData = data as ApiErrorResponse;
-    throw new Error(errorData.error || 'Request failed');
+    throw new Error(extractErrorMessage(data));
   }
 
   return data as T;
@@ -232,18 +273,47 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify({ password }),
     }),
+
+  register: (email: string, password: string, name?: string) =>
+    apiFetch<LoginResponse>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, name }),
+    }),
+
+  forgotPassword: (email: string) =>
+    apiFetch<{
+      success: boolean;
+      message: string;
+      data: { token?: string; expiresIn: number };
+    }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token: string, password: string) =>
+    apiFetch<{ success: boolean; message: string }>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    }),
 };
 
 // Maids API
 export const maidsApi = {
-  list: (params?: Record<string, string | number | undefined>) => {
-    // Filter out undefined/null values before creating query string
-    const cleanParams = params
-      ? Object.fromEntries(Object.entries(params).filter(([_, v]) => v != null))
-      : {};
-    const query = Object.keys(cleanParams).length > 0
-      ? '?' + new URLSearchParams(cleanParams as Record<string, string>).toString()
-      : '';
+  list: (params?: Record<string, string | number | string[] | undefined>) => {
+    // Build query string with proper array serialization
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value == null) return;
+        if (Array.isArray(value)) {
+          // Serialize arrays as repeated params: key=v1&key=v2
+          value.forEach((v) => searchParams.append(key, String(v)));
+        } else {
+          searchParams.append(key, String(value));
+        }
+      });
+    }
+    const query = searchParams.toString() ? '?' + searchParams.toString() : '';
     return apiFetch<{
       success: boolean;
       data: {
@@ -389,6 +459,17 @@ export const officesApi = {
     phone: string;
     email?: string;
     address?: string;
+    addressAr?: string;
+    scopes?: ('recruitment' | 'leasing' | 'typing')[];
+    logoUrl?: string;
+    licenseNumber?: string;
+    licenseExpiry?: string;
+    licenseImageUrl?: string;
+    emirate?: string;
+    googleMapsUrl?: string;
+    managerPhone1?: string;
+    managerPhone2?: string;
+    website?: string;
   }) =>
     apiFetch('/offices/register', {
       method: 'POST',
@@ -454,6 +535,19 @@ export const healthApi = {
   check: () => apiFetch<{ success: boolean; data: { api: string; timestamp: string } }>('/health'),
 };
 
+// Helper for retry delays
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Check if error is a client error that shouldn't be retried
+function isClientError(message: string): boolean {
+  return (
+    message.includes('No file provided') ||
+    message.includes('Invalid file type') ||
+    message.includes('File too large') ||
+    message.includes('Not authenticated')
+  );
+}
+
 // Uploads API
 export const uploadsApi = {
   getPresignedUrl: (filename: string, contentType: string, folder: 'maids' | 'documents' | 'logos') =>
@@ -465,41 +559,179 @@ export const uploadsApi = {
       body: JSON.stringify({ filename, contentType, folder }),
     }),
 
-  uploadFile: async (uri: string, folder: 'maids' | 'documents' | 'logos' = 'maids'): Promise<string> => {
-    const token = useAuth.getState().accessToken;
+  uploadFile: async (uri: string, folder: 'maids' | 'documents' | 'logos' = 'maids', maxRetries = 3): Promise<string> => {
+    let lastError: Error | null = null;
 
-    // Get file info
-    const filename = uri.split('/').pop() || 'image.jpg';
-    const match = /\.(\w+)$/.exec(filename);
-    // Fix MIME type: jpg -> jpeg, ensure valid image types
-    let extension = match ? match[1].toLowerCase() : 'jpeg';
-    if (extension === 'jpg') extension = 'jpeg';
-    const type = ['jpeg', 'png', 'webp'].includes(extension) ? `image/${extension}` : 'image/jpeg';
+    console.log('[uploadsApi] ====== UPLOAD START v3 ======');
+    console.log('[uploadsApi] URI:', uri);
+    console.log('[uploadsApi] Folder:', folder);
 
-    // Create form data
-    const formData = new FormData();
-    formData.append('file', {
-      uri,
-      name: filename,
-      type,
-    } as unknown as Blob);
-    formData.append('folder', folder);
+    // Allowed MIME types (must match server validation)
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
-    const response = await fetch(`${API_URL}/uploads/file`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+    // Detect platform - on web, URIs are blob: or data: or http:
+    const isWeb = typeof window !== 'undefined' && typeof document !== 'undefined';
+    const isNativeFileUri = uri.startsWith('file://') || uri.startsWith('content://');
+    const isBlobUri = uri.startsWith('blob:');
+    const isDataUri = uri.startsWith('data:');
+    const isHttpUri = uri.startsWith('http://') || uri.startsWith('https://');
 
-    const data = await response.json();
+    console.log('[uploadsApi] Platform:', { isWeb, isNativeFileUri, isBlobUri, isDataUri, isHttpUri });
 
-    if (!response.ok || !data.success) {
-      throw new Error(data.error || 'Upload failed');
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const token = useAuth.getState().accessToken;
+        console.log('[uploadsApi] Attempt', attempt + 1, '- Token:', token ? 'exists' : 'MISSING');
+        if (!token) throw new Error('Not authenticated');
+
+        const formData = new FormData();
+
+        // Web platform: need to fetch blob and create File object
+        if (isWeb && !isNativeFileUri) {
+          console.log('[uploadsApi] WEB MODE - Converting URI to File...');
+
+          let blob: Blob;
+          let mimeType = 'image/jpeg';
+
+          if (isBlobUri || isHttpUri) {
+            // Fetch the blob from blob: or http: URL
+            console.log('[uploadsApi] Fetching blob from URL...');
+            const response = await fetch(uri);
+            blob = await response.blob();
+            console.log('[uploadsApi] Fetched blob - raw type:', JSON.stringify(blob.type), 'size:', blob.size);
+
+            // Get the MIME type, but validate it's actually allowed
+            const rawType = blob.type?.toLowerCase().trim();
+            if (rawType && allowedTypes.includes(rawType)) {
+              mimeType = rawType;
+            } else {
+              console.log('[uploadsApi] Blob type not in allowed list, defaulting to image/jpeg');
+              mimeType = 'image/jpeg';
+            }
+          } else if (isDataUri) {
+            // Parse data URI
+            console.log('[uploadsApi] Parsing data URI...');
+            const [header, base64] = uri.split(',');
+            const mimeMatch = header.match(/data:([^;]+)/);
+            const rawType = mimeMatch ? mimeMatch[1].toLowerCase().trim() : '';
+
+            if (rawType && allowedTypes.includes(rawType)) {
+              mimeType = rawType;
+            } else {
+              mimeType = 'image/jpeg';
+            }
+
+            const binary = atob(base64);
+            const array = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+              array[i] = binary.charCodeAt(i);
+            }
+            blob = new Blob([array], { type: mimeType });
+            console.log('[uploadsApi] Created blob from data URI:', { type: mimeType, size: blob.size });
+          } else {
+            // Unknown URI format on web - try to fetch anyway
+            console.log('[uploadsApi] Unknown URI format, attempting fetch...');
+            const response = await fetch(uri);
+            blob = await response.blob();
+            const rawType = blob.type?.toLowerCase().trim();
+            if (rawType && allowedTypes.includes(rawType)) {
+              mimeType = rawType;
+            } else {
+              mimeType = 'image/jpeg';
+            }
+          }
+
+          console.log('[uploadsApi] Final mimeType:', mimeType);
+
+          // Create filename with correct extension
+          const extMap: Record<string, string> = {
+            'image/jpeg': 'jpg',
+            'image/png': 'png',
+            'image/webp': 'webp',
+            'application/pdf': 'pdf',
+          };
+          const ext = extMap[mimeType] || 'jpg';
+          const filename = `photo_${Date.now()}.${ext}`;
+
+          // CRITICAL: Create a NEW blob with the correct type if needed
+          // This ensures the File has the right type even if the original blob didn't
+          let typedBlob = blob;
+          if (blob.type !== mimeType) {
+            console.log('[uploadsApi] Re-creating blob with correct type...');
+            const arrayBuffer = await blob.arrayBuffer();
+            typedBlob = new Blob([arrayBuffer], { type: mimeType });
+            console.log('[uploadsApi] New blob type:', typedBlob.type);
+          }
+
+          // Create File object with explicit type
+          const file = new File([typedBlob], filename, { type: mimeType });
+          console.log('[uploadsApi] Created File:', { name: file.name, type: file.type, size: file.size });
+
+          // Double-check the file type before sending
+          if (!allowedTypes.includes(file.type)) {
+            console.error('[uploadsApi] CRITICAL: File type still invalid:', file.type);
+            throw new Error(`Invalid file type: ${file.type}`);
+          }
+
+          formData.append('file', file);
+        } else {
+          // React Native: use RN-style object
+          console.log('[uploadsApi] NATIVE MODE - Using RN FormData...');
+          const filename = uri.split('/').pop() || 'image.jpg';
+          const match = /\.(\w+)$/.exec(filename);
+          let extension = match ? match[1].toLowerCase() : 'jpeg';
+          if (extension === 'jpg') extension = 'jpeg';
+          const type = ['jpeg', 'png', 'webp'].includes(extension) ? `image/${extension}` : 'image/jpeg';
+
+          console.log('[uploadsApi] File info:', { filename, extension, type });
+
+          formData.append('file', {
+            uri,
+            name: filename,
+            type,
+          } as unknown as Blob);
+        }
+
+        formData.append('folder', folder);
+
+        console.log('[uploadsApi] Sending to:', `${API_URL}/uploads/file`);
+
+        const response = await fetch(`${API_URL}/uploads/file`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        console.log('[uploadsApi] Response status:', response.status);
+
+        const data = await response.json();
+        console.log('[uploadsApi] Response data:', JSON.stringify(data).substring(0, 200));
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Upload failed');
+        }
+
+        console.log('[uploadsApi] Upload successful!');
+        return data.data.url;
+      } catch (error) {
+        lastError = error as Error;
+        console.error('[uploadsApi] Attempt', attempt + 1, 'failed:', lastError.message);
+
+        // Don't retry client errors (400s)
+        if (isClientError(lastError.message)) {
+          throw lastError;
+        }
+
+        // Wait before retry with exponential backoff (1s, 2s, 4s)
+        if (attempt < maxRetries - 1) {
+          await delay(Math.pow(2, attempt) * 1000);
+        }
+      }
     }
 
-    return data.data.url;
+    throw lastError || new Error('Upload failed after retries');
   },
 };
 
@@ -855,6 +1087,63 @@ interface CanUnlockResult {
   requiredAmount: number;
   shortfall: number;
 }
+
+// Business types
+interface Business {
+  id: string;
+  type: 'typing_office' | 'visa_transfer';
+  name: string;
+  nameAr: string | null;
+  phone: string;
+  whatsapp: string | null;
+  email: string | null;
+  address: string | null;
+  addressAr: string | null;
+  logoUrl: string | null;
+  coverPhotoUrl: string | null;
+  description: string | null;
+  descriptionAr: string | null;
+  emirate: string | null;
+  googleMapsUrl: string | null;
+  services: string | null;
+  servicesAr: string | null;
+  priceRange: string | null;
+  workingHours: string | null;
+  isVerified: boolean;
+  isActive: boolean;
+  createdAt: string;
+}
+
+// Businesses API
+export const businessesApi = {
+  list: (params?: {
+    type?: 'typing_office' | 'visa_transfer';
+    search?: string;
+    emirate?: string;
+    page?: number;
+    pageSize?: number;
+  }) => {
+    const cleanParams = params
+      ? Object.fromEntries(Object.entries(params).filter(([_, v]) => v != null))
+      : {};
+    const query = Object.keys(cleanParams).length > 0
+      ? '?' + new URLSearchParams(cleanParams as Record<string, string>).toString()
+      : '';
+    return apiFetch<{
+      success: boolean;
+      data: {
+        items: Business[];
+        total: number;
+        page: number;
+        pageSize: number;
+        totalPages: number;
+      };
+    }>(`/businesses${query}`);
+  },
+
+  getById: (id: string) =>
+    apiFetch<{ success: boolean; data: Business }>(`/businesses/${id}`),
+};
 
 // Wallet API
 export const walletApi = {

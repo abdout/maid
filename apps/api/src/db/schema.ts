@@ -53,6 +53,7 @@ export const offices = pgTable('offices', {
   addressAr: text('address_ar'),
   logoUrl: text('logo_url'),
   isVerified: boolean('is_verified').default(false).notNull(),
+  isSuspended: boolean('is_suspended').default(false).notNull(),
   // Service scopes (multi-select)
   scopes: officeScopeEnum('scopes').array().default(['recruitment']).notNull(),
   // License info
@@ -66,10 +67,13 @@ export const offices = pgTable('offices', {
   googleMapsUrl: text('google_maps_url'),
   emirate: varchar('emirate', { length: 50 }),
   website: varchar('website', { length: 255 }),
+  // Admin creation tracking
+  createdByAdminId: uuid('created_by_admin_id').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   emirateIdx: index('offices_emirate_idx').on(t.emirate),
+  createdByAdminIdx: index('offices_created_by_admin_idx').on(t.createdByAdminId),
 }));
 
 // Business Listings (typing offices, visa transfer services)
@@ -212,6 +216,7 @@ export const maids = pgTable('maids', {
   babySitter: boolean('baby_sitter').default(false),
   officeFees: decimal('office_fees', { precision: 10, scale: 2 }),
   availability: availabilityTypeEnum('availability').default('inside_uae'),
+  // emirateId: varchar('emirate_id', { length: 50 }), // TODO: Apply migration first
   whatsappNumber: varchar('whatsapp_number', { length: 20 }),
   contactNumber: varchar('contact_number', { length: 20 }),
   cvReference: varchar('cv_reference', { length: 50 }),
@@ -226,6 +231,7 @@ export const maids = pgTable('maids', {
   jobTypeIdx: index('maids_job_type_idx').on(t.jobType),
   packageTypeIdx: index('maids_package_type_idx').on(t.packageType),
   availabilityIdx: index('maids_availability_idx').on(t.availability),
+  // emirateIdx: index('maids_emirate_idx').on(t.emirateId), // TODO: Apply migration first
   cvReferenceIdx: index('maids_cv_reference_idx').on(t.cvReference),
   hiringTypeIdx: index('maids_hiring_type_idx').on(t.hiringType),
 }));

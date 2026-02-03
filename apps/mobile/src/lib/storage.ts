@@ -42,6 +42,7 @@ export const STORAGE_KEYS = {
   AUTH_USER: 'auth_user',
   ONBOARDING_COMPLETED: 'onboarding_completed',
   LANGUAGE: 'app_language',
+  SELECTED_SERVICE: 'selected_service',
   // Legacy key for migration
   AUTH_TOKEN: 'auth_token',
 } as const;

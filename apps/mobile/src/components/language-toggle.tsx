@@ -92,16 +92,16 @@ export function LanguageToggle({
     return text;
   };
 
-  // Icon-only variant
+  // Icon-only variant (matches close/reset buttons in filter modal)
   if (variant === 'icon') {
     return (
       <Pressable
         onPress={handleToggle}
         disabled={isChanging}
-        className="w-9 h-9 rounded-full bg-background-100 items-center justify-center"
+        className="w-10 h-10 rounded-full bg-background-100 items-center justify-center"
         style={{ opacity: isChanging ? 0.5 : 1 }}
       >
-        <GlobeIcon size={18} color="#717171" />
+        <GlobeIcon size={20} color="#717171" />
       </Pressable>
     );
   }
