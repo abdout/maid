@@ -33,7 +33,7 @@ export default function StepServices() {
   };
 
   return (
-    <View className="pt-4">
+    <View className="pt-8">
       <Text className={`text-typography-500 mb-4 ${isRTL ? 'text-right' : ''}`}>
         {t('officeOnboarding.scopesDescription')}
       </Text>

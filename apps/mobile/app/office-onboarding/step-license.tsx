@@ -8,7 +8,7 @@ export default function StepLicense() {
   const { formData, updateFormData, errors } = useOfficeForm();
 
   return (
-    <View className="gap-5 pt-4">
+    <View className="gap-5 pt-8">
       {/* License Number */}
       <View>
         <Text className={`text-sm font-medium text-typography-700 mb-2 ${isRTL ? 'text-right' : ''}`}>

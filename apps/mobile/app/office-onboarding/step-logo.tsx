@@ -13,7 +13,7 @@ export default function StepLogo() {
   };
 
   return (
-    <View className="flex-1 items-center pt-4">
+    <View className="flex-1 items-center pt-8">
       <Text className="text-typography-400 text-sm mb-6 text-center max-w-xs px-4">
         {isRTL ? 'أضف شعار مكتبك (اختياري)' : 'Add your office logo (optional)'}
       </Text>

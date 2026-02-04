@@ -23,7 +23,7 @@ export default function StepReview() {
   };
 
   return (
-    <View className="gap-4 pt-4">
+    <View className="gap-4 pt-8">
       {/* Twitter-style Profile Header */}
       <View className={`flex-row items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
         {/* Logo Circle */}

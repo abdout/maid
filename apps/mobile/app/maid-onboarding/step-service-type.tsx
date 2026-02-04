@@ -21,7 +21,7 @@ export default function StepServiceType() {
   };
 
   return (
-    <View className="pt-4">
+    <View className="pt-8">
       <Text className={`text-typography-500 mb-4 ${isRTL ? 'text-right' : ''}`}>
         {isRTL ? 'اختر نوع الخدمة الرئيسي' : 'Select the main service type'}
       </Text>

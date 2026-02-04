@@ -15,7 +15,7 @@ export default function StepBackground() {
   const { formData, updateFormData, errors } = useMaidForm();
 
   return (
-    <View className="pt-4">
+    <View className="pt-8">
       {/* Education */}
       <View className="mb-6">
         <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>

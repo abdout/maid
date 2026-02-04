@@ -22,7 +22,7 @@ export default function StepExperienceNew() {
   };
 
   return (
-    <View className="pt-4">
+    <View className="pt-8">
       {/* Experience Years - Range pills matching filter */}
       <View className="mb-5">
         <Text className={`text-typography-700 mb-3 font-medium ${isRTL ? 'text-right' : ''}`}>

@@ -17,7 +17,7 @@ export default function StepPersonal() {
   const maritalStatusOptions: MaritalStatus[] = ['single', 'married', 'divorced', 'widowed'];
 
   return (
-    <View className="pt-4">
+    <View className="pt-8">
       {/* Sex */}
       <View className="mb-5">
         <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>

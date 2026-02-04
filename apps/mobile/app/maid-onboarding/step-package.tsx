@@ -29,7 +29,7 @@ export default function StepPackage() {
   };
 
   return (
-    <View className="pt-4">
+    <View className="pt-8">
       <Text className={`text-typography-500 mb-4 ${isRTL ? 'text-right' : ''}`}>
         {isRTL ? 'اختر نوع العقد' : 'Select the contract type'}
       </Text>

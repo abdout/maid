@@ -22,7 +22,7 @@ export default function StepLanguages() {
   };
 
   return (
-    <View className="pt-4">
+    <View className="pt-8">
       {/* Description */}
       <Text className={`text-typography-500 mb-4 ${isRTL ? 'text-right' : ''}`}>
         {t('form.languagesDescription')}
