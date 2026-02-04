@@ -34,7 +34,7 @@ export default function StepLocation() {
   }, [updateFormData]);
 
   return (
-    <View className="gap-5">
+    <View className="gap-5 pt-4">
       {/* Location Picker */}
       <LocationPicker
         value={locationValue}

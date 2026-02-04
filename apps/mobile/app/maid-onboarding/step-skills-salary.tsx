@@ -61,7 +61,7 @@ export default function StepSkillsSalary() {
   };
 
   return (
-    <View>
+    <View className="pt-4">
       <Text className={`text-typography-500 mb-4 ${isRTL ? 'text-right' : ''}`}>
         {isRTL ? 'حدد مستوى المهارة لكل نوع خدمة' : 'Select skill level for each service type'}
       </Text>

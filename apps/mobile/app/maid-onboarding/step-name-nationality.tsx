@@ -22,7 +22,7 @@ export default function StepNameNationality() {
   const nameValue = isRTL ? formData.nameAr : formData.name;
 
   return (
-    <View>
+    <View className="pt-4">
       {/* Name - Single field based on language */}
       <View className="mb-6">
         <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>

@@ -30,7 +30,7 @@ export default function StepContactReview() {
   };
 
   return (
-    <View>
+    <View className="pt-4">
       {/* Photo Preview - At top, bigger, aligned based on language */}
       {formData.photoUrl && (
         <View className={`mb-6 ${isRTL ? 'items-end' : 'items-start'}`}>

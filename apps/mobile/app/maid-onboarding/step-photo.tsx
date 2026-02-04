@@ -10,7 +10,7 @@ export default function StepPhoto() {
   };
 
   return (
-    <View className="flex-1 items-center">
+    <View className="flex-1 items-center pt-4">
       <PhotoPicker
         value={formData.photoUrl || null}
         onChange={handlePhotoChange}

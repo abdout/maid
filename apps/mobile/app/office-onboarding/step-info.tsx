@@ -14,7 +14,7 @@ export default function StepInfo() {
   };
 
   return (
-    <View className="gap-5">
+    <View className="gap-5 pt-4">
       {/* Office Name - Single field based on language */}
       <View>
         <Text className={`text-sm font-medium text-typography-700 mb-2 ${isRTL ? 'text-right' : ''}`}>
