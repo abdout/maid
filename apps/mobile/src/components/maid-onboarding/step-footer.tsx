@@ -55,22 +55,17 @@ export function StepFooter({
     : (currentStep === totalSteps ? 'Publish' : 'Next');
 
   return (
-    <View
-      className="bg-background-0 border-t border-background-100"
-      style={{
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 5,
-      }}
-    >
+    <View className="bg-background-0">
       {/* Progress Bars */}
       <View className={`flex-row px-6 pt-3 gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
         {[1, 2, 3].map((section) => (
-          <View key={section} className="flex-1 h-1 bg-background-200 rounded-full overflow-hidden">
+          <View
+            key={section}
+            className="flex-1 h-1 bg-background-200 rounded-full overflow-hidden"
+            style={isRTL ? { transform: [{ scaleX: -1 }] } : undefined}
+          >
             <View
-              className={`h-full bg-typography-900 rounded-full ${isRTL ? 'self-end' : ''}`}
+              className="h-full bg-typography-900 rounded-full"
               style={{ width: `${getProgress(section)}%` }}
             />
           </View>

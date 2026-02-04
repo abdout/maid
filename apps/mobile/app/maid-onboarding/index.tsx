@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMaidForm, TOTAL_STEPS, STEP_TITLES, validateStep } from '@/store/maid-form';
 import { useCreateMaid, useUpdateMaid, useToast } from '@/hooks';
-import { XIcon } from '@/components/icons';
 import { StepsOverview, StepFooter } from '@/components/maid-onboarding';
 
 import StepNameNationality from './step-name-nationality';
@@ -31,11 +30,6 @@ export default function CreateMaidScreen() {
   const createMaid = useCreateMaid();
   const updateMaid = useUpdateMaid();
   const isSubmitting = createMaid.isPending || updateMaid.isPending;
-
-  const handleClose = () => {
-    reset();
-    router.back();
-  };
 
   const handleGetStarted = () => {
     setShowOverview(false);
@@ -185,16 +179,6 @@ export default function CreateMaidScreen() {
       <SafeAreaView className="flex-1 bg-background-0" edges={['top', 'bottom']}>
         <Stack.Screen options={{ headerShown: false }} />
 
-        {/* Close Button */}
-        <View className="px-4 py-3">
-          <Pressable
-            onPress={handleClose}
-            className="w-10 h-10 items-center justify-center"
-          >
-            <XIcon size={24} color="#222222" />
-          </Pressable>
-        </View>
-
         <StepsOverview onGetStarted={handleGetStarted} />
       </SafeAreaView>
     );
@@ -235,22 +219,13 @@ export default function CreateMaidScreen() {
     <SafeAreaView className="flex-1 bg-background-0" edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header */}
-      <View className={`px-4 py-3 flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-        <Pressable
-          onPress={handleClose}
-          className="w-10 h-10 items-center justify-center"
-        >
-          <XIcon size={24} color="#222222" />
-        </Pressable>
-
-        <View className="flex-1" />
-      </View>
-
-      {/* Step Title */}
-      <View className="px-6 pb-4">
+      {/* Step Title & Description */}
+      <View className="px-6 pb-4 pt-3">
         <Text className={`text-2xl font-bold text-typography-900 ${isRTL ? 'text-right' : ''}`}>
           {isRTL ? stepTitle.ar : stepTitle.en}
+        </Text>
+        <Text className={`text-typography-500 text-sm mt-1 ${isRTL ? 'text-right' : ''}`}>
+          {isRTL ? stepTitle.descAr : stepTitle.descEn}
         </Text>
       </View>
 

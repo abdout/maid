@@ -23,7 +23,7 @@ export default function StepInfo() {
         <TextInput
           value={formData.name}
           onChangeText={handleNameChange}
-          placeholder={isRTL ? 'شركة ABC للتوظيف' : 'ABC Recruitment'}
+          placeholder={isRTL ? 'تدبير للتوظيف' : 'Tadbeer Recruitment'}
           placeholderTextColor="#9CA3AF"
           className={`bg-background-50 border rounded-xl px-4 py-3 text-base text-typography-900 ${
             errors.name ? 'border-error-500' : 'border-background-200'

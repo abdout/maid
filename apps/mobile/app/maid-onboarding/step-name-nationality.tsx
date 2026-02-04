@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useMaidForm } from '@/store/maid-form';
 import { NATIONALITIES } from '@/constants';
@@ -51,32 +51,30 @@ export default function StepNameNationality() {
         <Text className={`text-typography-700 mb-2 font-medium ${isRTL ? 'text-right' : ''}`}>
           {isRTL ? 'الجنسية' : 'Nationality'} *
         </Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View className={`flex-row gap-2 pb-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            {NATIONALITIES.map((nat) => (
-              <Pressable
-                key={nat.id}
-                onPress={() => updateFormData({ nationalityId: nat.id })}
-                className={`flex-row items-center gap-2 px-4 py-2.5 rounded-full border ${
+        <View className={`flex-row flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          {NATIONALITIES.map((nat) => (
+            <Pressable
+              key={nat.id}
+              onPress={() => updateFormData({ nationalityId: nat.id })}
+              className={`flex-row items-center gap-2 px-4 py-2.5 rounded-full border ${
+                formData.nationalityId === nat.id
+                  ? 'bg-primary-500 border-primary-500'
+                  : 'bg-background-0 border-background-200'
+              }`}
+            >
+              <CountryFlag code={nat.code} width={20} />
+              <Text
+                className={
                   formData.nationalityId === nat.id
-                    ? 'bg-primary-500 border-primary-500'
-                    : 'bg-background-0 border-background-200'
-                }`}
+                    ? 'text-white font-medium'
+                    : 'text-typography-700'
+                }
               >
-                <CountryFlag code={nat.code} width={20} />
-                <Text
-                  className={
-                    formData.nationalityId === nat.id
-                      ? 'text-white font-medium'
-                      : 'text-typography-700'
-                  }
-                >
-                  {isRTL ? nat.nameAr : nat.nameEn}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </ScrollView>
+                {isRTL ? nat.nameAr : nat.nameEn}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
         {errors.nationalityId && (
           <Text className="text-error-500 text-sm mt-1">{errors.nationalityId}</Text>
         )}

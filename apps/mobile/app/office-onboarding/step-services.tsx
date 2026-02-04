@@ -1,13 +1,6 @@
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useOfficeForm, OFFICE_SCOPE_OPTIONS } from '@/store/office-form';
-
-// Service icons - using existing PNG assets
-const scopeImages = {
-  recruitment: require('../../assets/baby-stroller.png'), // Workers from abroad
-  leasing: require('../../assets/wipe.png'), // Local workers
-  typing: require('../../assets/chef-hat.png'), // Document processing
-} as const;
 
 // Descriptions for each scope
 const SCOPE_DESCRIPTIONS = {
@@ -76,14 +69,6 @@ export default function StepServices() {
                   <Text className="text-white text-sm font-bold">✓</Text>
                 )}
               </View>
-
-              {/* Icon */}
-              <Image
-                source={scopeImages[option.id]}
-                style={{ width: 40, height: 40 }}
-                resizeMode="contain"
-                className={isRTL ? 'ml-3' : 'mr-3'}
-              />
 
               {/* Content */}
               <View className="flex-1">

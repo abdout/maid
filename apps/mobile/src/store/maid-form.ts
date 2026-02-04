@@ -120,18 +120,18 @@ export const TOTAL_STEPS = 10;
 
 export const STEP_TITLES = {
   // Phase 1: Personal Info (Steps 1-3)
-  1: { en: 'Name & Nationality', ar: 'الاسم والجنسية' },
-  2: { en: 'Personal Details', ar: 'البيانات الشخصية' },
-  3: { en: 'Background', ar: 'الخلفية' },
+  1: { en: 'Name & Nationality', ar: 'الاسم والجنسية', descEn: 'Basic identification details', descAr: 'بيانات التعريف الأساسية' },
+  2: { en: 'Personal Details', ar: 'البيانات الشخصية', descEn: 'Age, gender and family status', descAr: 'العمر والجنس والحالة العائلية' },
+  3: { en: 'Background', ar: 'الخلفية', descEn: 'Education and religion', descAr: 'التعليم والدين' },
   // Phase 2: Work Info (Steps 4-7)
-  4: { en: 'Service Type', ar: 'نوع الخدمة' },
-  5: { en: 'Package', ar: 'الباقة' },
-  6: { en: 'Experience', ar: 'الخبرة' },
-  7: { en: 'Skills & Salary', ar: 'المهارات والراتب' },
+  4: { en: 'Service Type', ar: 'نوع الخدمة', descEn: 'Primary work category', descAr: 'فئة العمل الرئيسية' },
+  5: { en: 'Package', ar: 'الباقة', descEn: 'Employment arrangement', descAr: 'ترتيب التوظيف' },
+  6: { en: 'Experience & Salary', ar: 'الخبرة والراتب', descEn: 'Work history and compensation', descAr: 'تاريخ العمل والراتب' },
+  7: { en: 'Skills', ar: 'المهارات', descEn: 'Skill levels for each service', descAr: 'مستويات المهارة لكل خدمة' },
   // Phase 3: Documents (Steps 8-10)
-  8: { en: 'Languages', ar: 'اللغات' },
-  9: { en: 'Photo', ar: 'الصورة' },
-  10: { en: 'Contact & Review', ar: 'التواصل والمراجعة' },
+  8: { en: 'Languages', ar: 'اللغات', descEn: 'Languages spoken', descAr: 'اللغات المتحدثة' },
+  9: { en: 'Photo', ar: 'الصورة', descEn: 'Upload a clear profile photo', descAr: 'رفع صورة شخصية واضحة' },
+  10: { en: 'Contact & Review', ar: 'التواصل والمراجعة', descEn: 'Contact info and final review', descAr: 'معلومات الاتصال والمراجعة النهائية' },
 };
 
 // Per-step validation for 10-step flow
@@ -149,7 +149,23 @@ export const validateStep = (step: number, data: MaidFormData, isRTL: boolean): 
     }
   }
 
-  // Steps 2-3: No required fields (personal details and background are optional)
+  if (step === 2) {
+    // Date of birth validation - if provided, must be valid and age 21-50
+    if (data.dateOfBirth) {
+      const dob = new Date(data.dateOfBirth);
+      if (isNaN(dob.getTime())) {
+        errors.dateOfBirth = isRTL ? 'تاريخ الميلاد غير صحيح' : 'Invalid date of birth';
+      } else {
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear();
+        if (age < 21 || age > 50) {
+          errors.dateOfBirth = isRTL ? 'العمر يجب أن يكون بين 21 و 50' : 'Age must be between 21 and 50';
+        }
+      }
+    }
+  }
+
+  // Step 3: Background - no required fields (education and religion are optional)
 
   // Phase 2: Work Info
   if (step === 4) {
@@ -166,12 +182,19 @@ export const validateStep = (step: number, data: MaidFormData, isRTL: boolean): 
     }
   }
 
-  if (step === 7) {
-    // Skills & Salary - salary is required
+  if (step === 6) {
+    // Experience & Salary - salary is required (moved from step 7)
     if (!data.salary || parseFloat(data.salary) <= 0) {
       errors.salary = isRTL ? 'الراتب مطلوب' : 'Salary is required';
     }
+    // Optional: salary range validation (500-10000)
+    const salaryNum = parseFloat(data.salary);
+    if (salaryNum > 0 && (salaryNum < 500 || salaryNum > 10000)) {
+      errors.salary = isRTL ? 'الراتب يجب أن يكون بين 500 و 10,000' : 'Salary must be between 500 and 10,000';
+    }
   }
+
+  // Step 7: Skills - no required fields (removed salary validation)
 
   // Phase 3: Documents
   if (step === 9) {

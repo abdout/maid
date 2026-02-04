@@ -75,7 +75,7 @@ export default function StepExperienceNew() {
           numberOfLines={4}
           textAlignVertical="top"
           textAlign={isRTL ? 'right' : 'left'}
-          className="bg-background-50 rounded-xl px-4 py-3.5 text-base text-typography-900 min-h-[120px]"
+          className="bg-background-50 rounded-xl px-4 py-3.5 text-base text-typography-900 min-h-[100px]"
         />
       </View>
 
@@ -106,9 +106,6 @@ export default function StepExperienceNew() {
         {errors.salary && (
           <Text className={`text-error-500 text-sm mt-1 ${isRTL ? 'text-right' : ''}`}>{errors.salary}</Text>
         )}
-        <Text className={`text-typography-400 text-sm mt-1 ${isRTL ? 'text-right' : ''}`}>
-          {t('form.salaryRange')}
-        </Text>
       </View>
 
       {/* Office Fees */}

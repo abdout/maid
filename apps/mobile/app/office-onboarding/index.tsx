@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { authApi } from '@/lib/api';
 import { useAuth } from '@/store/auth';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,13 +7,13 @@ import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useOfficeForm, TOTAL_STEPS, STEP_TITLES, validateStep } from '@/store/office-form';
 import { useRegisterOffice, useToast } from '@/hooks';
-import { XIcon } from '@/components/icons';
 import { OfficeStepsOverview, OfficeStepFooter } from '@/components/office-onboarding';
 
 import StepInfo from './step-info';
 import StepServices from './step-services';
 import StepLocation from './step-location';
 import StepLicense from './step-license';
+import StepLogo from './step-logo';
 import StepReview from './step-review';
 
 export default function OfficeOnboardingScreen() {
@@ -168,23 +168,12 @@ export default function OfficeOnboardingScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background-0" edges={['top', 'bottom']}>
         <Stack.Screen options={{ headerShown: false }} />
-
-        {/* Close Button */}
-        <View className="px-4 py-3">
-          <Pressable
-            onPress={handleClose}
-            className="w-10 h-10 items-center justify-center"
-          >
-            <XIcon size={24} color="#222222" />
-          </Pressable>
-        </View>
-
         <OfficeStepsOverview onGetStarted={handleGetStarted} />
       </SafeAreaView>
     );
   }
 
-  // Render steps (5 total in 3 phases)
+  // Render steps (6 total in 3 phases)
   const renderStep = () => {
     switch (currentStep) {
       // Phase 1: Basic Info
@@ -192,13 +181,15 @@ export default function OfficeOnboardingScreen() {
         return <StepInfo />;
       case 2:
         return <StepServices />;
-      // Phase 2: Location
+      // Phase 2: Location & License
       case 3:
         return <StepLocation />;
       case 4:
         return <StepLicense />;
-      // Phase 3: Review
+      // Phase 3: Logo & Review
       case 5:
+        return <StepLogo />;
+      case 6:
         return <StepReview />;
       default:
         return null;
@@ -209,25 +200,13 @@ export default function OfficeOnboardingScreen() {
     <SafeAreaView className="flex-1 bg-background-0" edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header */}
-      <View className={`px-4 py-3 flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-        <Pressable
-          onPress={handleClose}
-          className="w-10 h-10 items-center justify-center"
-        >
-          <XIcon size={24} color="#222222" />
-        </Pressable>
-
-        <View className="flex-1" />
-      </View>
-
       {/* Step Title */}
-      <View className="px-6 pb-4">
+      <View className="px-6 pt-4 pb-4">
         <Text className={`text-2xl font-bold text-typography-900 ${isRTL ? 'text-right' : ''}`}>
           {isRTL ? stepTitle.ar : stepTitle.en}
         </Text>
         <Text className={`text-sm text-typography-500 mt-1 ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? `الخطوة ${currentStep} من ${TOTAL_STEPS}` : `Step ${currentStep} of ${TOTAL_STEPS}`}
+          {isRTL ? stepTitle.descAr : stepTitle.descEn}
         </Text>
       </View>
 

@@ -11,21 +11,21 @@ export interface Language {
 }
 
 export const LANGUAGES: Readonly<Language[]> = [
-  // Common languages
-  { id: 'lang-ar', code: 'ar', nameEn: 'Arabic', nameAr: 'العربية' },
-  { id: 'lang-en', code: 'en', nameEn: 'English', nameAr: 'الإنجليزية' },
+  // Common languages - UUIDs for API compatibility
+  { id: '550e8400-e29b-41d4-a716-446655440001', code: 'ar', nameEn: 'Arabic', nameAr: 'العربية' },
+  { id: '550e8400-e29b-41d4-a716-446655440002', code: 'en', nameEn: 'English', nameAr: 'الإنجليزية' },
   // Other languages
-  { id: 'lang-tl', code: 'tl', nameEn: 'Filipino', nameAr: 'الفلبينية' },
-  { id: 'lang-id', code: 'id', nameEn: 'Indonesian', nameAr: 'الإندونيسية' },
-  { id: 'lang-hi', code: 'hi', nameEn: 'Hindi', nameAr: 'الهندية' },
-  { id: 'lang-si', code: 'si', nameEn: 'Sinhala', nameAr: 'السنهالية' },
-  { id: 'lang-ta', code: 'ta', nameEn: 'Tamil', nameAr: 'التاميلية' },
-  { id: 'lang-ne', code: 'ne', nameEn: 'Nepali', nameAr: 'النيبالية' },
-  { id: 'lang-my', code: 'my', nameEn: 'Burmese', nameAr: 'البورمية' },
-  { id: 'lang-am', code: 'am', nameEn: 'Amharic', nameAr: 'الأمهرية' },
-  { id: 'lang-sw', code: 'sw', nameEn: 'Swahili', nameAr: 'السواحيلية' },
-  { id: 'lang-ak', code: 'ak', nameEn: 'Akan', nameAr: 'الأكانية' },
-  { id: 'lang-kri', code: 'kri', nameEn: 'Krio', nameAr: 'الكريو' },
+  { id: '550e8400-e29b-41d4-a716-446655440003', code: 'tl', nameEn: 'Filipino', nameAr: 'الفلبينية' },
+  { id: '550e8400-e29b-41d4-a716-446655440004', code: 'id', nameEn: 'Indonesian', nameAr: 'الإندونيسية' },
+  { id: '550e8400-e29b-41d4-a716-446655440005', code: 'hi', nameEn: 'Hindi', nameAr: 'الهندية' },
+  { id: '550e8400-e29b-41d4-a716-446655440006', code: 'si', nameEn: 'Sinhala', nameAr: 'السنهالية' },
+  { id: '550e8400-e29b-41d4-a716-446655440007', code: 'ta', nameEn: 'Tamil', nameAr: 'التاميلية' },
+  { id: '550e8400-e29b-41d4-a716-446655440008', code: 'ne', nameEn: 'Nepali', nameAr: 'النيبالية' },
+  { id: '550e8400-e29b-41d4-a716-446655440009', code: 'my', nameEn: 'Burmese', nameAr: 'البورمية' },
+  { id: '550e8400-e29b-41d4-a716-446655440010', code: 'am', nameEn: 'Amharic', nameAr: 'الأمهرية' },
+  { id: '550e8400-e29b-41d4-a716-446655440011', code: 'sw', nameEn: 'Swahili', nameAr: 'السواحيلية' },
+  { id: '550e8400-e29b-41d4-a716-446655440012', code: 'ak', nameEn: 'Akan', nameAr: 'الأكانية' },
+  { id: '550e8400-e29b-41d4-a716-446655440013', code: 'kri', nameEn: 'Krio', nameAr: 'الكريو' },
 ] as const;
 
 export const COMMON_LANGUAGE_CODES = ['ar', 'en'];

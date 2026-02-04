@@ -35,16 +35,6 @@ export default function StepLocation() {
 
   return (
     <View className="gap-5">
-      {/* Section Header */}
-      <View>
-        <Text className={`text-lg font-semibold text-typography-900 ${isRTL ? 'text-right' : ''}`}>
-          {t('locationPicker.title')}
-        </Text>
-        <Text className={`text-sm text-typography-500 mt-1 ${isRTL ? 'text-right' : ''}`}>
-          {t('locationPicker.subtitle')}
-        </Text>
-      </View>
-
       {/* Location Picker */}
       <LocationPicker
         value={locationValue}

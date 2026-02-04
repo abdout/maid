@@ -25,10 +25,10 @@ export function OfficeStepFooter({
   const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  // Calculate progress for 3 phases with 5 total steps
+  // Calculate progress for 3 phases with 6 total steps
   // Phase 1 (Basic Info): Steps 1-2
-  // Phase 2 (Location): Steps 3-4
-  // Phase 3 (Review): Step 5
+  // Phase 2 (Location & License): Steps 3-4
+  // Phase 3 (Logo & Review): Steps 5-6
   const getProgress = (phase: number) => {
     if (phase === 1) {
       // Steps 1-2
@@ -42,9 +42,10 @@ export function OfficeStepFooter({
       return ((currentStep - 2) / 2) * 100;
     }
     if (phase === 3) {
-      // Step 5
+      // Steps 5-6
       if (currentStep < 5) return 0;
-      return 100;
+      if (currentStep >= 6) return 100;
+      return ((currentStep - 4) / 2) * 100;
     }
     return 0;
   };
@@ -54,22 +55,17 @@ export function OfficeStepFooter({
     : (currentStep === totalSteps ? 'Register' : 'Next');
 
   return (
-    <View
-      className="bg-background-0 border-t border-background-100"
-      style={{
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 5,
-      }}
-    >
+    <View className="bg-background-0">
       {/* Progress Bars - 3 phases */}
       <View className={`flex-row px-6 pt-3 gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
         {[1, 2, 3].map((phase) => (
-          <View key={phase} className="flex-1 h-1 bg-background-200 rounded-full overflow-hidden">
+          <View
+            key={phase}
+            className="flex-1 h-1 bg-background-200 rounded-full overflow-hidden"
+            style={isRTL ? { transform: [{ scaleX: -1 }] } : undefined}
+          >
             <View
-              className={`h-full bg-typography-900 rounded-full ${isRTL ? 'self-end' : ''}`}
+              className="h-full bg-typography-900 rounded-full"
               style={{ width: `${getProgress(phase)}%` }}
             />
           </View>

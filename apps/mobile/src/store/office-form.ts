@@ -52,17 +52,33 @@ export const INITIAL_FORM_DATA: OfficeFormData = {
   logoUrl: '',
 };
 
-export const TOTAL_STEPS = 5;
+export const TOTAL_STEPS = 6;
 
 export const STEP_TITLES = {
-  // Phase 1: Basic Info (Steps 1-2)
-  1: { en: 'Office Info', ar: 'معلومات المكتب' },
-  2: { en: 'Services', ar: 'الخدمات' },
-  // Phase 2: Location (Steps 3-4)
-  3: { en: 'Location', ar: 'الموقع' },
-  4: { en: 'License & Contact', ar: 'الترخيص والتواصل' },
-  // Phase 3: Review (Step 5)
-  5: { en: 'Review', ar: 'المراجعة' },
+  1: {
+    en: 'Office Info', ar: 'معلومات المكتب',
+    descEn: 'Enter your office details', descAr: 'أدخل بيانات مكتبك'
+  },
+  2: {
+    en: 'Services', ar: 'الخدمات',
+    descEn: 'Select services you provide', descAr: 'اختر الخدمات التي تقدمها'
+  },
+  3: {
+    en: 'Location', ar: 'الموقع',
+    descEn: 'Set your office location', descAr: 'حدد موقع مكتبك'
+  },
+  4: {
+    en: 'License', ar: 'الترخيص',
+    descEn: 'Add license information', descAr: 'أضف معلومات الرخصة'
+  },
+  5: {
+    en: 'Logo', ar: 'الشعار',
+    descEn: 'Upload your office logo', descAr: 'ارفع شعار مكتبك'
+  },
+  6: {
+    en: 'Review', ar: 'المراجعة',
+    descEn: 'Confirm your details', descAr: 'تأكد من بياناتك'
+  },
 };
 
 // UAE Emirates options
