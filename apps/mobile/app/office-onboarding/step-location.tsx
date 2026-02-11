@@ -1,12 +1,11 @@
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 import { useOfficeForm } from '@/store/office-form';
 import { LocationPicker, type LocationData } from '@/components';
 
 export default function StepLocation() {
-  const { t, i18n } = useTranslation();
-  const isRTL = i18n.language === 'ar';
+  const { t } = useTranslation();
   const { formData, updateFormData, errors } = useOfficeForm();
 
   // Build location value from form data
@@ -42,18 +41,6 @@ export default function StepLocation() {
         error={errors.location}
         placeholder={t('locationPicker.searchPlaceholder')}
       />
-
-      {/* Help Text */}
-      <View className="bg-background-50 rounded-xl p-4 border border-background-200">
-        <View className={`flex-row items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <Text className="text-xl">💡</Text>
-          <View className="flex-1">
-            <Text className={`text-sm text-typography-600 ${isRTL ? 'text-right' : 'text-left'}`}>
-              {t('locationPicker.helpText')}
-            </Text>
-          </View>
-        </View>
-      </View>
     </View>
   );
 }

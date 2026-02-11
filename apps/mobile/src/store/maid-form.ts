@@ -140,9 +140,11 @@ export const validateStep = (step: number, data: MaidFormData, isRTL: boolean): 
 
   // Phase 1: Personal Info
   if (step === 1) {
-    // Name & Nationality - required fields
-    if (!data.name.trim() && !data.nameAr.trim()) {
+    // Name & Nationality - required fields (English only)
+    if (!data.name.trim()) {
       errors.name = isRTL ? 'الاسم مطلوب' : 'Name is required';
+    } else if (!/^[a-zA-Z\s'-]+$/.test(data.name.trim())) {
+      errors.name = isRTL ? 'الاسم يجب أن يكون بالإنجليزية فقط' : 'Name must be in English only';
     }
     if (!data.nationalityId) {
       errors.nationalityId = isRTL ? 'الجنسية مطلوبة' : 'Nationality is required';

@@ -10,16 +10,13 @@ export default function StepNameNationality() {
 
   const { formData, updateFormData, errors } = useMaidForm();
 
-  // Single-language name input based on app language
+  // English-only name input — always stored in `name` field
   const handleNameChange = (text: string) => {
-    if (isRTL) {
-      updateFormData({ nameAr: text });
-    } else {
-      updateFormData({ name: text });
-    }
+    const filtered = text.replace(/[^a-zA-Z\s'-]/g, '');
+    updateFormData({ name: filtered });
   };
 
-  const nameValue = isRTL ? formData.nameAr : formData.name;
+  const nameValue = formData.name;
 
   return (
     <View className="pt-8">
@@ -31,7 +28,7 @@ export default function StepNameNationality() {
         <TextInput
           value={nameValue}
           onChangeText={handleNameChange}
-          placeholder={isRTL ? 'فاطمة' : 'Fatima'}
+          placeholder={isRTL ? 'أدخل الاسم بالإنجليزية' : 'Enter name in English'}
           placeholderTextColor="#9CA3AF"
           className={`bg-background-50 rounded-xl px-4 py-3.5 text-base text-typography-900 ${
             errors.name ? 'border border-error-500' : ''
@@ -41,9 +38,6 @@ export default function StepNameNationality() {
         {errors.name && (
           <Text className="text-error-500 text-sm mt-1">{errors.name}</Text>
         )}
-        <Text className={`text-typography-400 text-xs mt-1 ${isRTL ? 'text-right' : ''}`}>
-          {isRTL ? 'سيتم ترجمة الاسم تلقائياً' : 'Will be auto-translated'}
-        </Text>
       </View>
 
       {/* Nationality */}

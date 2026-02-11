@@ -5,7 +5,8 @@ export const basicInfoSchema = z.object({
   name: z
     .string()
     .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name must be less than 100 characters'),
+    .max(100, 'Name must be less than 100 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Name must be in English only'),
   nameAr: z.string().optional(),
   nationalityId: z.string().uuid('Please select a nationality'),
   dateOfBirth: z

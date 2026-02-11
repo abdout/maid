@@ -204,22 +204,6 @@ export function MapViewWeb({
         }}
       />
 
-      {/* GPS Button */}
-      <Pressable
-        onPress={onRequestCurrentLocation}
-        disabled={loadingLocation}
-        className="absolute bottom-3 right-3 w-11 h-11 bg-background-0 rounded-full items-center justify-center shadow-md border border-background-200"
-        style={{
-          zIndex: 10,
-        }}
-      >
-        {loadingLocation ? (
-          <ActivityIndicator size="small" color="#2563EB" />
-        ) : (
-          <Ionicons name="locate" size={22} color="#2563EB" />
-        )}
-      </Pressable>
-
       {/* Tap hint when no pin */}
       {!latitude && !longitude && (
         <View

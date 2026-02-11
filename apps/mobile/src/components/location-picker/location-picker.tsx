@@ -84,6 +84,8 @@ export function LocationPicker({
         onSelectResult={handleSelectResult}
         onClear={handleClearSearch}
         placeholder={placeholder}
+        onRequestCurrentLocation={handleRequestCurrentLocation}
+        loadingLocation={locationLoading}
       />
 
       {/* Map View - taller height per user request */}

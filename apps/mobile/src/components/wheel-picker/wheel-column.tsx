@@ -2,7 +2,7 @@
  * WheelColumn - Single scrollable column for wheel picker
  *
  * Uses FlatList with snap behavior for native iOS/Android feel.
- * Uses ScrollView with snap behavior for web.
+ * Uses raw <div> with CSS scroll-snap for reliable web behavior.
  */
 
 import { useRef, useCallback, useEffect, useState } from 'react';
@@ -10,7 +10,6 @@ import {
   View,
   Text,
   FlatList,
-  ScrollView,
   Platform,
   NativeSyntheticEvent,
   NativeScrollEvent,
@@ -48,7 +47,7 @@ function WheelItem({ item, index, selectedIndex, itemHeight }: ItemRendererProps
   );
 }
 
-// Web-specific wheel column using ScrollView
+// Web-specific wheel column using raw <div> with CSS scroll-snap
 function WebWheelColumn({
   items,
   selectedIndex,
@@ -57,89 +56,146 @@ function WebWheelColumn({
   visibleItems = VISIBLE_ITEMS,
   testID,
 }: WheelColumnProps) {
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [internalIndex, setInternalIndex] = useState(selectedIndex);
   const isUserScrolling = useRef(false);
-  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+  const containerId = useRef(`wheel-${Math.random().toString(36).slice(2, 8)}`);
 
+  const containerHeight = itemHeight * visibleItems;
   const paddingVertical = (itemHeight * (visibleItems - 1)) / 2;
 
-  // Sync with external selectedIndex
+  // Scroll to a given index
+  const scrollToIndex = useCallback(
+    (index: number, behavior: ScrollBehavior = 'smooth') => {
+      scrollRef.current?.scrollTo({ top: index * itemHeight, behavior });
+    },
+    [itemHeight]
+  );
+
+  // Resolve index from current scroll position
+  const resolveIndex = useCallback(() => {
+    if (!scrollRef.current) return selectedIndex;
+    const y = scrollRef.current.scrollTop;
+    return Math.max(0, Math.min(Math.round(y / itemHeight), items.length - 1));
+  }, [itemHeight, items.length, selectedIndex]);
+
+  // Commit the snapped index
+  const commitIndex = useCallback(() => {
+    const idx = resolveIndex();
+    isUserScrolling.current = false;
+    setInternalIndex(idx);
+    if (idx !== selectedIndex) onSelect(idx);
+  }, [resolveIndex, selectedIndex, onSelect]);
+
+  // Scroll-end detection: native scrollend + debounce fallback
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    let fallback: ReturnType<typeof setTimeout> | null = null;
+    let hasNativeScrollEnd = false;
+
+    const onScrollEnd = () => {
+      if (fallback) clearTimeout(fallback);
+      hasNativeScrollEnd = true;
+      commitIndex();
+    };
+
+    const onScroll = () => {
+      isUserScrolling.current = true;
+      const idx = resolveIndex();
+      if (idx !== internalIndex) setInternalIndex(idx);
+
+      // Debounce fallback for browsers without scrollend (Safari 15-17)
+      if (!hasNativeScrollEnd) {
+        if (fallback) clearTimeout(fallback);
+        fallback = setTimeout(commitIndex, 120);
+      }
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener('scrollend', onScrollEnd);
+
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      el.removeEventListener('scrollend', onScrollEnd);
+      if (fallback) clearTimeout(fallback);
+    };
+  }, [resolveIndex, commitIndex, internalIndex]);
+
+  // Sync with external selectedIndex changes
   useEffect(() => {
     if (selectedIndex !== internalIndex && !isUserScrolling.current) {
       setInternalIndex(selectedIndex);
-      scrollViewRef.current?.scrollTo({
-        y: selectedIndex * itemHeight,
-        animated: true,
-      });
+      scrollToIndex(selectedIndex);
     }
-  }, [selectedIndex, itemHeight, internalIndex]);
+  }, [selectedIndex, internalIndex, scrollToIndex]);
 
   // Initial scroll position
   useEffect(() => {
-    const timer = setTimeout(() => {
-      scrollViewRef.current?.scrollTo({
-        y: selectedIndex * itemHeight,
-        animated: false,
-      });
-    }, 50);
-    return () => clearTimeout(timer);
+    requestAnimationFrame(() => scrollToIndex(selectedIndex, 'instant'));
   }, []);
 
-  const handleScroll = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      isUserScrolling.current = true;
-
-      // Clear previous timeout
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
-
-      const offsetY = event.nativeEvent.contentOffset.y;
-      const index = Math.round(offsetY / itemHeight);
-      const clampedIndex = Math.max(0, Math.min(index, items.length - 1));
-
-      if (clampedIndex !== internalIndex) {
-        setInternalIndex(clampedIndex);
-      }
-
-      // Debounced selection notification
-      scrollTimeout.current = setTimeout(() => {
-        isUserScrolling.current = false;
-        if (clampedIndex !== selectedIndex) {
-          onSelect(clampedIndex);
-        }
-        // Snap to nearest item
-        scrollViewRef.current?.scrollTo({
-          y: clampedIndex * itemHeight,
-          animated: true,
-        });
-      }, 150);
+  // Tap-to-select
+  const handleItemClick = useCallback(
+    (index: number) => {
+      scrollToIndex(index);
+      // Eagerly update in case scrollend doesn't fire (e.g. already at position)
+      setInternalIndex(index);
+      if (index !== selectedIndex) onSelect(index);
     },
-    [itemHeight, items.length, selectedIndex, onSelect, internalIndex]
+    [scrollToIndex, selectedIndex, onSelect]
   );
 
   return (
-    <View style={[styles.container, { height: itemHeight * visibleItems }]} testID={testID}>
-      <ScrollView
-        ref={scrollViewRef}
-        showsVerticalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        decelerationRate="fast"
-        snapToInterval={itemHeight}
-        contentContainerStyle={{ paddingVertical }}
+    <View style={[styles.container, { height: containerHeight }]} testID={testID}>
+      {/* Hide scrollbar for WebKit browsers */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `#${containerId.current}::-webkit-scrollbar { display: none; }`,
+        }}
+      />
+      <div
+        id={containerId.current}
+        ref={scrollRef}
+        style={{
+          height: containerHeight,
+          overflowY: 'auto',
+          scrollSnapType: 'y mandatory',
+          overscrollBehavior: 'contain',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          position: 'relative',
+        }}
       >
+        {/* Top padding spacer */}
+        <div style={{ height: paddingVertical, flexShrink: 0 }} />
+
         {items.map((item, index) => (
-          <WheelItem
+          <div
             key={`${item.value}`}
-            item={item}
-            index={index}
-            selectedIndex={internalIndex}
-            itemHeight={itemHeight}
-          />
+            onClick={() => handleItemClick(index)}
+            style={{
+              height: itemHeight,
+              scrollSnapAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <WheelItem
+              item={item}
+              index={index}
+              selectedIndex={internalIndex}
+              itemHeight={itemHeight}
+            />
+          </div>
         ))}
-      </ScrollView>
+
+        {/* Bottom padding spacer */}
+        <div style={{ height: paddingVertical, flexShrink: 0 }} />
+      </div>
     </View>
   );
 }

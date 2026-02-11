@@ -11,6 +11,8 @@ interface SearchInputProps {
   onSelectResult: (feature: MapboxFeature) => void;
   onClear: () => void;
   placeholder?: string;
+  onRequestCurrentLocation?: () => void;
+  loadingLocation?: boolean;
 }
 
 export function SearchInput({
@@ -21,6 +23,8 @@ export function SearchInput({
   onSelectResult,
   onClear,
   placeholder,
+  onRequestCurrentLocation,
+  loadingLocation,
 }: SearchInputProps) {
   const { i18n, t } = useTranslation();
   const isRTL = i18n.language === 'ar';
@@ -30,30 +34,49 @@ export function SearchInput({
   return (
     <View className="relative z-10">
       {/* Search Input */}
-      <View className="flex-row items-center bg-background-50 border border-background-200 rounded-xl px-3">
-        <Ionicons
-          name="search"
-          size={20}
-          color="#9CA3AF"
-          style={{ marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}
-        />
+      <View className="flex-row items-center bg-background-50 border border-background-200 rounded-xl">
+        {/* GPS Icon - Leading edge */}
+        {onRequestCurrentLocation && (
+          <>
+            <Pressable
+              onPress={onRequestCurrentLocation}
+              disabled={loadingLocation}
+              className="px-3 py-3"
+            >
+              {loadingLocation ? (
+                <ActivityIndicator size="small" color="#2563EB" />
+              ) : (
+                <Ionicons name="locate" size={20} color="#2563EB" />
+              )}
+            </Pressable>
+            {/* Thin Vertical Divider */}
+            <View className="w-px h-6 bg-background-300" />
+          </>
+        )}
+
+        {/* Search Input */}
         <TextInput
           value={query}
           onChangeText={onQueryChange}
           placeholder={placeholder || t('locationPicker.searchPlaceholder')}
           placeholderTextColor="#9CA3AF"
-          className={`flex-1 py-3 text-base text-typography-900 ${isRTL ? 'text-right' : 'text-left'}`}
+          className={`flex-1 py-3 px-3 text-base text-typography-900 ${isRTL ? 'text-right' : 'text-left'}`}
           textAlign={isRTL ? 'right' : 'left'}
           autoCapitalize="none"
           autoCorrect={false}
         />
+
+        {/* Right side: loading/clear or search icon */}
         {loading && (
-          <ActivityIndicator size="small" color="#6B7280" />
+          <ActivityIndicator size="small" color="#6B7280" style={{ marginRight: 12 }} />
         )}
         {query.length > 0 && !loading && (
-          <Pressable onPress={onClear} className="p-1">
+          <Pressable onPress={onClear} className="p-1 mr-2">
             <Ionicons name="close-circle" size={20} color="#9CA3AF" />
           </Pressable>
+        )}
+        {query.length === 0 && !loading && (
+          <Ionicons name="search" size={20} color="#9CA3AF" style={{ marginRight: 12 }} />
         )}
       </View>
 

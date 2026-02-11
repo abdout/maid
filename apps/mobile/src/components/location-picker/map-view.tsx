@@ -1,4 +1,4 @@
-import { View, Pressable, ActivityIndicator, Platform, Text } from 'react-native';
+import { View, Platform, Text } from 'react-native';
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { UAE_CENTER } from '@/constants/emirates';
@@ -99,19 +99,6 @@ export function MapViewComponent({
             </Text>
           )}
         </View>
-
-        {/* GPS Button */}
-        <Pressable
-          onPress={onRequestCurrentLocation}
-          disabled={loadingLocation}
-          className="absolute bottom-3 right-3 w-11 h-11 bg-background-0 rounded-full items-center justify-center shadow-md border border-background-200"
-        >
-          {loadingLocation ? (
-            <ActivityIndicator size="small" color="#2563EB" />
-          ) : (
-            <Ionicons name="locate" size={22} color="#2563EB" />
-          )}
-        </Pressable>
       </View>
     );
   }
@@ -161,19 +148,6 @@ export function MapViewComponent({
           </MapboxGL.PointAnnotation>
         )}
       </MapboxGL.MapView>
-
-      {/* GPS Button */}
-      <Pressable
-        onPress={onRequestCurrentLocation}
-        disabled={loadingLocation}
-        className="absolute bottom-3 right-3 w-11 h-11 bg-background-0 rounded-full items-center justify-center shadow-md border border-background-200"
-      >
-        {loadingLocation ? (
-          <ActivityIndicator size="small" color="#2563EB" />
-        ) : (
-          <Ionicons name="locate" size={22} color="#2563EB" />
-        )}
-      </Pressable>
 
       {/* Tap hint overlay when no pin */}
       {!latitude && !longitude && mapReady && (

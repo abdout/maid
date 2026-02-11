@@ -13,13 +13,13 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMaids, useNationalities, useOptimisticFavorites, useToggleFavorite } from '@/hooks';
 import { useAuth } from '@/store/auth';
-import { MaidCard, CategoryFilter, FilterModal, PromotionsSection, BusinessSection } from '@/components';
+import { MaidCard, FilterModal, PromotionsSection, BusinessSection } from '@/components';
 import {
   SearchIcon,
   ChevronDownIcon,
   UserIcon,
 } from '@/components/icons';
-import type { MaidFilters, ServiceType } from '@maid/shared';
+import type { MaidFilters } from '@maid/shared';
 
 const INITIAL_DISPLAY_COUNT = 7;
 
@@ -40,7 +40,7 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [selectedServiceType, setSelectedServiceType] = useState<ServiceType | null>(null);
+
   const [showAllListings, setShowAllListings] = useState(false);
 
   // Debounce search query for real-time filtering (300ms delay)
@@ -55,7 +55,7 @@ export default function HomeScreen() {
   const { data: nationalitiesData } = useNationalities();
   const { data: maidsData, isLoading, isRefetching, refetch } = useMaids({
     ...filters,
-    serviceType: selectedServiceType || undefined,
+
     search: debouncedSearch || undefined,
     page,
     pageSize: 20,
@@ -72,7 +72,7 @@ export default function HomeScreen() {
     : maids.slice(0, INITIAL_DISPLAY_COUNT);
   const hasMoreToShow = !showAllListings && maids.length > INITIAL_DISPLAY_COUNT;
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length + (debouncedSearch ? 1 : 0) + (selectedServiceType ? 1 : 0);
+  const activeFilterCount = Object.values(filters).filter(Boolean).length + (debouncedSearch ? 1 : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
   const handleApplyFilters = useCallback((newFilters: Partial<MaidFilters>) => {
@@ -84,7 +84,6 @@ export default function HomeScreen() {
     setFilters({});
     setSearchQuery('');
     setDebouncedSearch('');
-    setSelectedServiceType(null);
     setPage(1);
   }, []);
 
@@ -93,11 +92,6 @@ export default function HomeScreen() {
       setPage((p) => p + 1);
     }
   }, [page, totalPages, isLoading]);
-
-  const handleServiceTypeChange = useCallback((serviceType: ServiceType | null) => {
-    setSelectedServiceType(serviceType);
-    setPage(1);
-  }, []);
 
   const handleFavoritePress = useCallback((maidId: string, isFavorite: boolean) => {
     if (!isAuthenticated) {
@@ -154,14 +148,6 @@ export default function HomeScreen() {
             <SearchIcon size={16} color="#FFFFFF" />
           </Pressable>
         </View>
-      </View>
-
-      {/* Category Filter */}
-      <View className="mb-4">
-        <CategoryFilter
-          selected={selectedServiceType}
-          onSelect={(id) => handleServiceTypeChange(id as ServiceType | null)}
-        />
       </View>
 
       {/* Results Header - Only show when filters active */}
