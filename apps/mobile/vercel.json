@@ -1,6 +1,6 @@
 {
   "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "npx expo export --platform web",
+  "buildCommand": "cd ../.. && pnpm --filter mobile build:web",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/:path*", "destination": "/index.html" }
